@@ -1,4 +1,4 @@
-package collection
+package document
 
 import (
 	"github.com/cosmos/cosmos-sdk/modules/coin"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DocsNmStakeTx = "tx_stake"
+	CollectionNmStakeTx = "tx_stake"
 )
 
 //Stake交易
@@ -23,7 +23,7 @@ type StakeTx struct {
 }
 
 func (c StakeTx) Name() string {
-	return DocsNmStakeTx
+	return CollectionNmStakeTx
 }
 
 func (c StakeTx) PkKvPair() map[string]interface{} {

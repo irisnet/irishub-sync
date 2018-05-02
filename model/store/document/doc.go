@@ -1,4 +1,4 @@
-package collection
+package document
 
 import (
 	"github.com/irisnet/iris-sync-server/model/store"

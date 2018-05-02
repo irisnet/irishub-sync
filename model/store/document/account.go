@@ -1,4 +1,4 @@
-package collection
+package document
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DocsNmAccount = "account"
+	CollectionNmAccount = "account"
 )
 
 //账户信息
@@ -23,7 +23,7 @@ type Account struct {
 }
 
 func (a Account) Name() string {
-	return DocsNmAccount
+	return CollectionNmAccount
 }
 
 func (a Account) PkKvPair() map[string]interface{} {
@@ -47,7 +47,7 @@ func QueryAccount(address string) (Account, error) {
 		return err
 	}
 
-	if store.ExecCollection(DocsNmAccount, query) != nil {
+	if store.ExecCollection(CollectionNmAccount, query) != nil {
 		log.Printf("Account is Empry")
 		return result, errors.New("Account is Empry")
 	}
@@ -62,7 +62,7 @@ func QueryAll() []Account {
 		return err
 	}
 
-	if store.ExecCollection(DocsNmAccount, query) != nil {
+	if store.ExecCollection(CollectionNmAccount, query) != nil {
 		log.Printf("Account is Empry")
 	}
 	return result

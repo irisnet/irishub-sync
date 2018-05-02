@@ -1,4 +1,4 @@
-package collection
+package document
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DocsNmDelegator = "ac_delegator"
+	CollectionNmStakeRoleDelegator = "stake_role_delegator"
 )
 
 type Delegator struct {
@@ -19,7 +19,7 @@ type Delegator struct {
 }
 
 func (d Delegator) Name() string {
-	return DocsNmDelegator
+	return CollectionNmStakeRoleDelegator
 }
 
 func (d Delegator) PkKvPair() map[string]interface{} {
@@ -28,7 +28,7 @@ func (d Delegator) PkKvPair() map[string]interface{} {
 
 func (d Delegator) Index() mgo.Index {
 	return mgo.Index{
-		Key:        []string{"address"}, // 索引字段， 默认升序,若需降序在字段前加-
+		Key:        []string{"address", "pub_key"}, // 索引字段， 默认升序,若需降序在字段前加-
 		Unique:     false,               // 唯一索引 同mysql唯一索引
 		DropDups:   false,               // 索引重复替换旧文档,Unique为true时失效
 		Background: true,                // 后台创建索引
@@ -42,7 +42,7 @@ func QueryDelegatorByAddressAndPubkey(address string, pubKey string) (Delegator,
 		return err
 	}
 
-	if store.ExecCollection(DocsNmDelegator, query) != nil {
+	if store.ExecCollection(CollectionNmStakeRoleDelegator, query) != nil {
 		log.Printf("delegator is Empty")
 		return result, errors.New("delegator is Empty")
 	}

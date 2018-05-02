@@ -9,9 +9,11 @@ import (
 	"github.com/irisnet/iris-sync-server/model/store/collection"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/util/helper"
+	"github.com/irisnet/iris-sync-server/util/constant"
 
 	"github.com/robfig/cron"
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
+	"github.com/irisnet/iris-sync-server/model/store/document"
 )
 
 var (
@@ -37,13 +39,13 @@ func InitServer() {
 	store.Init()
 
 	chainId := conf.ChainId
-	syncTask, err := collection.QuerySyncTask()
+	syncTask, err := document.QuerySyncTask()
 
 	if err != nil {
 		if chainId == "" {
 			logger.Error.Fatalln("sync process start failed,chainId is empty\n")
 		}
-		syncTask = collection.SyncTask{
+		syncTask = document.SyncTask{
 			Height:  0,
 			ChainID: chainId,
 		}
@@ -65,7 +67,7 @@ func startCron(client rpcClient.Client) {
 }
 
 func watchBlock(c rpcClient.Client) error {
-	b, _ := collection.QuerySyncTask()
+	b, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
 
@@ -90,7 +92,7 @@ func watchBlock(c rpcClient.Client) error {
 
 // fast sync data from blockChain
 func fastSync(c rpcClient.Client) error {
-	b, _ := collection.QuerySyncTask()
+	b, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
 	funcChain := []func(tx store.Docs){
@@ -159,7 +161,7 @@ end:
 		store.Update(b)
 
 		//同步账户余额
-		accounts := collection.QueryAll()
+		accounts := document.QueryAll()
 		for _, account := range accounts {
 			updateAccountBalance(account)
 		}
@@ -185,11 +187,11 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 		// TODO 使用client.Client.BlockChainInfo
 		block, err := client.Client.Block(&j)
 		if err != nil {
-			//重新尝试一次
+			// try again
 			client2 := helper.GetClient()
 			block, err = client2.Client.Block(&j)
 			if err != nil {
-				logger.Error.Fatalf("invalide block height %d\n", j)
+				logger.Error.Fatalf("invalid block height %d\n", j)
 			}
 		}
 		if block.BlockMeta.Header.NumTxs > 0 {
@@ -198,24 +200,28 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 				txType, tx := helper.ParseTx(txByte)
 				txHash := strings.ToUpper(hex.EncodeToString(txByte.Hash()))
 				logger.Info.Printf("===========threadNo[%d] find tx,txType=%s;txHash=%s\n", threadNum, txType, txHash)
-				if txType == "coin" {
-					coinTx, _ := tx.(collection.CoinTx)
+
+				switch txType {
+				case constant.TxTypeCoin:
+					coinTx, _ := tx.(document.CoinTx)
 					coinTx.TxHash = txHash
 					coinTx.Height = block.Block.Height
 					coinTx.Time = block.Block.Time
 					handle(coinTx, funcChain)
-				} else if txType == "stake" {
-					stakeTx, _ := tx.(collection.StakeTx)
+					break
+				case constant.TxTypeStake:
+					stakeTx, _ := tx.(document.StakeTx)
 					stakeTx.TxHash = txHash
 					stakeTx.Height = block.Block.Height
 					stakeTx.Time = block.Block.Time
 					handle(stakeTx, funcChain)
+					break
 				}
 			}
 		}
 
-		//保存区块信息
-		bk := collection.Block{
+		// save block info
+		bk := document.Block{
 			Height: block.Block.Height,
 			Time:   block.Block.Time,
 			TxNum:  block.BlockMeta.Header.NumTxs,

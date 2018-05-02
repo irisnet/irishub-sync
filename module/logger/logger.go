@@ -12,11 +12,11 @@ var (
 )
 
 const (
-	errFile = "./sync_err.txt"
+	errFile = ".sync_server_err.log"
 )
 
 func init() {
-	errFile, err := os.OpenFile(errFile,
+	errFile, err := os.OpenFile(os.ExpandEnv("$HOME/" + errFile),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("Failed to open error log file:", err)

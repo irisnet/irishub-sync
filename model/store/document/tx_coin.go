@@ -1,16 +1,14 @@
-package collection
+package document
 
 import (
 	"github.com/cosmos/cosmos-sdk/modules/coin"
-	"github.com/irisnet/iris-sync-server/model/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 	"time"
 )
 
 const (
-	DocsNmCoinTx = "tx_coin"
+	CollectionNmCoinTx = "tx_coin"
 )
 
 //Coin交易
@@ -24,7 +22,7 @@ type CoinTx struct {
 }
 
 func (c CoinTx) Name() string {
-	return DocsNmCoinTx
+	return CollectionNmCoinTx
 }
 
 func (c CoinTx) PkKvPair() map[string]interface{} {

@@ -1,4 +1,4 @@
-package collection
+package document
 
 import (
 	"github.com/irisnet/iris-sync-server/model/store"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DocsNmSyncTask = "sync_task"
+	CollectionNmSyncTask = "sync_task"
 )
 
 type SyncTask struct {
@@ -19,7 +19,7 @@ type SyncTask struct {
 }
 
 func (c SyncTask) Name() string {
-	return DocsNmSyncTask
+	return CollectionNmSyncTask
 }
 
 func (c SyncTask) PkKvPair() map[string]interface{} {
@@ -43,6 +43,6 @@ func QuerySyncTask() (SyncTask, error) {
 		return err
 	}
 
-	err := store.ExecCollection(DocsNmSyncTask, query)
+	err := store.ExecCollection(CollectionNmSyncTask, query)
 	return result, err
 }

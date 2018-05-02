@@ -1,4 +1,4 @@
-package collection
+package document
 
 import (
 	"gopkg.in/mgo.v2"
@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DocsNmBlock = "block"
+	CollectionNmBlock = "block"
 )
 
 type Block struct {
@@ -17,7 +17,7 @@ type Block struct {
 }
 
 func (d Block) Name() string {
-	return DocsNmBlock
+	return CollectionNmBlock
 }
 
 func (d Block) PkKvPair() map[string]interface{} {

@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"strings"
 
-	conf "github.com/irisnet/iris-sync-server/conf/server"
 	"github.com/irisnet/iris-sync-server/model/store/collection"
 	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/iris-sync-server/util/constant"
 
 	sdk "github.com/cosmos/cosmos-sdk"
 	"github.com/tendermint/go-wire/data"
 	"github.com/tendermint/tendermint/types"
+
 	// 需要将 cosmos-sdk module 中的 txInner 注册到内存
 	// 中，才能解析 tx 结构
 	_ "github.com/cosmos/cosmos-sdk/modules/auth"
@@ -19,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/modules/coin"
 	"github.com/cosmos/cosmos-sdk/modules/nonce"
 	"github.com/irisnet/iris-sync-server/module/stake"
+	"github.com/irisnet/iris-sync-server/model/store/document"
 )
 
 // parse tx struct from binary data
@@ -31,8 +33,9 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 
 	var (
 		txi       sdk.Tx
-		coinTx    collection.CoinTx
-		stakeTx   collection.StakeTx
+		coinTx    document.CoinTx
+		stakeTx   document.StakeTx
+		StakeTxDeclareCandidacy document.StakeTxDeclareCandidacy
 		nonceAddr data.Bytes
 	)
 
@@ -47,7 +50,7 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 			coinTx.To = fmt.Sprintf("%s", ctx.Outputs[0].Address.Address)
 			coinTx.Amount = ctx.Inputs[0].Coins
 			coinTx.TxHash = strings.ToUpper(hex.EncodeToString(txByte.Hash()))
-			return "coin", coinTx
+			return constant.TxTypeCoin, coinTx
 		case nonce.Tx:
 			ctx, _ := txi.Unwrap().(nonce.Tx)
 			nonceAddr = ctx.Signers[0].Address
@@ -56,7 +59,7 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 		case stake.TxUnbond, stake.TxDelegate, stake.TxDeclareCandidacy:
 			kind, _ := txi.GetKind()
 			stakeTx.From = fmt.Sprintf("%s", nonceAddr)
-			stakeTx.Type = strings.Replace(kind, "stake/", "", -1)
+			stakeTx.Type = strings.Replace(kind, constant.TxTypeStake + "/", "", -1)
 			stakeTx.TxHash = strings.ToUpper(hex.EncodeToString(txByte.Hash()))
 
 			switch kind {
@@ -65,7 +68,18 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 				stakeTx.Amount.Denom = ctx.BondUpdate.Bond.Denom
 				stakeTx.Amount.Amount = ctx.BondUpdate.Bond.Amount
 				stakeTx.PubKey = fmt.Sprintf("%s", ctx.PubKey.KeyString())
-				break
+
+				description := document.Description{
+					Moniker: ctx.Description.Moniker,
+					Identity: ctx.Description.Identity,
+					Website: ctx.Description.Website,
+					Details: ctx.Description.Details,
+				}
+
+				StakeTxDeclareCandidacy.StakeTx = stakeTx
+				StakeTxDeclareCandidacy.Description = description
+
+				return constant.TxTypeStake, StakeTxDeclareCandidacy
 			case stake.TypeTxEditCandidacy:
 				// TODO：record edit candidacy tx if necessary
 				//ctx, _ := txi.Unwrap().(stake.TxEditCandidacy)
@@ -78,14 +92,13 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 				break
 			case stake.TypeTxUnbond:
 				ctx, _ := txi.Unwrap().(stake.TxUnbond)
-				stakeTx.Amount.Denom = conf.Token
 				stakeTx.Amount.Amount = int64(ctx.Shares)
 				stakeTx.PubKey = fmt.Sprintf("%s", ctx.PubKey.KeyString())
 				break
 			}
-			return "stake", stakeTx
+			return constant.TxTypeStake, stakeTx
 		default:
-			logger.Info.Println("unsupported tx type")
+			logger.Info.Printf("unsupported tx type, %+v\n", txi.Unwrap())
 		}
 
 		txl, ok = txi.Unwrap().(sdk.TxLayer)
