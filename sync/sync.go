@@ -1,17 +1,20 @@
 package sync
 
 import (
+	"strings"
+	"encoding/hex"
+
 	conf "github.com/irisnet/iris-sync-server/conf/server"
 	"github.com/irisnet/iris-sync-server/model/store"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/util/helper"
 	"github.com/irisnet/iris-sync-server/util/constant"
+	"github.com/irisnet/iris-sync-server/module/stake"
 
 	"github.com/robfig/cron"
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/irisnet/iris-sync-server/model/store/document"
-	"strings"
-	"encoding/hex"
+
 )
 
 var (
@@ -94,7 +97,7 @@ func fastSync(c rpcClient.Client) error {
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
 	funcChain := []func(tx store.Docs){
-		saveTx, saveOrUpdateAccount,
+		saveTx, saveOrUpdateAccount, updateAccountBalance,
 	}
 
 	ch := make(chan int64)
@@ -157,14 +160,6 @@ end:
 		b.Height = block.Block.Height
 		b.Time = block.Block.Time
 		store.Update(b)
-
-		//同步账户余额
-		accounts := document.QueryAll()
-		for _, account := range accounts {
-			updateAccountBalance(account)
-		}
-		logger.Info.Println("update account balance over")
-
 		return nil
 	}
 }
@@ -206,7 +201,15 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 					coinTx.Time = block.Block.Time
 					handle(coinTx, funcChain)
 					break
-				case constant.TxTypeStake:
+				case stake.TypeTxDeclareCandidacy:
+					stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
+					stakeTxDeclareCandidacy.Height = block.Block.Height
+					stakeTxDeclareCandidacy.Time = block.Block.Time
+					handle(stakeTxDeclareCandidacy, funcChain)
+					break
+				case stake.TypeTxEditCandidacy:
+					break
+				case stake.TypeTxDelegate, stake.TypeTxUnbond:
 					stakeTx, _ := tx.(document.StakeTx)
 					stakeTx.Height = block.Block.Height
 					stakeTx.Time = block.Block.Time

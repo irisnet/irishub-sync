@@ -2,13 +2,11 @@ package sync
 
 import (
 	"testing"
-
 	"github.com/irisnet/iris-sync-server/model/store"
 	"github.com/irisnet/iris-sync-server/util/helper"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/util/constant"
 	"github.com/irisnet/iris-sync-server/model/store/document"
-
 	"github.com/irisnet/iris-sync-server/module/stake"
 )
 
@@ -104,6 +102,12 @@ func Test_saveTx(t *testing.T) {
 }
 
 func Test_saveOrUpdateAccount(t *testing.T) {
+
+	docTxCoin := buildDocData(12453)
+	docTxStakeDeclareCandidacy := buildDocData(19073)
+	docTxStakeDelegate := buildDocData(13725)
+	docTxStakeUnBond := buildDocData(14260)
+
 	type args struct {
 		tx store.Docs
 	}
@@ -111,7 +115,29 @@ func Test_saveOrUpdateAccount(t *testing.T) {
 		name string
 		args args
 	}{
-	// TODO: Add test cases.
+		{
+			name:"save tx_coin",
+			args: struct{ tx store.Docs }{
+				tx: docTxCoin,},
+		},
+		{
+			name:"save tx_stake_declareCandidacy",
+			args: struct{ tx store.Docs }{
+				tx: docTxStakeDeclareCandidacy,},
+
+		},
+		{
+			name:"save tx_stake_delegate",
+			args: struct{ tx store.Docs }{
+				tx: docTxStakeDelegate,},
+
+		},
+		{
+			name:"save tx_stake_unBond",
+			args: struct{ tx store.Docs }{
+				tx: docTxStakeUnBond,},
+
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -121,6 +147,12 @@ func Test_saveOrUpdateAccount(t *testing.T) {
 }
 
 func Test_updateAccountBalance(t *testing.T) {
+
+	docTxCoin := buildDocData(12453)
+	docTxStakeDeclareCandidacy := buildDocData(19073)
+	docTxStakeDelegate := buildDocData(13725)
+	docTxStakeUnBond := buildDocData(14260)
+
 	type args struct {
 		tx store.Docs
 	}
@@ -128,8 +160,31 @@ func Test_updateAccountBalance(t *testing.T) {
 		name string
 		args args
 	}{
-	// TODO: Add test cases.
+		{
+			name:"tx_coin",
+			args: struct{ tx store.Docs }{
+				tx: docTxCoin,},
+		},
+		{
+			name:"tx_stake_declareCandidacy",
+			args: struct{ tx store.Docs }{
+				tx: docTxStakeDeclareCandidacy,},
+
+		},
+		{
+			name:"tx_stake_delegate",
+			args: struct{ tx store.Docs }{
+				tx: docTxStakeDelegate,},
+
+		},
+		{
+			name:"tx_stake_unBond",
+			args: struct{ tx store.Docs }{
+				tx: docTxStakeUnBond,},
+
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			updateAccountBalance(tt.args.tx)

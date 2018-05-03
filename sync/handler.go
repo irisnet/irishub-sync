@@ -1,13 +1,17 @@
 package sync
 
 import (
+
+	"reflect"
+	"time"
+
 	"github.com/irisnet/iris-sync-server/model/store"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/module/stake"
 	"github.com/irisnet/iris-sync-server/util/helper"
 	"github.com/irisnet/iris-sync-server/model/store/document"
-	"reflect"
 	"github.com/irisnet/iris-sync-server/util/constant"
+
 )
 
 var delay = false
@@ -22,9 +26,8 @@ func handle(tx store.Docs, funChains []func(tx store.Docs)) {
 func saveTx(tx store.Docs) {
 	err := store.Save(tx)
 
-	logger.Info.Printf("collection name is %s\n", tx.Name())
 	if err != nil {
-		logger.Info.Println(err)
+		logger.Error.Println(err)
 	}
 
 	// TODO: Thread safe?
@@ -106,65 +109,106 @@ func saveTx(tx store.Docs) {
 	}
 }
 
+// TODO: thread safe?
 func saveOrUpdateAccount(tx store.Docs) {
+	var (
+		address string
+		updateTime time.Time
+		height int64
+	)
+
+	fun := func(address string, updateTime time.Time, height int64) {
+		account := document.Account{
+			Address: address,
+			Time:    updateTime,
+			Height:  height,
+		}
+
+		if err := store.SaveOrUpdate(account); err != nil {
+			logger.Error.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
+		}
+	}
+
 	switch tx.Name() {
 	case document.CollectionNmCoinTx:
 		coinTx, _ := tx.(document.CoinTx)
-		fun := func(address string) {
-			account := document.Account{
-				Address: address,
-				Time:    coinTx.Time,
-				Height:  coinTx.Height,
-			}
+		updateTime = coinTx.Time
+		height = coinTx.Height
 
-			if err := store.SaveOrUpdate(account); err != nil {
-				logger.Info.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
-			}
-		}
-		fun(coinTx.From)
-		fun(coinTx.To)
+		fun(coinTx.From, updateTime, height)
+		fun(coinTx.To, updateTime, height)
+		break
 	case document.CollectionNmStakeTx:
-		stakeTx, _ := tx.(document.StakeTx)
-		fun := func(address string) {
-			account := document.Account{
-				Address: address,
-				Time:    stakeTx.Time,
-				Height:  stakeTx.Height,
-			}
-
-			if err := store.SaveOrUpdate(account); err != nil {
-				logger.Info.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
-			}
+		if !reflect.ValueOf(tx).FieldByName("Type").IsValid() {
+			logger.Error.Println("type which is field name of stake tx is missed")
+			return
 		}
-		fun(stakeTx.From)
+		stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
+
+		switch stakeType {
+		case stake.TypeTxDeclareCandidacy:
+			stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
+			address = stakeTxDeclareCandidacy.From
+			updateTime = stakeTxDeclareCandidacy.Time
+			height = stakeTxDeclareCandidacy.Height
+			break
+		case stake.TypeTxEditCandidacy:
+			break
+		case stake.TypeTxDelegate, stake.TypeTxUnbond:
+			stakeTx, _ := tx.(document.StakeTx)
+			address = stakeTx.From
+			updateTime = stakeTx.Time
+			height = stakeTx.Height
+			break
+		}
+		fun(address, updateTime, height)
 	}
 }
 
 func updateAccountBalance(tx store.Docs) {
+	var (
+		address string
+	)
 	fun := func(address string) {
-		account, _ := document.QueryAccount(address)
-		//查询账户余额
+		account, err := document.QueryAccount(address)
+		if err != nil {
+			return
+		}
+		// query balance of account
 		ac := helper.QueryAccountBalance(address, delay)
 		account.Amount = ac.Coins
 		if err := store.Update(account); err != nil {
-			logger.Info.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
+			logger.Error.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
 		}
 	}
+
 	switch tx.Name() {
 	case document.CollectionNmCoinTx:
 		coinTx, _ := tx.(document.CoinTx)
 		fun(coinTx.From)
 		fun(coinTx.To)
+		break
 	case document.CollectionNmStakeTx:
-		stakeTx, _ := tx.(document.StakeTx)
-		fun(stakeTx.From)
-	case document.CollectionNmAccount:
-		account, _ := tx.(document.Account)
-		ac := helper.QueryAccountBalance(account.Address, delay)
-		account.Amount = ac.Coins
-		if err := store.Update(account); err != nil {
-			logger.Info.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
+		if !reflect.ValueOf(tx).FieldByName("Type").IsValid() {
+			logger.Error.Println("type which is field name of stake tx is missed")
+			return
 		}
+		stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
+
+		switch stakeType {
+		case stake.TypeTxDeclareCandidacy:
+			stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
+			address = stakeTxDeclareCandidacy.From
+			break
+		case stake.TypeTxEditCandidacy:
+			break
+		case stake.TypeTxDelegate, stake.TypeTxUnbond:
+			stakeTx, _ := tx.(document.StakeTx)
+			address = stakeTx.From
+			break
+		}
+		fun(address)
+		break
 	}
 
 }

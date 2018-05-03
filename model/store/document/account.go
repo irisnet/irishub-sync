@@ -1,20 +1,18 @@
 package document
 
 import (
-	"errors"
 	"github.com/cosmos/cosmos-sdk/modules/coin"
 	"github.com/irisnet/iris-sync-server/model/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 	"time"
+	"github.com/irisnet/iris-sync-server/module/logger"
 )
 
 const (
 	CollectionNmAccount = "account"
 )
 
-// 账户信息
 type Account struct {
 	Address string     `bson:"address"`
 	Amount  coin.Coins `bson:"amount"`
@@ -41,31 +39,17 @@ func (a Account) Index() []mgo.Index {
 	}
 }
 
-//Account
 func QueryAccount(address string) (Account, error) {
 	var result Account
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"address": address}).Sort("-amount").One(&result)
+		err := c.Find(bson.M{"address": address}).Sort("-amount.amount").One(&result)
 		return err
 	}
 
 	if store.ExecCollection(CollectionNmAccount, query) != nil {
-		log.Printf("Account is Empry")
-		return result, errors.New("Account is Empry")
+		logger.Info.Println("Account is Empty")
+		return result, nil
 	}
 
 	return result, nil
-}
-
-func QueryAll() []Account {
-	result := []Account{}
-	query := func(c *mgo.Collection) error {
-		err := c.Find(nil).All(&result)
-		return err
-	}
-
-	if store.ExecCollection(CollectionNmAccount, query) != nil {
-		log.Printf("Account is Empry")
-	}
-	return result
 }

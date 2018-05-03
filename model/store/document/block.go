@@ -29,7 +29,7 @@ func (d Block) Index() []mgo.Index {
 		{
 			Key:        []string{"height"},
 			Unique:     true,
-			DropDups:   false,
+			DropDups:   true,
 			Background: true,
 		},
 	}
