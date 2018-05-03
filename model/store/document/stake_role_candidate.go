@@ -13,7 +13,7 @@ const (
 )
 
 type Candidate struct {
-	Address     string      `bson:"address"`
+	Address     string      `bson:"address"` // owner
 	PubKey      string      `bson:"pub_key"`
 	Shares      int64       `bson:"shares"`
 	VotingPower uint64      `bson:"voting_power"` // Voting power if pubKey is a considered a validator
@@ -28,12 +28,20 @@ func (d Candidate) PkKvPair() map[string]interface{} {
 	return bson.M{"pub_key": d.PubKey}
 }
 
-func (d Candidate) Index() mgo.Index {
-	return mgo.Index{
-		Key:        []string{"pub_key"}, // 索引字段， 默认升序,若需降序在字段前加-
-		Unique:     false,               // 唯一索引 同mysql唯一索引
-		DropDups:   false,               // 索引重复替换旧文档,Unique为true时失效
-		Background: true,                // 后台创建索引
+func (d Candidate) Index() []mgo.Index {
+	return []mgo.Index {
+		{
+			Key:        []string{"pub_key"},
+			Unique:     true,
+			DropDups:   false,
+			Background: true,
+		},
+		{
+			Key:        []string{"address"},
+			Unique:     false,
+			DropDups:   false,
+			Background: true,
+		},
 	}
 }
 

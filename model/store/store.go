@@ -3,7 +3,6 @@
 package store
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -24,18 +23,20 @@ func RegisterDocs(d Docs) {
 }
 
 func Init() {
-	url := fmt.Sprintf("mongodb://%s:%s", conf.Host, conf.Port)
+	if session == nil {
+		url := fmt.Sprintf("mongodb://%s:%s", conf.Host, conf.Port)
 
-	logger.Info.Printf("Mgo start on %s\n", url)
+		logger.Info.Printf("Mgo start on %s\n", url)
 
-	var err error
-	session, err = mgo.Dial(url)
-	if err != nil {
-		logger.Error.Fatalln(err)
+		var err error
+		session, err = mgo.Dial(url)
+		if err != nil {
+			logger.Error.Fatalln(err)
+		}
+		session.SetMode(mgo.Monotonic, true)
+
+		index()
 	}
-	session.SetMode(mgo.Monotonic, true)
-
-	index()
 }
 
 func InitWithAuth(addrs []string, username, password string) {
@@ -83,7 +84,14 @@ func index() {
 	}
 	for _, h := range docs {
 		indexKey := func(c *mgo.Collection) error {
-			return c.EnsureIndex(h.Index())
+			for _, i := range h.Index() {
+				err := c.EnsureIndex(i)
+				if err != nil {
+					logger.Error.Println(err)
+					return err
+				}
+			}
+			return nil
 		}
 		ExecCollection(h.Name(), indexKey)
 	}
@@ -94,7 +102,8 @@ func Save(h Docs) error {
 		//先按照关键字查询，如果存在，直接返回
 		n, _ := c.Find(h.PkKvPair()).Count()
 		if n >= 1 {
-			return errors.New("record existed")
+			logger.Info.Println("db: record existed while save data")
+			return nil
 		}
 		logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)

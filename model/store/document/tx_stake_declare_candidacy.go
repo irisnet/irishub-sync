@@ -2,18 +2,14 @@ package document
 
 import (
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
 	CollectionNmStakeTxDeclareCandidacy = "tx_stake"
 )
 
-type StakeTxDeclareCandidacy struct {
-	StakeTx
-	Description
-}
-
-// Stake交易
+// Description
 type Description struct {
 	Moniker  string `bson:"moniker"`
 	Identity string `bson:"identity"`
@@ -21,14 +17,26 @@ type Description struct {
 	Details  string `bson:"details"`
 }
 
-func Name() string  {
+type StakeTxDeclareCandidacy struct {
+	StakeTx `bson:"stake_tx"`
+	Description `bson:"description"`
+}
+
+func (s StakeTxDeclareCandidacy) Name() string  {
 	return CollectionNmStakeTxDeclareCandidacy
 }
 
-func PkKvPair() map[string]interface{}  {
-	return nil
+func (s StakeTxDeclareCandidacy) PkKvPair() map[string]interface{}  {
+	return bson.M{"stake_tx.tx_hash": s.TxHash}
 }
 
-func Index() mgo.Index {
-	return mgo.Index{}
+func (s StakeTxDeclareCandidacy) Index() []mgo.Index {
+	return []mgo.Index{
+		{
+			Key:        []string{"description.moniker"},
+			Unique:     false,
+			DropDups:   false,
+			Background: true,
+		},
+	}
 }

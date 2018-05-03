@@ -12,5 +12,5 @@ type Docs interface {
 	// primary key pair(used to find a unique record)
 	PkKvPair() map[string]interface{}
 	// add index for collection
-	Index() mgo.Index
+	Index() []mgo.Index
 }

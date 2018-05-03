@@ -2,11 +2,12 @@ package sync
 
 import (
 	"github.com/irisnet/iris-sync-server/model/store"
-	"github.com/irisnet/iris-sync-server/model/store/collection"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/module/stake"
 	"github.com/irisnet/iris-sync-server/util/helper"
 	"github.com/irisnet/iris-sync-server/model/store/document"
+	"reflect"
+	"github.com/irisnet/iris-sync-server/util/constant"
 )
 
 var delay = false
@@ -19,29 +20,40 @@ func handle(tx store.Docs, funChains []func(tx store.Docs)) {
 
 // save Tx document into collection
 func saveTx(tx store.Docs) {
-	store.Save(tx)
+	err := store.Save(tx)
+
+	logger.Info.Printf("collection name is %s\n", tx.Name())
+	if err != nil {
+		logger.Info.Println(err)
+	}
 
 	// TODO: Thread safe?
 	if tx.Name() == document.CollectionNmStakeTx {
-		stakeTx, _ := tx.(document.StakeTx)
+		if !reflect.ValueOf(tx).FieldByName("Type").IsValid() {
+			logger.Error.Println("type which is field name of stake tx is missed")
+			return
+		}
+		stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
 
-		switch stakeTx.Type {
+		switch stakeType {
 		case stake.TypeTxDeclareCandidacy:
 			stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
 			candidate, err := document.QueryCandidateByPubkey(stakeTxDeclareCandidacy.PubKey)
 			// new candidate
-			if err == nil {
+			if err != nil {
 				candidate = document.Candidate {
 					Address:     stakeTxDeclareCandidacy.From,
 					PubKey:      stakeTxDeclareCandidacy.PubKey,
 					Description: stakeTxDeclareCandidacy.Description,
 				}
 			}
+			// TODO: in further share not equal amount
 			candidate.Shares += stakeTxDeclareCandidacy.Amount.Amount
 			candidate.VotingPower += uint64(stakeTxDeclareCandidacy.Amount.Amount)
 			store.SaveOrUpdate(candidate)
 			break
 		case stake.TypeTxDelegate:
+			stakeTx, _ := tx.(document.StakeTx)
 			candidate, err := document.QueryCandidateByPubkey(stakeTx.PubKey)
 			// candidate is not exist
 			if err != nil {
@@ -53,10 +65,12 @@ func saveTx(tx store.Docs) {
 			delegator, err := document.QueryDelegatorByAddressAndPubkey(stakeTx.From, stakeTx.PubKey)
 			// delegator is not exist
 			if err != nil {
-				logger.Error.Printf("delegator is not exist while delegate, add = %s, pub_key = %s\n",
-					stakeTx.From, stakeTx.PubKey)
-				return
+				delegator = document.Delegator{
+					Address: stakeTx.From,
+					PubKey: stakeTx.PubKey,
+				}
 			}
+			// TODO: in further share not equal amount
 			delegator.Shares += stakeTx.Amount.Amount
 			store.SaveOrUpdate(delegator)
 
@@ -65,17 +79,22 @@ func saveTx(tx store.Docs) {
 			store.SaveOrUpdate(candidate)
 			break
 		case stake.TypeTxUnbond:
+			stakeTx, _ := tx.(document.StakeTx)
 			delegator, err := document.QueryDelegatorByAddressAndPubkey(stakeTx.From, stakeTx.PubKey)
+			// delegator is not exist
 			if err != nil {
-				logger.Info.Printf("error:delegator is lost,add = %s,pub_key=%s\n", stakeTx.From, stakeTx.PubKey)
+				logger.Info.Printf("delegator is not exist while unBond,add = %s,pub_key=%s\n",
+					stakeTx.From, stakeTx.PubKey)
 				return
 			}
 			delegator.Shares -= stakeTx.Amount.Amount
 			store.Update(delegator)
 
 			candidate, err2 := document.QueryCandidateByPubkey(stakeTx.PubKey)
+			// candidate is not exist
 			if err2 != nil {
-				logger.Info.Printf("error:candidate is lost,add = %s,pub_key=%s\n", stakeTx.From, stakeTx.PubKey)
+				logger.Info.Printf("candidate is not exist while unBond,add = %s,pub_key=%s\n",
+					stakeTx.From, stakeTx.PubKey)
 				return
 			}
 			candidate.Shares -= stakeTx.Amount.Amount

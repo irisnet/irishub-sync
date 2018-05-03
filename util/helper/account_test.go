@@ -41,7 +41,10 @@ func TestQueryAccountBalance(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		account := QueryAccountBalance(tt.args.address, tt.args.delay)
-		logger.Info.Printf("the balance of %s is %+v\n", tt.args.address, account)
+		t.Run(tt.name, func(t *testing.T) {
+			account := QueryAccountBalance(tt.args.address, tt.args.delay)
+			logger.Info.Printf("the balance of %s is %+v\n", tt.args.address, account)
+		})
+
 	}
 }

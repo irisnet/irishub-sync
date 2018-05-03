@@ -1,12 +1,8 @@
 package sync
 
 import (
-	"encoding/hex"
-	"strings"
-
 	conf "github.com/irisnet/iris-sync-server/conf/server"
 	"github.com/irisnet/iris-sync-server/model/store"
-	"github.com/irisnet/iris-sync-server/model/store/collection"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/util/helper"
 	"github.com/irisnet/iris-sync-server/util/constant"
@@ -14,6 +10,8 @@ import (
 	"github.com/robfig/cron"
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/irisnet/iris-sync-server/model/store/document"
+	"strings"
+	"encoding/hex"
 )
 
 var (
@@ -204,14 +202,12 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 				switch txType {
 				case constant.TxTypeCoin:
 					coinTx, _ := tx.(document.CoinTx)
-					coinTx.TxHash = txHash
 					coinTx.Height = block.Block.Height
 					coinTx.Time = block.Block.Time
 					handle(coinTx, funcChain)
 					break
 				case constant.TxTypeStake:
 					stakeTx, _ := tx.(document.StakeTx)
-					stakeTx.TxHash = txHash
 					stakeTx.Height = block.Block.Height
 					stakeTx.Time = block.Block.Time
 					handle(stakeTx, funcChain)

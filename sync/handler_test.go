@@ -4,18 +4,21 @@ import (
 	"testing"
 
 	"github.com/irisnet/iris-sync-server/model/store"
-
 	"github.com/irisnet/iris-sync-server/util/helper"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/util/constant"
-	"github.com/irisnet/iris-sync-server/model/store/collection"
-	"strings"
-	"encoding/hex"
+	"github.com/irisnet/iris-sync-server/model/store/document"
+
+	"github.com/irisnet/iris-sync-server/module/stake"
 )
+
+func init()  {
+	helper.InitClientPool()
+	store.Init()
+}
 
 func buildDocData(blockHeight int64) store.Docs {
 
-	helper.InitClientPool()
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
@@ -30,31 +33,37 @@ func buildDocData(blockHeight int64) store.Docs {
 		txs := block.Block.Data.Txs
 		txByte := txs[0]
 		txType, tx := helper.ParseTx(txByte)
-		txHash := strings.ToUpper(hex.EncodeToString(txByte.Hash()))
 
 		switch txType {
 		case constant.TxTypeCoin:
 			coinTx, _ := tx.(document.CoinTx)
-			coinTx.TxHash = txHash
 			coinTx.Height = block.Block.Height
 			coinTx.Time = block.Block.Time
 			return coinTx
-		case constant.TxTypeStake:
+		case stake.TypeTxDeclareCandidacy:
+			stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
+			stakeTxDeclareCandidacy.Height = block.Block.Height
+			stakeTxDeclareCandidacy.Time = block.Block.Time
+			return stakeTxDeclareCandidacy
+		case stake.TypeTxEditCandidacy:
+			break
+		case stake.TypeTxDelegate, stake.TypeTxUnbond:
 			stakeTx, _ := tx.(document.StakeTx)
-			stakeTx.TxHash = txHash
 			stakeTx.Height = block.Block.Height
 			stakeTx.Time = block.Block.Time
 			return stakeTx
 		}
+
 	}
 	return nil
 }
 
 func Test_saveTx(t *testing.T) {
-	doc_tx_coin := buildDocData(12453)
-	doc_tx_stake_declareCandidacy := buildDocData(19073)
-	doc_tx_stake_delegate := buildDocData(13725)
-	doc_tx_stake_unbond := buildDocData(14260)
+
+	docTxCoin := buildDocData(12453)
+	docTxStakeDeclareCandidacy := buildDocData(19073)
+	docTxStakeDelegate := buildDocData(13725)
+	docTxStakeUnBond := buildDocData(14260)
 
 	type args struct {
 		tx store.Docs
@@ -66,24 +75,24 @@ func Test_saveTx(t *testing.T) {
 		{
 			name:"save tx_coin",
 			args: struct{ tx store.Docs }{
-				tx: doc_tx_coin,},
+				tx: docTxCoin,},
 		},
 		{
 			name:"save tx_stake_declareCandidacy",
 			args: struct{ tx store.Docs }{
-				tx: doc_tx_stake_declareCandidacy,},
+				tx: docTxStakeDeclareCandidacy,},
 
 		},
 		{
 			name:"save tx_stake_delegate",
 			args: struct{ tx store.Docs }{
-				tx: doc_tx_stake_delegate,},
+				tx: docTxStakeDelegate,},
 
 		},
 		{
 			name:"save tx_stake_unBond",
 			args: struct{ tx store.Docs }{
-				tx: doc_tx_stake_unbond,},
+				tx: docTxStakeUnBond,},
 
 		},
 	}

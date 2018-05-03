@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/irisnet/iris-sync-server/model/store/collection"
 	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/irisnet/iris-sync-server/util/constant"
 
@@ -79,7 +78,7 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 				StakeTxDeclareCandidacy.StakeTx = stakeTx
 				StakeTxDeclareCandidacy.Description = description
 
-				return constant.TxTypeStake, StakeTxDeclareCandidacy
+				return kind, StakeTxDeclareCandidacy
 			case stake.TypeTxEditCandidacy:
 				// TODO：record edit candidacy tx if necessary
 				//ctx, _ := txi.Unwrap().(stake.TxEditCandidacy)
@@ -96,7 +95,7 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 				stakeTx.PubKey = fmt.Sprintf("%s", ctx.PubKey.KeyString())
 				break
 			}
-			return constant.TxTypeStake, stakeTx
+			return kind, stakeTx
 		default:
 			logger.Info.Printf("unsupported tx type, %+v\n", txi.Unwrap())
 		}
