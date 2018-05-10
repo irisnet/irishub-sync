@@ -60,6 +60,7 @@ func saveTx(tx store.Docs) {
 				// TODO: in further share not equal amount
 				candidate.Shares += stakeTxDeclareCandidacy.Amount.Amount
 				candidate.VotingPower += uint64(stakeTxDeclareCandidacy.Amount.Amount)
+				candidate.UpdateTime = stakeTxDeclareCandidacy.Time
 				store.SaveOrUpdate(candidate)
 				break
 			case stake.TypeTxDelegate:
@@ -82,10 +83,12 @@ func saveTx(tx store.Docs) {
 				}
 				// TODO: in further share not equal amount
 				delegator.Shares += stakeTx.Amount.Amount
+				delegator.UpdateTime = stakeTx.Time
 				store.SaveOrUpdate(delegator)
 
 				candidate.Shares += stakeTx.Amount.Amount
 				candidate.VotingPower += uint64(stakeTx.Amount.Amount)
+				candidate.UpdateTime = stakeTx.Time
 				store.SaveOrUpdate(candidate)
 				break
 			case stake.TypeTxUnbond:
@@ -98,6 +101,7 @@ func saveTx(tx store.Docs) {
 					return
 				}
 				delegator.Shares -= stakeTx.Amount.Amount
+				delegator.UpdateTime = stakeTx.Time
 				store.Update(delegator)
 
 				candidate, err2 := document.QueryCandidateByPubkey(stakeTx.PubKey)
@@ -109,6 +113,7 @@ func saveTx(tx store.Docs) {
 				}
 				candidate.Shares -= stakeTx.Amount.Amount
 				candidate.VotingPower -= uint64(stakeTx.Amount.Amount)
+				candidate.UpdateTime = stakeTx.Time
 				store.Update(candidate)
 				break
 			}

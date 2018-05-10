@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
+	"time"
 )
 
 const (
@@ -16,6 +17,7 @@ type Delegator struct {
 	Address string `bson:"address"`
 	PubKey  string `bson:"pub_key"`
 	Shares  int64  `bson:"shares"`
+	UpdateTime time.Time `bson:"update_time"`
 }
 
 func (d Delegator) Name() string {

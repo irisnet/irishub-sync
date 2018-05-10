@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
+	"time"
 )
 
 const (
@@ -18,6 +19,7 @@ type Candidate struct {
 	Shares      int64       `bson:"shares"`
 	VotingPower uint64      `bson:"voting_power"` // Voting power if pubKey is a considered a validator
 	Description Description `bson:"description"`  // Description terms for the candidate
+	UpdateTime time.Time    `bson:"update_time"`
 }
 
 func (d Candidate) Name() string {
@@ -44,21 +46,6 @@ func (d Candidate) Index() []mgo.Index {
 		},
 	}
 }
-
-//func QueryCandidateByAddressAndPubkey(address string, pubKey string) (Candidate, error) {
-//	var result Candidate
-//	query := func(c *mgo.Collection) error {
-//		err := c.Find(bson.M{"address": address, "pub_key": pubKey}).Sort("-shares").One(&result)
-//		return err
-//	}
-//
-//	if store.ExecCollection(CollectionNmStakeRoleDelegator, query) != nil {
-//		log.Printf("delegator is Empty")
-//		return result, errors.New("delegator is Empty")
-//	}
-//
-//	return result, nil
-//}
 
 func QueryCandidateByPubkey(pubKey string) (Candidate, error) {
 	var result Candidate
