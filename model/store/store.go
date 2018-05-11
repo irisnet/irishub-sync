@@ -35,7 +35,7 @@ func Init() {
 		}
 		session.SetMode(mgo.Monotonic, true)
 
-		index()
+		//index()
 	}
 }
 
@@ -105,7 +105,7 @@ func Save(h Docs) error {
 			logger.Info.Println("db: record existed while save data")
 			return nil
 		}
-		logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		//logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)
 	}
 
@@ -116,11 +116,14 @@ func SaveOrUpdate(h Docs) error {
 	save := func(c *mgo.Collection) error {
 		//先按照关键字查询，如果存在，直接返回
 		n, err := c.Find(h.PkKvPair()).Count()
-		logger.Info.Printf("Count:%d err:%+v\n", n, err)
+		if err != nil {
+			logger.Error.Printf("Count:%d err:%+v\n", n, err)
+		}
+
 		if n >= 1 {
 			return Update(h)
 		}
-		logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		//logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)
 	}
 
@@ -130,8 +133,8 @@ func SaveOrUpdate(h Docs) error {
 func Update(h Docs) error {
 	update := func(c *mgo.Collection) error {
 		key := h.PkKvPair()
-		logger.Info.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
-		return c.Update(h.PkKvPair(), h)
+		//logger.Info.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
+		return c.Update(key, h)
 	}
 	return ExecCollection(h.Name(), update)
 }

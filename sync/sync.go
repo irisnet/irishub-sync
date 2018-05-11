@@ -33,7 +33,6 @@ func Start() {
 		logger.Error.Fatalf("sync block failed,%v\n", err)
 	}
 	startCron(c)
-	//go watch(c) 监控的方式在启动同步过程中容易丢失区块
 }
 
 func InitServer() {
@@ -68,7 +67,7 @@ func startCron(client rpcClient.Client) {
 }
 
 func watchBlock(c rpcClient.Client) error {
-	b, _ := document.QuerySyncTask()
+	syncTask, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
 
@@ -79,23 +78,24 @@ func watchBlock(c rpcClient.Client) error {
 	ch := make(chan int64)
 	limitChan <- 1
 
-	go syncBlock(b.Height+1, latestBlockHeight, funcChain, ch, 0)
+	go syncBlock(syncTask.Height+1, latestBlockHeight, funcChain, ch, 0)
 
 	select {
 	case <-ch:
-		//更新同步记录
+		logger.Info.Printf("watch block, current height is %v \n", latestBlockHeight)
 		block, _ := c.Block(&latestBlockHeight)
-		b.Height = block.Block.Height
-		b.Time = block.Block.Time
-		return store.Update(b)
+		syncTask.Height = block.Block.Height
+		syncTask.Time = block.Block.Time
+		return store.Update(syncTask)
 	}
 }
 
 // fast sync data from blockChain
 func fastSync(c rpcClient.Client) error {
-	b, _ := document.QuerySyncTask()
+	syncTaskDoc, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
+
 	funcChain := []func(tx store.Docs){
 		saveTx, saveOrUpdateAccount, updateAccountBalance,
 	}
@@ -103,7 +103,7 @@ func fastSync(c rpcClient.Client) error {
 	ch := make(chan int64)
 	activeThreadNum := int64(0)
 
-	goRoutineNum := (latestBlockHeight - b.Height) / syncBlockNumFastSync
+	goRoutineNum := (latestBlockHeight - syncTaskDoc.Height) / syncBlockNumFastSync
 
 	if goRoutineNum == 0 {
 		goRoutineNum = 10
@@ -114,33 +114,14 @@ func fastSync(c rpcClient.Client) error {
 		activeThreadNum++
 		limitChan <- i
 		var (
-			start = b.Height + (i-1)*syncBlockNumFastSync + 1
-			end   = b.Height + i*syncBlockNumFastSync
+			start = syncTaskDoc.Height + (i-1)*syncBlockNumFastSync + 1
+			end   = syncTaskDoc.Height + i*syncBlockNumFastSync
 		)
 		if i == goRoutineNum {
 			end = latestBlockHeight
 		}
 		go syncBlock(start, end, funcChain, ch, i)
 	}
-
-	//threadNum := (latestBlockHeight - b.Height) / maxBatchNum
-	//// 单线程处理
-	//if threadNum == 0 {
-	//	go syncBlock(b.Height, latestBlockHeight, funcChain, ch, 0)
-	//} else {
-	//	// 开启多线程处理
-	//	for i := int64(1); i <= threadNum; i++ {
-	//		activeThreadNum ++
-	//		var start = b.Height + (i-1)*maxBatchNum + 1
-	//		var end = b.Height + i*maxBatchNum
-	//		if i == threadNum {
-	//			end = latestBlockHeight
-	//		}
-	//
-	//		go syncBlock(start, end, funcChain, ch, i)
-	//	}
-	//
-	//}
 
 	for {
 		select {
@@ -155,11 +136,12 @@ func fastSync(c rpcClient.Client) error {
 
 end:
 	{
-		//更新同步记录
+		logger.Info.Println("fast sync block, complete sync task")
+		// update syncTask document
 		block, _ := c.Block(&latestBlockHeight)
-		b.Height = block.Block.Height
-		b.Time = block.Block.Time
-		store.Update(b)
+		syncTaskDoc.Height = block.Block.Height
+		syncTaskDoc.Time = block.Block.Time
+		store.Update(syncTaskDoc)
 		return nil
 	}
 }
@@ -177,7 +159,6 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 	for j := start; j <= end; j++ {
 		logger.Info.Printf("===========threadNo[%d] sync block,height:%d===========\n", threadNum, j)
 
-		// TODO 使用client.Client.BlockChainInfo
 		block, err := client.Client.Block(&j)
 		if err != nil {
 			// try again

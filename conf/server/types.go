@@ -1,10 +1,10 @@
 package server
 
 const (
-	BlockChainMonitorUrl = "tcp://localhost:46657"
+	BlockChainMonitorUrl = "tcp://47.104.155.125:46757"
 	Token                = "iris"
-	InitConnectionNum    = 100
-	MaxConnectionNum     = 200
+	InitConnectionNum    = 1000
+	MaxConnectionNum     = 2000
 	ChainId              = "test"
 	SyncCron             = "1 * * * * *"
 
