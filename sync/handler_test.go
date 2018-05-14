@@ -8,6 +8,7 @@ import (
 	"github.com/irisnet/iris-sync-server/util/constant"
 	"github.com/irisnet/iris-sync-server/model/store/document"
 	"github.com/irisnet/iris-sync-server/module/stake"
+	"sync"
 )
 
 func init()  {
@@ -65,6 +66,7 @@ func Test_saveTx(t *testing.T) {
 
 	type args struct {
 		tx store.Docs
+		mutex sync.Mutex
 	}
 	tests := []struct {
 		name string
@@ -72,31 +74,39 @@ func Test_saveTx(t *testing.T) {
 	}{
 		{
 			name:"save tx_coin",
-			args: struct{ tx store.Docs }{
-				tx: docTxCoin,},
+			args: args{
+				tx:docTxCoin,
+				mutex:sync.Mutex{},
+			},
 		},
 		{
 			name:"save tx_stake_declareCandidacy",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeDeclareCandidacy,},
+			args: args{
+				tx:docTxStakeDeclareCandidacy,
+				mutex:sync.Mutex{},
+			},
 
 		},
 		{
 			name:"save tx_stake_delegate",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeDelegate,},
+			args:args{
+				tx:docTxStakeDelegate,
+				mutex:sync.Mutex{},
+			},
 
 		},
 		{
 			name:"save tx_stake_unBond",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeUnBond,},
+			args: args{
+				tx: docTxStakeUnBond,
+				mutex: sync.Mutex{},
+			},
 
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			saveTx(tt.args.tx)
+			saveTx(tt.args.tx, tt.args.mutex)
 		})
 	}
 }
@@ -110,6 +120,7 @@ func Test_saveOrUpdateAccount(t *testing.T) {
 
 	type args struct {
 		tx store.Docs
+		mutex sync.Mutex
 	}
 	tests := []struct {
 		name string
@@ -117,31 +128,35 @@ func Test_saveOrUpdateAccount(t *testing.T) {
 	}{
 		{
 			name:"save tx_coin",
-			args: struct{ tx store.Docs }{
-				tx: docTxCoin,},
+			args: args{
+				tx: docTxCoin,
+			},
 		},
 		{
 			name:"save tx_stake_declareCandidacy",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeDeclareCandidacy,},
+			args: args{
+				tx: docTxStakeDeclareCandidacy,
+			},
 
 		},
 		{
 			name:"save tx_stake_delegate",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeDelegate,},
+			args: args{
+				tx:docTxStakeDelegate,
+			},
 
 		},
 		{
 			name:"save tx_stake_unBond",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeUnBond,},
+			args:args{
+				tx:docTxStakeUnBond,
+			},
 
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			saveOrUpdateAccount(tt.args.tx)
+			saveOrUpdateAccount(tt.args.tx, tt.args.mutex)
 		})
 	}
 }
@@ -155,6 +170,7 @@ func Test_updateAccountBalance(t *testing.T) {
 
 	type args struct {
 		tx store.Docs
+		mutex sync.Mutex
 	}
 	tests := []struct {
 		name string
@@ -162,32 +178,35 @@ func Test_updateAccountBalance(t *testing.T) {
 	}{
 		{
 			name:"tx_coin",
-			args: struct{ tx store.Docs }{
-				tx: docTxCoin,},
+			args: args{
+				tx:docTxCoin,
+			},
 		},
 		{
 			name:"tx_stake_declareCandidacy",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeDeclareCandidacy,},
+			args: args{
+				tx:docTxStakeDeclareCandidacy,
+			},
 
 		},
 		{
 			name:"tx_stake_delegate",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeDelegate,},
+			args: args{
+				tx:docTxStakeDelegate,
+			},
 
 		},
 		{
 			name:"tx_stake_unBond",
-			args: struct{ tx store.Docs }{
-				tx: docTxStakeUnBond,},
-
+			args: args{
+				tx:docTxStakeUnBond,
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			updateAccountBalance(tt.args.tx)
+			updateAccountBalance(tt.args.tx, tt.args.mutex)
 		})
 	}
 }

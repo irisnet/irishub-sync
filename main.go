@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/irisnet/iris-sync-server/sync"
-	"time"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"sync"
+	syncTask "github.com/irisnet/iris-sync-server/sync"
 )
 
 func main() {
-	sync.Start()
-	for true {
-		time.Sleep(time.Minute)
-		logger.Info.Println("wait")
-	}
+	var wg sync.WaitGroup
+	wg.Add(2)
+	
+	syncTask.Start()
+	
+	wg.Wait()
 }

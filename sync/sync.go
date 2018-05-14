@@ -14,7 +14,8 @@ import (
 	"github.com/robfig/cron"
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/irisnet/iris-sync-server/model/store/document"
-
+	
+	"sync"
 )
 
 var (
@@ -23,6 +24,8 @@ var (
 
 	// limit max goroutine
 	limitChan = make(chan int64, conf.SyncMaxGoroutine)
+	
+	mutex sync.Mutex
 )
 
 // start sync server
@@ -43,7 +46,7 @@ func InitServer() {
 
 	if err != nil {
 		if chainId == "" {
-			logger.Error.Fatalln("sync process start failed,chainId is empty\n")
+			logger.Error.Fatalln("sync process start failed,chainId is empty")
 		}
 		syncTask = document.SyncTask{
 			Height:  0,
@@ -70,8 +73,11 @@ func watchBlock(c rpcClient.Client) error {
 	syncTask, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
+	
+	// for test
+	// latestBlockHeight := int64(60010)
 
-	funcChain := []func(tx store.Docs){
+	funcChain := []func(tx store.Docs, mutex sync.Mutex){
 		saveTx, saveOrUpdateAccount, updateAccountBalance,
 	}
 
@@ -82,7 +88,7 @@ func watchBlock(c rpcClient.Client) error {
 
 	select {
 	case <-ch:
-		logger.Info.Printf("watch block, current height is %v \n", latestBlockHeight)
+		logger.Info.Printf("Watch block, current height is %v \n", latestBlockHeight)
 		block, _ := c.Block(&latestBlockHeight)
 		syncTask.Height = block.Block.Height
 		syncTask.Time = block.Block.Time
@@ -95,8 +101,11 @@ func fastSync(c rpcClient.Client) error {
 	syncTaskDoc, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
+	
+	// for test
+	// latestBlockHeight := int64(60000)
 
-	funcChain := []func(tx store.Docs){
+	funcChain := []func(tx store.Docs, mutex sync.Mutex){
 		saveTx, saveOrUpdateAccount, updateAccountBalance,
 	}
 
@@ -126,8 +135,8 @@ func fastSync(c rpcClient.Client) error {
 	for {
 		select {
 		case threadNo := <-ch:
-			logger.Info.Printf("threadNo[%d] is over\n", threadNo)
 			activeThreadNum = activeThreadNum - 1
+			logger.Info.Printf("ThreadNo[%d] is over and active thread num is %d\n", threadNo, activeThreadNum)
 			if activeThreadNum == 0 {
 				goto end
 			}
@@ -136,7 +145,7 @@ func fastSync(c rpcClient.Client) error {
 
 end:
 	{
-		logger.Info.Println("fast sync block, complete sync task")
+		logger.Info.Println("Fast sync block, complete sync task")
 		// update syncTask document
 		block, _ := c.Block(&latestBlockHeight)
 		syncTaskDoc.Height = block.Block.Height
@@ -146,8 +155,8 @@ end:
 	}
 }
 
-func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan int64, threadNum int64) {
-	logger.Info.Printf("threadNo[%d] begin sync block from %d to %d\n", threadNum, start, end)
+func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex), ch chan int64, threadNum int64) {
+	logger.Info.Printf("ThreadNo[%d] begin sync block from %d to %d\n", threadNum, start, end)
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
@@ -157,15 +166,13 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 	}()
 
 	for j := start; j <= end; j++ {
-		logger.Info.Printf("===========threadNo[%d] sync block,height:%d===========\n", threadNum, j)
-
 		block, err := client.Client.Block(&j)
 		if err != nil {
 			// try again
 			client2 := helper.GetClient()
 			block, err = client2.Client.Block(&j)
 			if err != nil {
-				logger.Error.Fatalf("invalid block height %d\n", j)
+				logger.Error.Fatalf("invalid block height %d and err is %v\n", j, err.Error())
 			}
 		}
 		if block.BlockMeta.Header.NumTxs > 0 {
@@ -180,13 +187,13 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 					coinTx, _ := tx.(document.CoinTx)
 					coinTx.Height = block.Block.Height
 					coinTx.Time = block.Block.Time
-					handle(coinTx, funcChain)
+					handle(coinTx, mutex, funcChain)
 					break
 				case stake.TypeTxDeclareCandidacy:
 					stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
 					stakeTxDeclareCandidacy.Height = block.Block.Height
 					stakeTxDeclareCandidacy.Time = block.Block.Time
-					handle(stakeTxDeclareCandidacy, funcChain)
+					handle(stakeTxDeclareCandidacy, mutex, funcChain)
 					break
 				case stake.TypeTxEditCandidacy:
 					break
@@ -194,7 +201,7 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs), ch chan 
 					stakeTx, _ := tx.(document.StakeTx)
 					stakeTx.Height = block.Block.Height
 					stakeTx.Time = block.Block.Time
-					handle(stakeTx, funcChain)
+					handle(stakeTx, mutex, funcChain)
 					break
 				}
 			}

@@ -4,7 +4,7 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 BINARY_NAME=sync-iris
-BINARY_UNIX=$(BINARY_NAME)_unix
+BINARY_UNIX=$(BINARY_NAME)-unix
 
 all: get_vendor build
 

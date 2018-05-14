@@ -1,7 +1,6 @@
 package sync
 
 import (
-
 	"reflect"
 	"time"
 	"sync"
@@ -17,18 +16,17 @@ import (
 
 var (
 	delay = false
-	mutex sync.Mutex
 )
 
 
-func handle(tx store.Docs, funChains []func(tx store.Docs)) {
+func handle(tx store.Docs, mutex sync.Mutex, funChains []func(tx store.Docs, mutex sync.Mutex)) {
 	for _, fun := range funChains {
-		fun(tx)
+		fun(tx, mutex)
 	}
 }
 
 // save Tx document into collection
-func saveTx(tx store.Docs) {
+func saveTx(tx store.Docs, mutex sync.Mutex) {
 	err := store.Save(tx)
 
 	if err != nil {
@@ -36,6 +34,7 @@ func saveTx(tx store.Docs) {
 	}
 
 	mutex.Lock()
+	logger.Info.Println("saveTx method get lock")
 
 	{
 		if tx.Name() == document.CollectionNmStakeTx {
@@ -44,6 +43,7 @@ func saveTx(tx store.Docs) {
 				return
 			}
 			stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
+			logger.Info.Printf("saveTx: type of stakeTx is %v", stakeType)
 
 			switch stakeType {
 			case stake.TypeTxDeclareCandidacy:
@@ -123,9 +123,11 @@ func saveTx(tx store.Docs) {
 	}
 
 	mutex.Unlock()
+	
+	logger.Info.Println("saveTx method release lock")
 }
 
-func saveOrUpdateAccount(tx store.Docs) {
+func saveOrUpdateAccount(tx store.Docs, mutex sync.Mutex) {
 	var (
 		address string
 		updateTime time.Time
@@ -145,6 +147,7 @@ func saveOrUpdateAccount(tx store.Docs) {
 	}
 
 	mutex.Lock()
+	logger.Info.Println("saveOrUpdateAccpunt method get lock")
 
 	{
 		switch tx.Name() {
@@ -162,7 +165,8 @@ func saveOrUpdateAccount(tx store.Docs) {
 				return
 			}
 			stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
-
+			
+			logger.Info.Printf("saveOrUpdateAccpunt: type of stakeTx is %v", stakeType)
 			switch stakeType {
 			case stake.TypeTxDeclareCandidacy:
 				stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
@@ -185,10 +189,11 @@ func saveOrUpdateAccount(tx store.Docs) {
 	}
 
 	mutex.Unlock()
+	logger.Info.Println("saveOrUpdateAccpunt method release lock")
 
 }
 
-func updateAccountBalance(tx store.Docs) {
+func updateAccountBalance(tx store.Docs, mutex sync.Mutex) {
 	var (
 		address string
 	)
@@ -206,7 +211,7 @@ func updateAccountBalance(tx store.Docs) {
 	}
 
 	mutex.Lock()
-
+	logger.Info.Println("updateAccountBalance method get lock")
 	{
 		switch tx.Name() {
 		case document.CollectionNmCoinTx:
@@ -239,6 +244,6 @@ func updateAccountBalance(tx store.Docs) {
 	}
 
 	mutex.Unlock()
-
+	logger.Info.Println("updateAccountBalance method release lock")
 
 }

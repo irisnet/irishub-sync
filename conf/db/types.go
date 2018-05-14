@@ -1,7 +1,7 @@
 package db
 
 const (
-	Host     = ""
-	Port     = ""
-	Database = ""
+	Host     = "127.0.0.1"
+	Port     = "27117"
+	Database = "sync_iris"
 )
