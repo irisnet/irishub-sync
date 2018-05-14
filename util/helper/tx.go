@@ -97,7 +97,7 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 			}
 			return kind, stakeTx
 		default:
-			logger.Info.Printf("unsupported tx type, %+v\n", txi.Unwrap())
+			// logger.Info.Printf("unsupported tx type, %+v\n", txi.Unwrap())
 		}
 
 		txl, ok = txi.Unwrap().(sdk.TxLayer)

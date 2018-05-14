@@ -1,14 +1,15 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"sync"
+	syncTask "github.com/irisnet/iris-sync-server/sync"
 )
 
 func main() {
-	i := 5
-	j := 2
-	logger.Info.Printf("result of j / i is %v", i/j)
-	fmt.Println("This is test")
+	var wg sync.WaitGroup
+	wg.Add(2)
+	
+	syncTask.Start()
+	
+	wg.Wait()
 }
