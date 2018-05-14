@@ -1,2 +1,2 @@
-# IRIS-sync-server
-A server that synchronize IRIS blockChain data into a database
+# iris-sync-server
+A server that synchronize IRIS blockchain data into database
