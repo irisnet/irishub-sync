@@ -180,6 +180,12 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 			for _, txByte := range txs {
 				txType, tx := helper.ParseTx(txByte)
 				txHash := strings.ToUpper(hex.EncodeToString(txByte.Hash()))
+				if txHash == "" {
+					logger.Warning.Printf("Tx has no hash, skip this tx." +
+						"" + "type of tx is %v, value of tx is %v\n",
+						txType, tx)
+					continue
+				}
 				logger.Info.Printf("===========threadNo[%d] find tx,txType=%s;txHash=%s\n", threadNum, txType, txHash)
 
 				switch txType {

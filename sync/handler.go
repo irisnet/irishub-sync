@@ -16,6 +16,7 @@ import (
 
 var (
 	delay = false
+	methodName string
 )
 
 
@@ -27,40 +28,48 @@ func handle(tx store.Docs, mutex sync.Mutex, funChains []func(tx store.Docs, mut
 
 // save Tx document into collection
 func saveTx(tx store.Docs, mutex sync.Mutex) {
+	methodName = "SaveTx: "
+	
 	err := store.Save(tx)
 
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Error.Printf("%v Save failed. tx is %+v, err is %v",
+			tx, err.Error())
 	}
 
 	mutex.Lock()
-	logger.Info.Println("saveTx method get lock")
+	logger.Info.Printf("%v get lock\n", methodName)
 
 	{
 		if tx.Name() == document.CollectionNmStakeTx {
 			if !reflect.ValueOf(tx).FieldByName("Type").IsValid() {
-				logger.Error.Println("type which is field name of stake tx is missed")
+				logger.Error.Printf("%v type which is field name of stake tx is missed\n", methodName)
+				mutex.Unlock()
+				logger.Info.Printf("%v release lock\n", methodName)
 				return
 			}
 			stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
-			logger.Info.Printf("saveTx: type of stakeTx is %v", stakeType)
+			logger.Info.Printf("%v type of stakeTx is %v\n", methodName, stakeType)
 
 			switch stakeType {
 			case stake.TypeTxDeclareCandidacy:
 				stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
-				candidate, err := document.QueryCandidateByPubkey(stakeTxDeclareCandidacy.PubKey)
-				// new candidate
-				if err != nil {
-					candidate = document.Candidate {
-						Address:     stakeTxDeclareCandidacy.From,
-						PubKey:      stakeTxDeclareCandidacy.PubKey,
-						Description: stakeTxDeclareCandidacy.Description,
-					}
+				cd, err := document.QueryCandidateByPubkey(stakeTxDeclareCandidacy.PubKey)
+				
+				candidate := document.Candidate {
+					Address:     stakeTxDeclareCandidacy.From,
+					PubKey:      stakeTxDeclareCandidacy.PubKey,
+					Description: stakeTxDeclareCandidacy.Description,
 				}
 				// TODO: in further share not equal amount
 				candidate.Shares += stakeTxDeclareCandidacy.Amount.Amount
-				candidate.VotingPower += uint64(stakeTxDeclareCandidacy.Amount.Amount)
+				candidate.VotingPower += int64(stakeTxDeclareCandidacy.Amount.Amount)
 				candidate.UpdateTime = stakeTxDeclareCandidacy.Time
+				
+				if err != nil && cd.Address == "" {
+					logger.Warning.Printf("%v Replace candidate from %+v to %+v\n", methodName, cd, candidate)
+				}
+				
 				store.SaveOrUpdate(candidate)
 				break
 			case stake.TypeTxDelegate:
@@ -68,9 +77,11 @@ func saveTx(tx store.Docs, mutex sync.Mutex) {
 				candidate, err := document.QueryCandidateByPubkey(stakeTx.PubKey)
 				// candidate is not exist
 				if err != nil {
-					logger.Error.Printf("candidate is not exist while delegate, add = %s ,pub_key = %s\n",
-						stakeTx.From, stakeTx.PubKey)
-					return
+					logger.Warning.Printf("%v candidate is not exist while delegate, add = %s ,pub_key = %s\n",
+						methodName, stakeTx.From, stakeTx.PubKey)
+					candidate = document.Candidate{
+						PubKey: stakeTx.PubKey,
+					}
 				}
 
 				delegator, err := document.QueryDelegatorByAddressAndPubkey(stakeTx.From, stakeTx.PubKey)
@@ -87,7 +98,7 @@ func saveTx(tx store.Docs, mutex sync.Mutex) {
 				store.SaveOrUpdate(delegator)
 
 				candidate.Shares += stakeTx.Amount.Amount
-				candidate.VotingPower += uint64(stakeTx.Amount.Amount)
+				candidate.VotingPower += int64(stakeTx.Amount.Amount)
 				candidate.UpdateTime = stakeTx.Time
 				store.SaveOrUpdate(candidate)
 				break
@@ -96,9 +107,12 @@ func saveTx(tx store.Docs, mutex sync.Mutex) {
 				delegator, err := document.QueryDelegatorByAddressAndPubkey(stakeTx.From, stakeTx.PubKey)
 				// delegator is not exist
 				if err != nil {
-					logger.Info.Printf("delegator is not exist while unBond,add = %s,pub_key=%s\n",
-						stakeTx.From, stakeTx.PubKey)
-					return
+					logger.Warning.Printf("%v delegator is not exist while unBond,add = %s,pub_key=%s\n",
+						methodName, stakeTx.From, stakeTx.PubKey)
+					delegator = document.Delegator{
+						Address: stakeTx.From,
+						PubKey: stakeTx.PubKey,
+					}
 				}
 				delegator.Shares -= stakeTx.Amount.Amount
 				delegator.UpdateTime = stakeTx.Time
@@ -107,12 +121,14 @@ func saveTx(tx store.Docs, mutex sync.Mutex) {
 				candidate, err2 := document.QueryCandidateByPubkey(stakeTx.PubKey)
 				// candidate is not exist
 				if err2 != nil {
-					logger.Info.Printf("candidate is not exist while unBond,add = %s,pub_key=%s\n",
-						stakeTx.From, stakeTx.PubKey)
-					return
+					logger.Warning.Printf("%v candidate is not exist while unBond,add = %s,pub_key=%s\n",
+						methodName, stakeTx.From, stakeTx.PubKey)
+					candidate = document.Candidate{
+						PubKey: stakeTx.PubKey,
+					}
 				}
 				candidate.Shares -= stakeTx.Amount.Amount
-				candidate.VotingPower -= uint64(stakeTx.Amount.Amount)
+				candidate.VotingPower -= int64(stakeTx.Amount.Amount)
 				candidate.UpdateTime = stakeTx.Time
 				store.Update(candidate)
 				break
@@ -124,10 +140,12 @@ func saveTx(tx store.Docs, mutex sync.Mutex) {
 
 	mutex.Unlock()
 	
-	logger.Info.Println("saveTx method release lock")
+	logger.Info.Printf("%v method release lock\n", methodName)
 }
 
 func saveOrUpdateAccount(tx store.Docs, mutex sync.Mutex) {
+	methodName = "SaveOrUpdateAccount: "
+	
 	var (
 		address string
 		updateTime time.Time
@@ -142,12 +160,13 @@ func saveOrUpdateAccount(tx store.Docs, mutex sync.Mutex) {
 		}
 
 		if err := store.SaveOrUpdate(account); err != nil {
-			logger.Error.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
+			logger.Error.Printf("%v saveOrUpdateAccount failed, account is %v, err is %s\n",
+				methodName, account.Address, err)
 		}
 	}
 
 	mutex.Lock()
-	logger.Info.Println("saveOrUpdateAccpunt method get lock")
+	logger.Info.Printf("%v get lock\n", methodName)
 
 	{
 		switch tx.Name() {
@@ -161,12 +180,14 @@ func saveOrUpdateAccount(tx store.Docs, mutex sync.Mutex) {
 			break
 		case document.CollectionNmStakeTx:
 			if !reflect.ValueOf(tx).FieldByName("Type").IsValid() {
-				logger.Error.Println("type which is field name of stake tx is missed")
+				logger.Error.Printf("%v type which is field name of stake tx is missed\n", methodName)
+				mutex.Unlock()
+				logger.Info.Printf("%v release lock\n", methodName)
 				return
 			}
 			stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()
 			
-			logger.Info.Printf("saveOrUpdateAccpunt: type of stakeTx is %v", stakeType)
+			logger.Info.Printf("%v type of stakeTx is %v", methodName, stakeType)
 			switch stakeType {
 			case stake.TypeTxDeclareCandidacy:
 				stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
@@ -189,11 +210,12 @@ func saveOrUpdateAccount(tx store.Docs, mutex sync.Mutex) {
 	}
 
 	mutex.Unlock()
-	logger.Info.Println("saveOrUpdateAccpunt method release lock")
+	logger.Info.Printf("%v release lock\n", methodName)
 
 }
 
 func updateAccountBalance(tx store.Docs, mutex sync.Mutex) {
+	methodName = "UpdateAccountBalance: "
 	var (
 		address string
 	)
@@ -206,12 +228,13 @@ func updateAccountBalance(tx store.Docs, mutex sync.Mutex) {
 		ac := helper.QueryAccountBalance(address, delay)
 		account.Amount = ac.Coins
 		if err := store.Update(account); err != nil {
-			logger.Error.Printf("account:[%q] balance update failed,%s\n", account.Address, err)
+			logger.Error.Printf("%v account:[%q] balance update failed,%s\n",
+				methodName, account.Address, err)
 		}
 	}
 
 	mutex.Lock()
-	logger.Info.Println("updateAccountBalance method get lock")
+	logger.Info.Printf("%v get lock\n", methodName)
 	{
 		switch tx.Name() {
 		case document.CollectionNmCoinTx:
@@ -221,7 +244,9 @@ func updateAccountBalance(tx store.Docs, mutex sync.Mutex) {
 			break
 		case document.CollectionNmStakeTx:
 			if !reflect.ValueOf(tx).FieldByName("Type").IsValid() {
-				logger.Error.Println("type which is field name of stake tx is missed")
+				logger.Error.Printf("%v type which is field name of stake tx is missed\n", methodName)
+				mutex.Unlock()
+				logger.Info.Printf("%v release lock\n", methodName)
 				return
 			}
 			stakeType := constant.TxTypeStake + "/" + reflect.ValueOf(tx).FieldByName("Type").String()

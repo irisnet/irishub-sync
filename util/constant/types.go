@@ -1,3 +1,5 @@
+// package for define constants
+
 package constant
 
 const (

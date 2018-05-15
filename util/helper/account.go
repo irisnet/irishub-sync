@@ -1,3 +1,5 @@
+// This package is used for query balance of account
+
 package helper
 
 import (

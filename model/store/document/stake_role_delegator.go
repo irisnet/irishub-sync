@@ -6,7 +6,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"github.com/irisnet/iris-sync-server/module/logger"
 )
 
 const (
@@ -59,7 +58,7 @@ func QueryDelegatorByAddressAndPubkey(address string, pubKey string) (Delegator,
 	}
 
 	if store.ExecCollection(CollectionNmStakeRoleDelegator, query) != nil {
-		logger.Info.Println("delegator is Empty")
+		// logger.Info.Println("delegator is Empty")
 		return result, errors.New("delegator is Empty")
 	}
 

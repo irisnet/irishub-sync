@@ -35,13 +35,13 @@ func Init() {
 		}
 		session.SetMode(mgo.Monotonic, true)
 
-		//index()
+		// index()
 	}
 }
 
 func InitWithAuth(addrs []string, username, password string) {
 	dialInfo := &mgo.DialInfo{
-		Addrs:     addrs, //[]string{"192.168.6.122"}
+		Addrs:     addrs, // []string{"192.168.6.122"}
 		Direct:    false,
 		Timeout:   time.Second * 1,
 		Database:  conf.Database,
@@ -99,13 +99,12 @@ func index() {
 
 func Save(h Docs) error {
 	save := func(c *mgo.Collection) error {
-		//先按照关键字查询，如果存在，直接返回
 		n, _ := c.Find(h.PkKvPair()).Count()
 		if n >= 1 {
 			logger.Info.Println("db: record existed while save data")
 			return nil
 		}
-		//logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		// logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)
 	}
 
@@ -114,7 +113,6 @@ func Save(h Docs) error {
 
 func SaveOrUpdate(h Docs) error {
 	save := func(c *mgo.Collection) error {
-		//先按照关键字查询，如果存在，直接返回
 		n, err := c.Find(h.PkKvPair()).Count()
 		if err != nil {
 			logger.Error.Printf("Count:%d err:%+v\n", n, err)
@@ -123,7 +121,7 @@ func SaveOrUpdate(h Docs) error {
 		if n >= 1 {
 			return Update(h)
 		}
-		//logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		// logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)
 	}
 
@@ -133,7 +131,7 @@ func SaveOrUpdate(h Docs) error {
 func Update(h Docs) error {
 	update := func(c *mgo.Collection) error {
 		key := h.PkKvPair()
-		//logger.Info.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
+		// logger.Info.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
 		return c.Update(key, h)
 	}
 	return ExecCollection(h.Name(), update)
