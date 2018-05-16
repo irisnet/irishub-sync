@@ -39,6 +39,10 @@ func Init() {
 	}
 }
 
+func AddIndex()  {
+	index()
+}
+
 func InitWithAuth(addrs []string, username, password string) {
 	dialInfo := &mgo.DialInfo{
 		Addrs:     addrs, // []string{"192.168.6.122"}
@@ -99,7 +103,8 @@ func index() {
 
 func Save(h Docs) error {
 	save := func(c *mgo.Collection) error {
-		n, _ := c.Find(h.PkKvPair()).Count()
+		pk := h.PkKvPair()
+		n, _ := c.Find(pk).Count()
 		if n >= 1 {
 			logger.Info.Println("db: record existed while save data")
 			return nil

@@ -39,7 +39,7 @@ func QueryAccountBalance(address string, delay bool) *coin.Account {
 	}
 	_, err2 := GetParsed(key, account, query.GetHeight(), false)
 	if err2 != nil {
-		logger.Info.Printf("account bytes are empty for address: %q\n", address)
+		logger.Info.Printf("QueryAccountBalance failed, account bytes are empty for address: %q\n", address)
 	}
 	return account
 }
