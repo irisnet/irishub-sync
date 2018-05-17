@@ -1,20 +1,20 @@
 package sync
 
 import (
-	"strings"
 	"encoding/hex"
+	"strings"
 
 	conf "github.com/irisnet/iris-sync-server/conf/server"
 	"github.com/irisnet/iris-sync-server/model/store"
 	"github.com/irisnet/iris-sync-server/module/logger"
-	"github.com/irisnet/iris-sync-server/util/helper"
-	"github.com/irisnet/iris-sync-server/util/constant"
 	"github.com/irisnet/iris-sync-server/module/stake"
+	"github.com/irisnet/iris-sync-server/util/constant"
+	"github.com/irisnet/iris-sync-server/util/helper"
 
+	"github.com/irisnet/iris-sync-server/model/store/document"
 	"github.com/robfig/cron"
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
-	"github.com/irisnet/iris-sync-server/model/store/document"
-	
+
 	"sync"
 )
 
@@ -23,8 +23,8 @@ var (
 	syncBlockNumFastSync = int64(conf.SyncBlockNumFastSync)
 
 	// limit max goroutine
-	limitChan = make(chan int64, conf.SyncMaxGoroutine)
-	
+	// limitChan = make(chan int64, conf.SyncMaxGoroutine)
+
 	mutex sync.Mutex
 )
 
@@ -73,7 +73,7 @@ func watchBlock(c rpcClient.Client) error {
 	syncTask, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
-	
+
 	// for test
 	// latestBlockHeight := int64(60010)
 
@@ -82,7 +82,7 @@ func watchBlock(c rpcClient.Client) error {
 	}
 
 	ch := make(chan int64)
-	limitChan <- 1
+	// limitChan <- 1
 
 	go syncBlock(syncTask.Height+1, latestBlockHeight, funcChain, ch, 0)
 
@@ -101,7 +101,7 @@ func fastSync(c rpcClient.Client) error {
 	syncTaskDoc, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.LatestBlockHeight
-	
+
 	// for test
 	// latestBlockHeight := int64(60000)
 
@@ -121,7 +121,7 @@ func fastSync(c rpcClient.Client) error {
 
 	for i := int64(1); i <= goRoutineNum; i++ {
 		activeThreadNum++
-		limitChan <- i
+		// limitChan <- i
 		var (
 			start = syncTaskDoc.Height + (i-1)*syncBlockNumFastSync + 1
 			end   = syncTaskDoc.Height + i*syncBlockNumFastSync
@@ -160,18 +160,22 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
-	// release buffer chain
+	// release unBuffer chain and buffer chain
 	defer func() {
-		<-limitChan
+		ch <- threadNum
+		logger.Info.Printf("Send threadNum into channel: %v\n", threadNum)
+		// <- limitChan
 	}()
 
 	for j := start; j <= end; j++ {
 		block, err := client.Client.Block(&j)
 		if err != nil {
+			logger.Error.Printf("Invalid block height %d and err is %v, try again\n", j, err.Error())
 			// try again
 			client2 := helper.GetClient()
 			block, err = client2.Client.Block(&j)
 			if err != nil {
+				ch <- threadNum
 				logger.Error.Fatalf("invalid block height %d and err is %v\n", j, err.Error())
 			}
 		}
@@ -181,8 +185,8 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 				txType, tx := helper.ParseTx(txByte)
 				txHash := strings.ToUpper(hex.EncodeToString(txByte.Hash()))
 				if txHash == "" {
-					logger.Warning.Printf("Tx has no hash, skip this tx." +
-						"" + "type of tx is %v, value of tx is %v\n",
+					logger.Warning.Printf("Tx has no hash, skip this tx."+
+						""+"type of tx is %v, value of tx is %v\n",
 						txType, tx)
 					continue
 				}
@@ -222,5 +226,4 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 		store.SaveOrUpdate(bk)
 
 	}
-	ch <- threadNum
 }

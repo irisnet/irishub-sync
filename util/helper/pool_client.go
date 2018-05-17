@@ -5,11 +5,10 @@ package helper
 
 import (
 	"errors"
-	"log"
-
 	conf "github.com/irisnet/iris-sync-server/conf/server"
 
 	rpcClient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/irisnet/iris-sync-server/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -47,7 +46,7 @@ func InitClientPool() {
 func GetClient() Client {
 	c, err := getClient()
 	if err != nil {
-		log.Fatal(err)
+		logger.Error.Fatalln(err.Error())
 	}
 	return c
 }
@@ -61,38 +60,38 @@ func (n Client) Release() {
 }
 
 func createConnection(id int64) Client {
-	client := Client{
+	tmClient := Client{
 		Client: rpcClient.GetNode(conf.BlockChainMonitorUrl),
 		used:   false,
 		id:     id,
 	}
-	pool.clients[id] = client
+	pool.clients[id] = tmClient
 	pool.available++
-	return client
+	return tmClient
 }
 
 func getClient() (Client, error) {
 	if pool.available == 0 {
 		maxConnNum := int64(conf.MaxConnectionNum)
 		if pool.used < maxConnNum {
-			var client Client
+			var tmClient Client
 			for i := int64(len(pool.clients)); i < maxConnNum; i++ {
-				client = createConnection(i)
+				tmClient = createConnection(i)
 			}
-			return client, nil
+			return tmClient, nil
 		} else {
-			log.Fatal("client pool has no available connection")
+			logger.Error.Fatalln("client pool has no available connection")
 		}
 	}
 
-	for _, client := range pool.clients {
-		if !client.used {
-			client.used = true
-			pool.clients[client.id] = client
+	for _, tmClient := range pool.clients {
+		if !tmClient.used {
+			tmClient.used = true
+			pool.clients[tmClient.id] = tmClient
 			pool.available--
 			pool.used++
-			log.Printf("current available coonection ：%d", pool.available)
-			return client, nil
+			logger.Info.Printf("current available coonection ：%d\n", pool.available)
+			return tmClient, nil
 		}
 	}
 	return Client{}, errors.New("pool is empty")
