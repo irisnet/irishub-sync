@@ -38,7 +38,7 @@ func init() {
 		log.Fatalln("Failed to open trace db log file:", err)
 	}
 
-	Trace = log.New(io.MultiWriter(traceDbFile),
+	Trace = log.New(io.MultiWriter(traceDbFile, os.Stdout),
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 

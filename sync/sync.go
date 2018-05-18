@@ -156,7 +156,9 @@ end:
 }
 
 func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex), ch chan int64, threadNum int64) {
-	logger.Info.Printf("ThreadNo[%d] begin sync block from %d to %d\n", threadNum, start, end)
+	logger.Info.Printf("ThreadNo[%d] begin sync block from %d to %d\n",
+		threadNum, start, end)
+	
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
@@ -176,7 +178,7 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 			block, err = client2.Client.Block(&j)
 			if err != nil {
 				ch <- threadNum
-				logger.Error.Fatalf("invalid block height %d and err is %v\n", j, err.Error())
+				logger.Error.Fatalf("Invalid block height %d and err is %v\n", j, err.Error())
 			}
 		}
 		if block.BlockMeta.Header.NumTxs > 0 {
@@ -223,7 +225,13 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 			Time:   block.Block.Time,
 			TxNum:  block.BlockMeta.Header.NumTxs,
 		}
-		store.SaveOrUpdate(bk)
-
+		if err := store.Save(bk); err != nil {
+			logger.Error.Printf("Save block info failed, err is %v",
+				err.Error())
+		}
 	}
+	
+	logger.Info.Printf("ThreadNo[%d] finish sync block from %d to %d\n",
+		threadNum, start, end)
+	
 }

@@ -2,8 +2,6 @@ package sync
 
 import (
 	"testing"
-	"time"
-	"fmt"
 	"github.com/robfig/cron"
 	
 	conf "github.com/irisnet/iris-sync-server/conf/server"
@@ -14,10 +12,21 @@ import (
 )
 
 func TestStart(t *testing.T) {
-	Start()
-	for true {
-		time.Sleep(time.Minute)
-		fmt.Printf("wait\n")
+	var (
+		num int
+	)
+	num = 2
+	switch num {
+	case 1:
+		
+		break
+	case 2:
+		if num > 1 {
+			logger.Info.Println("num gt 1")
+			break
+		}
+		logger.Info.Println("num is 2")
+		break
 	}
 }
 
