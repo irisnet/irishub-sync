@@ -20,7 +20,7 @@ A server that synchronize IRIS blockChain data into a database
 
 ## Create mongodb database
 
-run script in `mongodb` to create database before run project
+run script `mongodb.js` in `mongodb` folder to create database before run project
 
 # Build And Run
 
