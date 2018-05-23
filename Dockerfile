@@ -27,7 +27,7 @@ COPY . $REPO_PATH
 RUN apk add --no-cache $PACKAGES && \
     cd $REPO_PATH && make all && \
     mv $REPO_PATH/sync-iris $GOPATH/bin && \
-    rm -rf $REPO_PATH/vendor
+    rm -rf $REPO_PATH/vendor && \
     apk del $PACKAGES
 
 CMD sync-iris > $LOG_DIR/debug.log && tail -f $LOG_DIR/debug.log

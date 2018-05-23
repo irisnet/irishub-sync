@@ -6,7 +6,7 @@ GOGET=$(GOCMD) get
 BINARY_NAME=sync-iris
 BINARY_UNIX=$(BINARY_NAME)-unix
 
-all: get_deps build
+all: get_tools get_deps build
 
 get_deps:
 	@echo "--> Running glide install"
