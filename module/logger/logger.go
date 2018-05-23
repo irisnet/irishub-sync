@@ -15,34 +15,41 @@ var (
 
 const (
 	traceDbFile = ".sync_server_db.log"
+	debugFile = ".sync_server_debug.log"
 	errFile     = ".sync_server_err.log"
 	warningFile = ".sync_server_warning.log"
 )
 
 func init() {
+	traceDbFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+traceDbFile),
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalln("Failed to open trace db log file:", err)
+	}
+	
+	debugFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+debugFile),
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalln("Failed to open debug log file:", err)
+	}
+	
+	warningFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+warningFile),
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalln("Failed to open warning log file:", err)
+	}
+	
 	errFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+errFile),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("Failed to open error log file:", err)
 	}
 
-	warningFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+warningFile),
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalln("Failed to open warning log file:", err)
-	}
-
-	traceDbFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+traceDbFile),
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalln("Failed to open trace db log file:", err)
-	}
-
 	Trace = log.New(io.MultiWriter(traceDbFile, os.Stdout),
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	Info = log.New(os.Stdout,
+	Info = log.New(io.MultiWriter(debugFile, os.Stdout),
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -60,7 +67,4 @@ func test() {
 	Info.Println("This is info info...")
 	Warning.Println("This is warning info...")
 	Error.Println("This is err info...")
-
-	Error.Fatalf("This is err")
-	Info.Println("test")
 }

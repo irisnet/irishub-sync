@@ -55,7 +55,6 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 		case nonce.Tx:
 			ctx, _ := txi.Unwrap().(nonce.Tx)
 			nonceAddr = ctx.Signers[0].Address
-			fmt.Println(nonceAddr)
 			break
 		case stake.TxUnbond, stake.TxDelegate, stake.TxDeclareCandidacy:
 			kind, _ := txi.GetKind()

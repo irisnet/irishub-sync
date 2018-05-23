@@ -3,12 +3,11 @@
 package helper
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/irisnet/iris-sync-server/module/logger"
 
-	wire "github.com/tendermint/go-wire"
+	"github.com/tendermint/go-wire"
 	"github.com/cosmos/cosmos-sdk/modules/coin"
 	"github.com/cosmos/cosmos-sdk/stack"
 	"github.com/cosmos/cosmos-sdk/client/commands"
@@ -17,6 +16,7 @@ import (
 	"github.com/tendermint/iavl"
 	"github.com/cosmos/cosmos-sdk/client"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	"github.com/pkg/errors"
 )
 
 var delay = false
@@ -68,7 +68,7 @@ func GetParsed(key []byte, data interface{}, height int64, prove bool) (int64, e
 // and it is localhost or you have a secure connection (not HTTP)
 func Get(key []byte, height int64, prove bool) (data.Bytes, int64, error) {
 	if height < 0 {
-		return nil, 0, fmt.Errorf("Height cannot be negative\n")
+		return nil, 0, errors.New("Height cannot be negative\n")
 	}
 
 	if !prove {
