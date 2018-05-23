@@ -65,6 +65,14 @@ func createConnection(id int64) Client {
 		used:   false,
 		id:     id,
 	}
+	
+	if id == int64(len(pool.clients)) {
+		newSlice := make([]Client, pool.maxConnection)
+		for i, v := range pool.clients {
+			newSlice[i] = v
+		}
+		pool.clients = newSlice
+	}
 	pool.clients[id] = tmClient
 	pool.available++
 	return tmClient
@@ -75,7 +83,8 @@ func getClient() (Client, error) {
 		maxConnNum := int64(conf.MaxConnectionNum)
 		if pool.used < maxConnNum {
 			var tmClient Client
-			for i := int64(len(pool.clients)); i < maxConnNum; i++ {
+			length := len(pool.clients)
+			for i := int64(length); i < maxConnNum; i++ {
 				tmClient = createConnection(i)
 			}
 			return tmClient, nil
