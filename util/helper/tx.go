@@ -1,3 +1,5 @@
+// package for parse tx struct from binary data
+
 package helper
 
 import (
@@ -53,7 +55,6 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 		case nonce.Tx:
 			ctx, _ := txi.Unwrap().(nonce.Tx)
 			nonceAddr = ctx.Signers[0].Address
-			fmt.Println(nonceAddr)
 			break
 		case stake.TxUnbond, stake.TxDelegate, stake.TxDeclareCandidacy:
 			kind, _ := txi.GetKind()
@@ -81,7 +82,7 @@ func ParseTx(txByte types.Tx) (string, interface{}) {
 				return kind, StakeTxDeclareCandidacy
 			case stake.TypeTxEditCandidacy:
 				// TODO：record edit candidacy tx if necessary
-				//ctx, _ := txi.Unwrap().(stake.TxEditCandidacy)
+				// ctx, _ := txi.Unwrap().(stake.TxEditCandidacy)
 				break
 			case stake.TypeTxDelegate:
 				ctx, _ := txi.Unwrap().(stake.TxDelegate)

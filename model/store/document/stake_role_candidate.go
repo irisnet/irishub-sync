@@ -17,7 +17,7 @@ type Candidate struct {
 	Address     string      `bson:"address"` // owner
 	PubKey      string      `bson:"pub_key"`
 	Shares      int64       `bson:"shares"`
-	VotingPower uint64      `bson:"voting_power"` // Voting power if pubKey is a considered a validator
+	VotingPower int64      `bson:"voting_power"` // Voting power if pubKey is a considered a validator
 	Description Description `bson:"description"`  // Description terms for the candidate
 	UpdateTime time.Time    `bson:"update_time"`
 }

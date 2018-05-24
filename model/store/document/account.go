@@ -6,7 +6,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"github.com/irisnet/iris-sync-server/module/logger"
 )
 
 const (
@@ -45,10 +44,11 @@ func QueryAccount(address string) (Account, error) {
 		err := c.Find(bson.M{"address": address}).Sort("-amount.amount").One(&result)
 		return err
 	}
+	
+	err := store.ExecCollection(CollectionNmAccount, query)
 
-	if store.ExecCollection(CollectionNmAccount, query) != nil {
-		logger.Info.Println("Account is Empty")
-		return result, nil
+	if err != nil {
+		return result, err
 	}
 
 	return result, nil

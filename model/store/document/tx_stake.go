@@ -34,7 +34,7 @@ func (c StakeTx) Index() []mgo.Index {
 	return []mgo.Index{
 		{
 			Key:        []string{"tx_hash"},
-			Unique:     true,
+			Unique:     false,
 			DropDups:   false,
 			Background: true,
 		},

@@ -59,10 +59,11 @@ func buildDocData(blockHeight int64) store.Docs {
 
 func Test_saveTx(t *testing.T) {
 
-	docTxCoin := buildDocData(12453)
-	docTxStakeDeclareCandidacy := buildDocData(19073)
-	docTxStakeDelegate := buildDocData(13725)
-	docTxStakeUnBond := buildDocData(14260)
+	docTxCoin := buildDocData(1756)
+	docTxStakeDeclareCandidacy := buildDocData(1921)
+	docTxStakeDeclareCandidacy2 := buildDocData(1927)
+	docTxStakeDelegate := buildDocData(115135)
+	docTxStakeUnBond := buildDocData(397201)
 
 	type args struct {
 		tx store.Docs
@@ -86,6 +87,13 @@ func Test_saveTx(t *testing.T) {
 				mutex:sync.Mutex{},
 			},
 
+		},
+		{
+			name:"save tx_stake_declareCandidacy2",
+			args: args{
+				tx:docTxStakeDeclareCandidacy2,
+				mutex:sync.Mutex{},
+			},
 		},
 		{
 			name:"save tx_stake_delegate",
@@ -112,11 +120,12 @@ func Test_saveTx(t *testing.T) {
 }
 
 func Test_saveOrUpdateAccount(t *testing.T) {
-
-	docTxCoin := buildDocData(12453)
-	docTxStakeDeclareCandidacy := buildDocData(19073)
-	docTxStakeDelegate := buildDocData(13725)
-	docTxStakeUnBond := buildDocData(14260)
+	
+	docTxCoin := buildDocData(1756)
+	docTxStakeDeclareCandidacy := buildDocData(1921)
+	docTxStakeDeclareCandidacy2 := buildDocData(1927)
+	docTxStakeDelegate := buildDocData(115135)
+	docTxStakeUnBond := buildDocData(397201)
 
 	type args struct {
 		tx store.Docs
@@ -138,6 +147,13 @@ func Test_saveOrUpdateAccount(t *testing.T) {
 				tx: docTxStakeDeclareCandidacy,
 			},
 
+		},
+		{
+			name:"save tx_stake_declareCandidacy2",
+			args: args{
+				tx: docTxStakeDeclareCandidacy2,
+			},
+			
 		},
 		{
 			name:"save tx_stake_delegate",
@@ -162,11 +178,12 @@ func Test_saveOrUpdateAccount(t *testing.T) {
 }
 
 func Test_updateAccountBalance(t *testing.T) {
-
-	docTxCoin := buildDocData(12453)
-	docTxStakeDeclareCandidacy := buildDocData(19073)
-	docTxStakeDelegate := buildDocData(13725)
-	docTxStakeUnBond := buildDocData(14260)
+	
+	docTxCoin := buildDocData(1756)
+	docTxStakeDeclareCandidacy := buildDocData(1921)
+	docTxStakeDeclareCandidacy2 := buildDocData(1927)
+	docTxStakeDelegate := buildDocData(115135)
+	docTxStakeUnBond := buildDocData(397201)
 
 	type args struct {
 		tx store.Docs
@@ -188,6 +205,13 @@ func Test_updateAccountBalance(t *testing.T) {
 				tx:docTxStakeDeclareCandidacy,
 			},
 
+		},
+		{
+			name:"tx_stake_declareCandidacy2",
+			args: args{
+				tx:docTxStakeDeclareCandidacy2,
+			},
+			
 		},
 		{
 			name:"tx_stake_delegate",

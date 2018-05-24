@@ -8,7 +8,7 @@ import (
 	crypto "github.com/tendermint/go-crypto"
 )
 
-//TODO 当cosmos-sdk加入stake模块时需要删除该文件，防止在启动时，重复加载ByteTxDeclareCandidacy，ByteTxEditCandidacy等类型，导致启动失败
+// TODO 当cosmos-sdk加入stake模块时需要删除该文件，防止在启动时，重复加载ByteTxDeclareCandidacy，ByteTxEditCandidacy等类型，导致启动失败
 
 const stakingModuleName = "stake"
 
@@ -49,7 +49,7 @@ func init() {
 	sdk.TxMapper.RegisterImplementation(TxUnbond{}, TypeTxUnbond, ByteTxUnbond)
 }
 
-//Verify interface at compile time
+// Verify interface at compile time
 var _, _, _, _ sdk.TxInner = &TxDeclareCandidacy{}, &TxEditCandidacy{}, &TxDelegate{}, &TxUnbond{}
 
 // BondUpdate - struct for bonding or unbonding transactions

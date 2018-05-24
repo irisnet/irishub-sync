@@ -3,12 +3,13 @@
 package store
 
 import (
-	"fmt"
 	"time"
 
 	conf "github.com/irisnet/iris-sync-server/conf/db"
 	"github.com/irisnet/iris-sync-server/module/logger"
 
+	"errors"
+	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -26,22 +27,23 @@ func Init() {
 	if session == nil {
 		url := fmt.Sprintf("mongodb://%s:%s", conf.Host, conf.Port)
 
-		logger.Info.Printf("Mgo start on %s\n", url)
-
 		var err error
 		session, err = mgo.Dial(url)
 		if err != nil {
 			logger.Error.Fatalln(err)
 		}
+		logger.Info.Printf("Mgo start on %s\n", url)
 		session.SetMode(mgo.Monotonic, true)
-
-		//index()
 	}
+}
+
+func AddIndex() {
+	index()
 }
 
 func InitWithAuth(addrs []string, username, password string) {
 	dialInfo := &mgo.DialInfo{
-		Addrs:     addrs, //[]string{"192.168.6.122"}
+		Addrs:     addrs, // []string{"192.168.6.122"}
 		Direct:    false,
 		Timeout:   time.Second * 1,
 		Database:  conf.Database,
@@ -99,22 +101,21 @@ func index() {
 
 func Save(h Docs) error {
 	save := func(c *mgo.Collection) error {
-		//先按照关键字查询，如果存在，直接返回
-		n, _ := c.Find(h.PkKvPair()).Count()
+		pk := h.PkKvPair()
+		n, _ := c.Find(pk).Count()
 		if n >= 1 {
-			logger.Info.Println("db: record existed while save data")
-			return nil
+			errMsg := fmt.Sprintf("Record existed while save %v, data is %+v\n",
+				h.Name(), h)
+			return errors.New(errMsg)
 		}
-		//logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		// logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)
 	}
-
 	return ExecCollection(h.Name(), save)
 }
 
 func SaveOrUpdate(h Docs) error {
 	save := func(c *mgo.Collection) error {
-		//先按照关键字查询，如果存在，直接返回
 		n, err := c.Find(h.PkKvPair()).Count()
 		if err != nil {
 			logger.Error.Printf("Count:%d err:%+v\n", n, err)
@@ -123,7 +124,7 @@ func SaveOrUpdate(h Docs) error {
 		if n >= 1 {
 			return Update(h)
 		}
-		//logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		// logger.Trace.Printf("insert %s  %+v\n", h.Name(), h)
 		return c.Insert(h)
 	}
 
@@ -133,7 +134,7 @@ func SaveOrUpdate(h Docs) error {
 func Update(h Docs) error {
 	update := func(c *mgo.Collection) error {
 		key := h.PkKvPair()
-		//logger.Info.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
+		// logger.Trace.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
 		return c.Update(key, h)
 	}
 	return ExecCollection(h.Name(), update)
