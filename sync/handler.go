@@ -368,7 +368,7 @@ func buildCommonTxData(tx store.Docs, txType string) document.CommonTx {
 			From: txDeclare.From,
 			To: txDeclare.PubKey,
 			Amount: []coin.Coin{txDeclare.Amount},
-			Type: txType,
+			Type: txDeclare.Type,
 		}
 		break
 	case stake.TypeTxEditCandidacy:
@@ -382,7 +382,7 @@ func buildCommonTxData(tx store.Docs, txType string) document.CommonTx {
 			From: txStake.From,
 			To: txStake.PubKey,
 			Amount: []coin.Coin{txStake.Amount},
-			Type: txType,
+			Type: txStake.Type,
 		}
 		break
 	}
