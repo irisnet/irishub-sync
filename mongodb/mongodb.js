@@ -6,6 +6,7 @@ db.createCollection("stake_role_delegator");
 db.createCollection("sync_task");
 db.createCollection("tx_coin");
 db.createCollection("tx_stake");
+db.createCollection("tx_common");
 
 // create index
 db.account.createIndex({"address": 1}, {"unique": true});
@@ -37,6 +38,12 @@ db.tx_stake.createIndex({"type": 1});
 db.tx_stake.createIndex({"time": -1});
 db.tx_stake.createIndex({"from": 1, "to": 1, "type": 1, "time": -1});
 
+db.tx_common.createIndex({"tx_hash": 1}, {"unique": true});
+db.tx_common.createIndex({"from": 1});
+db.tx_common.createIndex({"to": 1});
+db.tx_common.createIndex({"height": -1});
+db.tx_common.createIndex({"time": -1});
+db.tx_common.createIndex({"type": 1});
 
 // drop collection
 db.account.drop();
@@ -46,6 +53,7 @@ db.stake_role_delegator.drop();
 db.sync_task.drop();
 db.tx_coin.drop();
 db.tx_stake.drop();
+db.tx_common.drop();
 
 // remove collection data
 db.account.remove({});
@@ -55,6 +63,7 @@ db.stake_role_delegator.remove({});
 db.sync_task.remove({});
 db.tx_coin.remove({});
 db.tx_stake.remove({});
+db.tx_common.remove({});
 
 
 
