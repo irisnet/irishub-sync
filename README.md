@@ -1,2 +1,2 @@
-# iris-sync-server
-A server that synchronize IRIS blockchain data into database
+# irishub-sync
+A daemon that synchronizes IRIS hub data into database
