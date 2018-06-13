@@ -171,8 +171,8 @@ imports:
   subpackages:
   - edwards25519
   - extra25519
-- name: github.com/tendermint/go-crypto
-  version: 2017856384589234024cda848a6332157d1f527c
+- name: github.com/kaifei-bianjie/go-crypto
+  version: 24495c106407be16701180f6948e9007037d677c
   subpackages:
   - keys
   - keys/cryptostore

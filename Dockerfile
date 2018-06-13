@@ -1,3 +1,5 @@
+# docker usage
+# docker build -t sync-irishub:dev .
 FROM alpine:edge
 
 # Set up dependencies
