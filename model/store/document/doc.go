@@ -1,7 +1,7 @@
 package document
 
 import (
-	"github.com/irisnet/iris-sync-server/model/store"
+	"github.com/irisnet/irishub-sync/model/store"
 )
 
 func init() {

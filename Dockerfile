@@ -7,13 +7,9 @@ ENV PACKAGES go make git libc-dev bash
 
 ENV GOPATH       /root/go
 ENV BASE_PATH    $GOPATH/src/github.com/irisnet
-ENV REPO_PATH    $BASE_PATH/iris-sync-server
+ENV REPO_PATH    $BASE_PATH/irishub-sync
 ENV LOG_DIR      /sync-iris/log
 ENV PATH         $GOPATH/bin:$PATH
-
-# Set volumes
-
-VOLUME $LOG_DIR:sync-iris-log
 
 # Link expected Go repo path
 
@@ -23,11 +19,18 @@ RUN mkdir -p $LOG_DIR $GOPATH/pkg $GOPATH/bin $BASE_PATH $REPO_PATH
 
 COPY . $REPO_PATH
 
-# Install minimum necessary dependencies, build iris-sync-server
+# Install minimum necessary dependencies, build irishub-sync
 RUN apk add --no-cache $PACKAGES && \
-    cd $REPO_PATH && make all && \
-    mv $REPO_PATH/sync-iris $GOPATH/bin && \
+    mv $REPO_PATH/conf/db/types.go.example $REPO_PATH/conf/db/types.go && \
+    mv $REPO_PATH/conf/server/types.go.example $REPO_PATH/conf/server/types.go && \
+    cd $REPO_PATH && \
+    make all && \
+    mv $REPO_PATH/sync-irishub $GOPATH/bin && \
     rm -rf $REPO_PATH/vendor && \
+    rm -rf $GOPATH/src/github.com/golang $GOPATH/bin/glide $GOPATH/pkg/* && \
     apk del $PACKAGES
 
-CMD sync-iris > $LOG_DIR/debug.log && tail -f $LOG_DIR/debug.log
+# Set volumes
+VOLUME ["$LOG_DIR"]
+
+CMD sync-irishub > $LOG_DIR/debug.log && tail -f $LOG_DIR/debug.log

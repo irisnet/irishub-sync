@@ -5,8 +5,8 @@ package store
 import (
 	"time"
 
-	conf "github.com/irisnet/iris-sync-server/conf/db"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	conf "github.com/irisnet/irishub-sync/conf/db"
+	"github.com/irisnet/irishub-sync/module/logger"
 
 	"errors"
 	"fmt"

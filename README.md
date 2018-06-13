@@ -1,4 +1,4 @@
-# IRIS-SYNC-SERVER
+# IRISHUB-SYNC
 A server that synchronize IRIS blockChain data into a database
 
 # Structure
