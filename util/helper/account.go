@@ -5,7 +5,7 @@ package helper
 import (
 	"time"
 
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/module/logger"
 
 	"github.com/tendermint/go-wire"
 	"github.com/cosmos/cosmos-sdk/modules/coin"

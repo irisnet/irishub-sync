@@ -1,4 +1,4 @@
-package: github.com/irisnet/iris-sync-server
+package: github.com/irisnet/irishub-sync
 import:
 - package: github.com/gorilla/websocket
 - package: github.com/pkg/errors

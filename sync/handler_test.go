@@ -2,12 +2,12 @@ package sync
 
 import (
 	"testing"
-	"github.com/irisnet/iris-sync-server/model/store"
-	"github.com/irisnet/iris-sync-server/util/helper"
-	"github.com/irisnet/iris-sync-server/module/logger"
-	"github.com/irisnet/iris-sync-server/util/constant"
-	"github.com/irisnet/iris-sync-server/model/store/document"
-	"github.com/irisnet/iris-sync-server/module/stake"
+	"github.com/irisnet/irishub-sync/model/store"
+	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/model/store/document"
+	"github.com/irisnet/irishub-sync/module/stake"
 	"sync"
 )
 

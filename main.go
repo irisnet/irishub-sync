@@ -2,7 +2,7 @@ package main
 
 import (
 	"sync"
-	syncTask "github.com/irisnet/iris-sync-server/sync"
+	syncTask "github.com/irisnet/irishub-sync/sync"
 )
 
 func main() {

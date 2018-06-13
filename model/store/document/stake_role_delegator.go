@@ -2,7 +2,7 @@ package document
 
 import (
 	"errors"
-	"github.com/irisnet/iris-sync-server/model/store"
+	"github.com/irisnet/irishub-sync/model/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"

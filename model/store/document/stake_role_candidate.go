@@ -2,11 +2,11 @@ package document
 
 import (
 	"errors"
-	"github.com/irisnet/iris-sync-server/model/store"
+	"github.com/irisnet/irishub-sync/model/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/module/logger"
 )
 
 const (

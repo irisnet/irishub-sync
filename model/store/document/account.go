@@ -2,7 +2,7 @@ package document
 
 import (
 	"github.com/cosmos/cosmos-sdk/modules/coin"
-	"github.com/irisnet/iris-sync-server/model/store"
+	"github.com/irisnet/irishub-sync/model/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
