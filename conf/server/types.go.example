@@ -4,8 +4,8 @@ import (
 	"os"
 	"strconv"
 	
-	"github.com/irisnet/iris-sync-server/util/constant"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/module/logger"
 )
 
 var (

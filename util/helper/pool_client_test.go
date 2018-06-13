@@ -8,8 +8,8 @@ import (
 
 	"github.com/tendermint/tendermint/rpc/client"
 	
-	conf "github.com/irisnet/iris-sync-server/conf/server"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	conf "github.com/irisnet/irishub-sync/conf/server"
+	"github.com/irisnet/irishub-sync/module/logger"
 )
 
 func TestInitClientPool(t *testing.T) {

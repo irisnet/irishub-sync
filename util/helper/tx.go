@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/irisnet/iris-sync-server/module/logger"
-	"github.com/irisnet/iris-sync-server/util/constant"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/util/constant"
 
 	sdk "github.com/cosmos/cosmos-sdk"
 	"github.com/tendermint/go-wire/data"
@@ -20,8 +20,8 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/modules/base"
 	"github.com/cosmos/cosmos-sdk/modules/coin"
 	"github.com/cosmos/cosmos-sdk/modules/nonce"
-	"github.com/irisnet/iris-sync-server/module/stake"
-	"github.com/irisnet/iris-sync-server/model/store/document"
+	"github.com/irisnet/irishub-sync/module/stake"
+	"github.com/irisnet/irishub-sync/model/store/document"
 )
 
 // parse tx struct from binary data

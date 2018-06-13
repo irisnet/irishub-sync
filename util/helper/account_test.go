@@ -3,7 +3,7 @@ package helper
 import (
 	"testing"
 
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/module/logger"
 )
 
 func setUp()  {

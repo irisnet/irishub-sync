@@ -5,10 +5,10 @@ package helper
 
 import (
 	"errors"
-	conf "github.com/irisnet/iris-sync-server/conf/server"
+	conf "github.com/irisnet/irishub-sync/conf/server"
 
 	rpcClient "github.com/cosmos/cosmos-sdk/client"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 

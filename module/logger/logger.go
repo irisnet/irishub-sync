@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"io/ioutil"
 )
 
 var (
@@ -14,24 +15,24 @@ var (
 )
 
 const (
-	traceDbFile = ".sync_server_db.log"
-	debugFile = ".sync_server_debug.log"
+	// traceDbFile = ".sync_server_db.log"
+	// debugFile = ".sync_server_debug.log"
 	errFile     = ".sync_server_err.log"
 	warningFile = ".sync_server_warning.log"
 )
 
 func init() {
-	traceDbFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+traceDbFile),
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalln("Failed to open trace db log file:", err)
-	}
-	
-	debugFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+debugFile),
-		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalln("Failed to open debug log file:", err)
-	}
+	// traceDbFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+traceDbFile),
+	// 	os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalln("Failed to open trace db log file:", err)
+	// }
+	//
+	// debugFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+debugFile),
+	// 	os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	// if err != nil {
+	// 	log.Fatalln("Failed to open debug log file:", err)
+	// }
 	
 	warningFile, err := os.OpenFile(os.ExpandEnv("$HOME/"+warningFile),
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -45,11 +46,11 @@ func init() {
 		log.Fatalln("Failed to open error log file:", err)
 	}
 
-	Trace = log.New(io.MultiWriter(traceDbFile, os.Stdout),
+	Trace = log.New(ioutil.Discard,
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	Info = log.New(io.MultiWriter(debugFile, os.Stdout),
+	Info = log.New(os.Stdout,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 

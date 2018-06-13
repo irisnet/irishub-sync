@@ -3,7 +3,7 @@ GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
-BINARY_NAME=sync-iris
+BINARY_NAME=sync-irishub
 BINARY_UNIX=$(BINARY_NAME)-unix
 
 all: get_tools get_deps build

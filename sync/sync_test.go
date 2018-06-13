@@ -4,10 +4,10 @@ import (
 	"testing"
 	"github.com/robfig/cron"
 	
-	conf "github.com/irisnet/iris-sync-server/conf/server"
+	conf "github.com/irisnet/irishub-sync/conf/server"
 	
 	"sync"
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/module/logger"
 	"time"
 )
 
