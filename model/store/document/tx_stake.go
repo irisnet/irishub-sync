@@ -1,25 +1,29 @@
 package document
 
 import (
-	"github.com/cosmos/cosmos-sdk/modules/coin"
-	"gopkg.in/mgo.v2"
+	"github.com/irisnet/irishub-sync/model/store"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
 const (
 	CollectionNmStakeTx = "tx_stake"
+	CollectionNmStakeTxDeclareCandidacy = CollectionNmStakeTx
+	CollectionNmStakeTxEditCandidacy = CollectionNmStakeTx
 )
 
 // StakeTx
 type StakeTx struct {
-	TxHash string    `bson:"tx_hash"`
-	Time   time.Time `bson:"time"`
-	Height int64     `bson:"height"`
-	From   string    `bson:"from"`
-	PubKey string    `bson:"pub_key"`
-	Type   string    `bson:"type"`
-	Amount coin.Coin `bson:"amount"`
+	TxHash        string     `bson:"tx_hash"`
+	Time          time.Time  `bson:"time"`
+	Height        int64      `bson:"height"`
+	DelegatorAddr string     `bson:"from"`
+	ValidatorAddr string     `bson:"to"`
+	PubKey        string     `bson:"pub_key"`
+	Type          string     `bson:"type"`
+	Amount        store.Coin `bson:"amount"`
+	Fee           store.Fee  `bson:"fee"`
+	Status        string     `bson:"status"`
 }
 
 func (c StakeTx) Name() string {
@@ -30,43 +34,41 @@ func (c StakeTx) PkKvPair() map[string]interface{} {
 	return bson.M{"tx_hash": c.TxHash}
 }
 
-func (c StakeTx) Index() []mgo.Index {
-	return []mgo.Index{
-		{
-			Key:        []string{"tx_hash"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"from"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"pub_key"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"-height"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"type"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"from", "pub_key", "type"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-	}
+// ======
+
+
+// Description
+type Description struct {
+	Moniker  string `bson:"moniker"`
+	Identity string `bson:"identity"`
+	Website  string `bson:"website"`
+	Details  string `bson:"details"`
+}
+
+type StakeTxDeclareCandidacy struct {
+	StakeTx `bson:"stake_tx"`
+	Description `bson:"description"`
+}
+
+func (s StakeTxDeclareCandidacy) Name() string  {
+	return CollectionNmStakeTxDeclareCandidacy
+}
+
+func (s StakeTxDeclareCandidacy) PkKvPair() map[string]interface{}  {
+	return bson.M{"stake_tx.tx_hash": s.TxHash}
+}
+
+// ======
+
+type StakeTxEditCandidacy struct {
+	StakeTx `bson:"stake_tx"`
+	Description `bson:"description"`
+}
+
+func (s StakeTxEditCandidacy) Name() string  {
+	return CollectionNmStakeTxEditCandidacy
+}
+
+func (s StakeTxEditCandidacy) PkKvPair() map[string]interface{}  {
+	return bson.M{"stake_tx.tx_hash": s.TxHash}
 }

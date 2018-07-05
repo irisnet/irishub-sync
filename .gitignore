@@ -1,6 +1,5 @@
 .idea/
 vendor/
-conf/**/types.go
 .DS_Store
 sync-iris
 sync-iris-unix

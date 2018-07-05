@@ -1,15 +1,12 @@
 package sync
 
 import (
-	"encoding/hex"
-	"strings"
-
 	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/model/store"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/module/stake"
-	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/module/codec"
+	"github.com/irisnet/irishub-sync/sync/handler"
 
 	"github.com/irisnet/irishub-sync/model/store/document"
 	"github.com/robfig/cron"
@@ -37,7 +34,7 @@ func Start() {
 		err error
 		i = 1
 	)
-	InitServer()
+	Init()
 	c := helper.GetClient().Client
 	
 	for {
@@ -52,7 +49,7 @@ func Start() {
 				logger.Error.Fatalf("TmClient err and exit, %v\n", err.Error())
 			}
 		}
-		latestHeight := status.LatestBlockHeight
+		latestHeight := status.SyncInfo.LatestBlockHeight
 		if syncLatestHeight >= latestHeight - 60 {
 			logger.Info.Println("All fast sync task complete!")
 			break
@@ -64,7 +61,7 @@ func Start() {
 	startCron(c)
 }
 
-func InitServer() {
+func Init() {
 	store.Init()
 
 	chainId := conf.ChainId
@@ -100,10 +97,10 @@ func watchBlock(c rpcClient.Client) {
 	
 	syncTask, _ := document.QuerySyncTask()
 	status, _ := c.Status()
-	latestBlockHeight := status.LatestBlockHeight
+	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	funcChain := []func(tx store.Docs, mutex sync.Mutex){
-		saveTx, saveOrUpdateAccount, updateAccountBalance,
+		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 	}
 
 	ch := make(chan int64)
@@ -131,10 +128,10 @@ func watchBlock(c rpcClient.Client) {
 func fastSync(c rpcClient.Client) int64 {
 	syncTaskDoc, _ := document.QuerySyncTask()
 	status, _ := c.Status()
-	latestBlockHeight := status.LatestBlockHeight
+	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	funcChain := []func(tx store.Docs, mutex sync.Mutex){
-		saveTx, saveOrUpdateAccount, updateAccountBalance,
+		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 	}
 
 	ch := make(chan int64)
@@ -194,10 +191,6 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
-	// release unBuffer chain and buffer chain
-	// defer func() {
-	//
-	// }()
 
 	for j := start; j <= end; j++ {
 		block, err := client.Client.Block(&j)
@@ -214,51 +207,21 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 		if block.BlockMeta.Header.NumTxs > 0 {
 			txs := block.Block.Data.Txs
 			for _, txByte := range txs {
-				txType, tx := helper.ParseTx(txByte)
-				txHash := strings.ToUpper(hex.EncodeToString(txByte.Hash()))
+				docTx := helper.ParseTx(codec.Cdc, txByte, block.Block)
+				txHash := helper.BuildHex(txByte.Hash())
 				if txHash == "" {
 					logger.Warning.Printf("Tx has no hash, skip this tx."+
-						""+"type of tx is %v, value of tx is %v\n",
-						txType, tx)
+						""+"tx is %v\n", helper.ToJson(docTx))
 					continue
 				}
-				logger.Info.Printf("===========threadNo[%d] find tx,txType=%s;txHash=%s\n", threadNum, txType, txHash)
+				logger.Info.Printf("===========threadNo[%d] find tx, txHash=%s\n", threadNum, txHash)
 
-				switch txType {
-				case constant.TxTypeCoin:
-					coinTx, _ := tx.(document.CoinTx)
-					coinTx.Height = block.Block.Height
-					coinTx.Time = block.Block.Time
-					handle(coinTx, mutex, funcChain)
-					break
-				case stake.TypeTxDeclareCandidacy:
-					stakeTxDeclareCandidacy, _ := tx.(document.StakeTxDeclareCandidacy)
-					stakeTxDeclareCandidacy.Height = block.Block.Height
-					stakeTxDeclareCandidacy.Time = block.Block.Time
-					handle(stakeTxDeclareCandidacy, mutex, funcChain)
-					break
-				case stake.TypeTxEditCandidacy:
-					break
-				case stake.TypeTxDelegate, stake.TypeTxUnbond:
-					stakeTx, _ := tx.(document.StakeTx)
-					stakeTx.Height = block.Block.Height
-					stakeTx.Time = block.Block.Time
-					handle(stakeTx, mutex, funcChain)
-					break
-				}
+				handler.Handle(docTx, mutex, funcChain)
 			}
 		}
 
 		// save block info
-		bk := document.Block{
-			Height: block.Block.Height,
-			Time:   block.Block.Time,
-			TxNum:  block.BlockMeta.Header.NumTxs,
-		}
-		if err := store.Save(bk); err != nil {
-			logger.Error.Printf("Save block info failed, err is %v",
-				err.Error())
-		}
+		handler.SaveBlock(block.BlockMeta, block.Block)
 	}
 	
 	logger.Info.Printf("ThreadNo[%d] finish sync block from %d to %d\n",

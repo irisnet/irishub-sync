@@ -8,10 +8,10 @@ import (
 
 var (
 	Host     = "127.0.0.1"
-	Port     = "27017"
+	Port     = "27117"
 	User     = ""
 	Passwd   = ""
-	Database = "test"
+	Database = "sync-iris-dev"
 )
 
 // get value of env var
