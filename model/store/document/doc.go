@@ -6,9 +6,9 @@ import (
 
 func init() {
 	store.RegisterDocs(new(Account))
-	store.RegisterDocs(new(CoinTx))
 	store.RegisterDocs(new(StakeTx))
 	store.RegisterDocs(new(StakeTxDeclareCandidacy))
+	store.RegisterDocs(new(StakeTxEditCandidacy))
 	store.RegisterDocs(new(Candidate))
 	store.RegisterDocs(new(Delegator))
 	store.RegisterDocs(new(Block))

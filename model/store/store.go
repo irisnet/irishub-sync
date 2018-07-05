@@ -37,10 +37,6 @@ func Init() {
 	}
 }
 
-func AddIndex() {
-	index()
-}
-
 func InitWithAuth(addrs []string, username, password string) {
 	dialInfo := &mgo.DialInfo{
 		Addrs:     addrs, // []string{"192.168.6.122"}
@@ -57,7 +53,6 @@ func InitWithAuth(addrs []string, username, password string) {
 	if nil != err {
 		panic(err)
 	}
-	index()
 }
 
 func getSession() *mgo.Session {
@@ -78,25 +73,6 @@ func Find(collection string, query interface{}) *mgo.Query {
 	defer session.Close()
 	c := session.DB(conf.Database).C(collection)
 	return c.Find(query)
-}
-
-func index() {
-	if len(docs) == 0 {
-		return
-	}
-	for _, h := range docs {
-		indexKey := func(c *mgo.Collection) error {
-			for _, i := range h.Index() {
-				err := c.EnsureIndex(i)
-				if err != nil {
-					logger.Error.Println(err)
-					return err
-				}
-			}
-			return nil
-		}
-		ExecCollection(h.Name(), indexKey)
-	}
 }
 
 func Save(h Docs) error {
@@ -140,16 +116,6 @@ func Update(h Docs) error {
 	return ExecCollection(h.Name(), update)
 }
 
-/**
- * 执行查询，此方法可拆分做为公共方法
- * [SearchPerson description]
- * @param {[type]} collectionName string [description]
- * @param {[type]} query          bson.M [description]
- * @param {[type]} sort           bson.M [description]
- * @param {[type]} fields         bson.M [description]
- * @param {[type]} skip           int    [description]
- * @param {[type]} limit          int)   (results      []interface{}, err error [description]
- */
 func Query(collectionName string, query bson.M, sort string, fields bson.M, skip int, limit int) (results []interface{}, err error) {
 	exop := func(c *mgo.Collection) error {
 		return c.Find(query).Sort(sort).Select(fields).Skip(skip).Limit(limit).All(&results)

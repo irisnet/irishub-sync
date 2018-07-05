@@ -7,7 +7,6 @@ import (
 	"errors"
 	conf "github.com/irisnet/irishub-sync/conf/server"
 
-	rpcClient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
 )
@@ -61,7 +60,7 @@ func (n Client) Release() {
 
 func createConnection(id int64) Client {
 	tmClient := Client{
-		Client: rpcClient.GetNode(conf.BlockChainMonitorUrl),
+		Client: client.NewHTTP(conf.BlockChainMonitorUrl, "/websocket"),
 		used:   false,
 		id:     id,
 	}

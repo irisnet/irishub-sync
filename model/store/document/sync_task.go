@@ -26,17 +26,6 @@ func (c SyncTask) PkKvPair() map[string]interface{} {
 	return bson.M{"chain_id": c.ChainID}
 }
 
-func (c SyncTask) Index() []mgo.Index {
-	return []mgo.Index{
-		{
-			Key:        []string{"chain_id"},
-			Unique:     true,
-			DropDups:   false,
-			Background: true,
-		},
-	}
-}
-
 func QuerySyncTask() (SyncTask, error) {
 	result := SyncTask{}
 

@@ -13,10 +13,10 @@ const (
 )
 
 type Delegator struct {
-	Address    string    `bson:"address"`
-	PubKey     string    `bson:"pub_key"`
-	Shares     int64     `bson:"shares"`
-	UpdateTime time.Time `bson:"update_time"`
+	Address       string    `bson:"address"`
+	ValidatorAddr string    `bson:"pub_key"` // validatorAddr
+	Shares        int64     `bson:"shares"`
+	UpdateTime    time.Time `bson:"update_time"`
 }
 
 func (d Delegator) Name() string {
@@ -24,36 +24,13 @@ func (d Delegator) Name() string {
 }
 
 func (d Delegator) PkKvPair() map[string]interface{} {
-	return bson.M{"address": d.Address, "pub_key": d.PubKey}
+	return bson.M{"address": d.Address, "pub_key": d.ValidatorAddr}
 }
 
-func (d Delegator) Index() []mgo.Index {
-	return []mgo.Index{
-		{
-			Key:        []string{"address"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"pub_key"},
-			Unique:     false,
-			DropDups:   false,
-			Background: true,
-		},
-		{
-			Key:        []string{"address", "pub_key"},
-			Unique:     true,
-			DropDups:   false,
-			Background: true,
-		},
-	}
-}
-
-func QueryDelegatorByAddressAndPubkey(address string, pubKey string) (Delegator, error) {
+func QueryDelegatorByAddressAndValAddr(address string, valAddr string) (Delegator, error) {
 	var result Delegator
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"address": address, "pub_key": pubKey}).Sort("-shares").One(&result)
+		err := c.Find(bson.M{"address": address, "pub_key": valAddr}).Sort("-shares").One(&result)
 		return err
 	}
 

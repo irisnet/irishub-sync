@@ -2,9 +2,8 @@ package document
 
 import (
 	"time"
-	"github.com/cosmos/cosmos-sdk/modules/coin"
+	"github.com/irisnet/irishub-sync/model/store"
 	"gopkg.in/mgo.v2/bson"
-	"gopkg.in/mgo.v2"
 )
 
 const (
@@ -17,8 +16,10 @@ type CommonTx struct {
 	Height int64      `bson:"height"`
 	From   string     `bson:"from"`
 	To     string     `bson:"to"`
-	Amount coin.Coins `bson:"amount"`
+	Amount store.Coins `bson:"amount"`
 	Type   string     `bson:"type"`
+	Fee    store.Fee  `bson:"fee"`
+	Status string `bson:"status"`
 }
 
 func (d CommonTx) Name() string {
@@ -27,8 +28,4 @@ func (d CommonTx) Name() string {
 
 func (d CommonTx) PkKvPair() map[string]interface{} {
 	return bson.M{"tx_hash": d.TxHash}
-}
-
-func (d CommonTx) Index() []mgo.Index {
-	return []mgo.Index{}
 }
