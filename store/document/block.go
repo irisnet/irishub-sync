@@ -10,21 +10,22 @@ const (
 )
 
 type Block struct {
-	Height      int64             `bson:"height"`
-	Hash        string            `bson:"hash"`
-	Time        time.Time         `bson:"time"`
-	NumTxs      int64             `bson:"num_txs"`
-	Meta        BlockMeta `bson:"meta"`
-	Block BlockContent `bson:"block"`
+	Height     int64        `bson:"height"`
+	Hash       string       `bson:"hash"`
+	Time       time.Time    `bson:"time"`
+	NumTxs     int64        `bson:"num_txs"`
+	Meta       BlockMeta    `bson:"meta"`
+	Block      BlockContent `bson:"block"`
+	Validators []Validator  `bson:"validators"`
 }
 
 type BlockMeta struct {
 	BlockID BlockID `bson:"block_id"`
-	Header Header `bson:"header"`
+	Header  Header  `bson:"header"`
 }
 
 type BlockID struct {
-	Hash        string  `bson:"hash"`
+	Hash        string        `bson:"hash"`
 	PartsHeader PartSetHeader `bson:"parts"`
 }
 
@@ -59,7 +60,7 @@ type Header struct {
 }
 
 type BlockContent struct {
-	LastCommit Commit      `bson:"last_commit"`
+	LastCommit Commit `bson:"last_commit"`
 }
 
 type Commit struct {
@@ -67,26 +68,32 @@ type Commit struct {
 	// Any peer with a block can gossip precommits by index with a peer without recalculating the
 	// active ValidatorSet.
 	BlockID    BlockID `bson:"block_id"`
-	Precommits []Vote `bson:"precommits"`
+	Precommits []Vote  `bson:"precommits"`
 }
 
 // Represents a prevote, precommit, or commit vote from validators for consensus.
 type Vote struct {
-	ValidatorAddress string          `bson:"validator_address"`
-	ValidatorIndex   int              `bson:"validator_index"`
-	Height           int64            `bson:"height"`
-	Round            int              `bson:"round"`
-	Timestamp        time.Time        `bson:"timestamp"`
-	Type             byte             `bson:"type"`
-	BlockID          BlockID          `bson:"block_id"` // zero if vote is nil.
+	ValidatorAddress string    `bson:"validator_address"`
+	ValidatorIndex   int       `bson:"validator_index"`
+	Height           int64     `bson:"height"`
+	Round            int       `bson:"round"`
+	Timestamp        time.Time `bson:"timestamp"`
+	Type             byte      `bson:"type"`
+	BlockID          BlockID   `bson:"block_id"` // zero if vote is nil.
 	Signature        Signature `bson:"signature"`
 }
 
 type Signature struct {
-	Type string `bson:"type"`
+	Type  string `bson:"type"`
 	Value string `bson:"value"`
 }
 
+type Validator struct {
+	Address     string `bson:"address"`
+	PubKey      string `bson:"pub_key"`
+	VotingPower int64  `bson:"voting_power"`
+	Accum       int64  `bson:"accum"`
+}
 
 func (d Block) Name() string {
 	return CollectionNmBlock

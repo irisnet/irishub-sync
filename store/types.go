@@ -18,5 +18,5 @@ type Coins []Coin
 
 type Fee struct {
 	Amount Coins
-	Gas int64
+	Gas    int64
 }

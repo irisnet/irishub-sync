@@ -3,28 +3,28 @@
 package helper
 
 import (
-	"github.com/irisnet/irishub-sync/model/store/document"
+	"github.com/irisnet/irishub-sync/store/document"
 
-	"github.com/tendermint/tendermint/types"
+	"encoding/hex"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/wire"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/stake"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/model/store"
-	"strings"
-	"encoding/hex"
+	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/tendermint/tendermint/types"
 	"strconv"
+	"strings"
 )
 
 type (
-	msgBankSend = bank.MsgSend
-	msgStakeCreate = stake.MsgCreateValidator
-	msgStakeEdit = stake.MsgEditValidator
+	msgBankSend      = bank.MsgSend
+	msgStakeCreate   = stake.MsgCreateValidator
+	msgStakeEdit     = stake.MsgEditValidator
 	msgStakeDelegate = stake.MsgDelegate
-	msgStakeUnbond = stake.MsgUnbond
+	msgStakeUnbond   = stake.MsgUnbond
 )
 
 func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
@@ -47,11 +47,11 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 	switch authTx.GetMsg().(type) {
 	case msgBankSend:
 		msg := authTx.Msg.(msgBankSend)
-		docTx := document.CommonTx {
+		docTx := document.CommonTx{
 			Height: height,
-			Time: time,
+			Time:   time,
 			TxHash: txHash,
-			Fee: fee,
+			Fee:    fee,
 			Status: status,
 		}
 		docTx.From = msg.Inputs[0].Address.String()
@@ -63,9 +63,9 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		msg := authTx.Msg.(msgStakeCreate)
 		stakeTx := document.StakeTx{
 			Height: height,
-			Time: time,
+			Time:   time,
 			TxHash: txHash,
-			Fee: fee,
+			Fee:    fee,
 			Status: status,
 		}
 		stakeTx.ValidatorAddr = msg.ValidatorAddr.String()
@@ -73,14 +73,14 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		stakeTx.Amount = buildCoin(msg.Bond)
 
 		description := document.Description{
-			Moniker: msg.Moniker,
+			Moniker:  msg.Moniker,
 			Identity: msg.Identity,
-			Website: msg.Website,
-			Details: msg.Details,
+			Website:  msg.Website,
+			Details:  msg.Details,
 		}
 
 		docTx := document.StakeTxDeclareCandidacy{
-			StakeTx: stakeTx,
+			StakeTx:     stakeTx,
 			Description: description,
 		}
 		docTx.Type = constant.TxTypeStakeCreate
@@ -89,22 +89,22 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		msg := authTx.Msg.(msgStakeEdit)
 		stakeTx := document.StakeTx{
 			Height: height,
-			Time: time,
+			Time:   time,
 			TxHash: txHash,
-			Fee: fee,
+			Fee:    fee,
 			Status: status,
 		}
 		stakeTx.ValidatorAddr = msg.ValidatorAddr.String()
 
 		description := document.Description{
-			Moniker: msg.Moniker,
+			Moniker:  msg.Moniker,
 			Identity: msg.Identity,
-			Website: msg.Website,
-			Details: msg.Details,
+			Website:  msg.Website,
+			Details:  msg.Details,
 		}
 
 		docTx := document.StakeTxEditCandidacy{
-			StakeTx: stakeTx,
+			StakeTx:     stakeTx,
 			Description: description,
 		}
 		docTx.Type = constant.TxTypeStakeEdit
@@ -113,9 +113,9 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		msg := authTx.Msg.(msgStakeDelegate)
 		docTx := document.StakeTx{
 			Height: height,
-			Time: time,
+			Time:   time,
 			TxHash: txHash,
-			Fee: fee,
+			Fee:    fee,
 			Status: status,
 		}
 		docTx.DelegatorAddr = msg.DelegatorAddr.String()
@@ -131,9 +131,9 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		}
 		docTx := document.StakeTx{
 			Height: height,
-			Time: time,
+			Time:   time,
 			TxHash: txHash,
-			Fee: fee,
+			Fee:    fee,
 			Status: status,
 		}
 		docTx.DelegatorAddr = msg.DelegatorAddr.String()
@@ -149,7 +149,6 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 
 	return nil
 }
-
 
 func BuildCoins(coins sdktypes.Coins) store.Coins {
 	var (
@@ -167,7 +166,7 @@ func BuildCoins(coins sdktypes.Coins) store.Coins {
 
 func buildCoin(coin sdktypes.Coin) store.Coin {
 	return store.Coin{
-		Denom: coin.Denom,
+		Denom:  coin.Denom,
 		Amount: coin.Amount,
 	}
 }
@@ -179,6 +178,6 @@ func buildFee(fee auth.StdFee) store.Fee {
 	}
 }
 
-func BuildHex(bytes []byte) string  {
+func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))
 }

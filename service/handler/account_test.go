@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/irisnet/irishub-sync/model/store"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 func TestSaveAccount(t *testing.T) {
@@ -71,7 +71,6 @@ func TestUpdateBalance(t *testing.T) {
 	docTxStakeEdit := buildDocData(49388)
 	docTxStakeDelegate := buildDocData(47349)
 	docTxStakeUnBond := buildDocData(34241)
-
 
 	type args struct {
 		docTx store.Docs

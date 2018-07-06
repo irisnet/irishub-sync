@@ -1,7 +1,7 @@
 package document
 
 import (
-	"github.com/irisnet/irishub-sync/model/store"
+	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -12,10 +12,10 @@ const (
 )
 
 type Account struct {
-	Address string     `bson:"address"`
+	Address string      `bson:"address"`
 	Amount  store.Coins `bson:"amount"`
-	Time    time.Time  `bson:"time"`
-	Height  int64      `bson:"height"`
+	Time    time.Time   `bson:"time"`
+	Height  int64       `bson:"height"`
 }
 
 func (a Account) Name() string {
@@ -32,7 +32,7 @@ func QueryAccount(address string) (Account, error) {
 		err := c.Find(bson.M{"address": address}).Sort("-amount.amount").One(&result)
 		return err
 	}
-	
+
 	err := store.ExecCollection(CollectionNmAccount, query)
 
 	if err != nil {

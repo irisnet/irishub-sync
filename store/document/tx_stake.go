@@ -1,15 +1,15 @@
 package document
 
 import (
-	"github.com/irisnet/irishub-sync/model/store"
+	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
 const (
-	CollectionNmStakeTx = "tx_stake"
+	CollectionNmStakeTx                 = "tx_stake"
 	CollectionNmStakeTxDeclareCandidacy = CollectionNmStakeTx
-	CollectionNmStakeTxEditCandidacy = CollectionNmStakeTx
+	CollectionNmStakeTxEditCandidacy    = CollectionNmStakeTx
 )
 
 // StakeTx
@@ -36,7 +36,6 @@ func (c StakeTx) PkKvPair() map[string]interface{} {
 
 // ======
 
-
 // Description
 type Description struct {
 	Moniker  string `bson:"moniker"`
@@ -46,29 +45,29 @@ type Description struct {
 }
 
 type StakeTxDeclareCandidacy struct {
-	StakeTx `bson:"stake_tx"`
+	StakeTx     `bson:"stake_tx"`
 	Description `bson:"description"`
 }
 
-func (s StakeTxDeclareCandidacy) Name() string  {
+func (s StakeTxDeclareCandidacy) Name() string {
 	return CollectionNmStakeTxDeclareCandidacy
 }
 
-func (s StakeTxDeclareCandidacy) PkKvPair() map[string]interface{}  {
+func (s StakeTxDeclareCandidacy) PkKvPair() map[string]interface{} {
 	return bson.M{"stake_tx.tx_hash": s.TxHash}
 }
 
 // ======
 
 type StakeTxEditCandidacy struct {
-	StakeTx `bson:"stake_tx"`
+	StakeTx     `bson:"stake_tx"`
 	Description `bson:"description"`
 }
 
-func (s StakeTxEditCandidacy) Name() string  {
+func (s StakeTxEditCandidacy) Name() string {
 	return CollectionNmStakeTxEditCandidacy
 }
 
-func (s StakeTxEditCandidacy) PkKvPair() map[string]interface{}  {
+func (s StakeTxEditCandidacy) PkKvPair() map[string]interface{} {
 	return bson.M{"stake_tx.tx_hash": s.TxHash}
 }
