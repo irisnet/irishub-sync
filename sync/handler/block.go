@@ -10,7 +10,7 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 )
 
-func SaveBlock(meta *types.BlockMeta, block *types.Block)  {
+func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator)  {
 
 	hexFunc := func(bytes []byte) string {
 		return helper.BuildHex(bytes)
@@ -31,6 +31,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block)  {
 		},
 	}
 
+	// blockMeta
 	blockMeta := document.BlockMeta{
 		BlockID: document.BlockID{
 			Hash: hexFunc(meta.BlockID.Hash),
@@ -56,6 +57,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block)  {
 		},
 	}
 
+	// block
 	var (
 		preCommits []document.Vote
 	)
@@ -86,8 +88,24 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block)  {
 		},
 	}
 
+	// validators
+	var vals []document.Validator
+	if len(validators) > 0 {
+		for _, v := range validators {
+			validator := document.Validator{
+				Address: v.Address.String(),
+				VotingPower: v.VotingPower,
+				Accum: v.Accum,
+				PubKey: hexFunc(v.PubKey.Bytes()),
+			}
+			vals = append(vals, validator)
+		}
+	}
+
+
 	docBlock.Meta = blockMeta
 	docBlock.Block = blockContent
+	docBlock.Validators = vals
 
 	err := store.Save(docBlock)
 	if err != nil {

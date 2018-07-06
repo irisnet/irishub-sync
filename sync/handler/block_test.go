@@ -8,7 +8,7 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 )
 
-func buildBlock(blockHeight int64) (*types.BlockMeta, *types.Block) {
+func buildBlock(blockHeight int64) (*types.BlockMeta, *types.Block, []*types.Validator) {
 
 	client := helper.GetClient()
 	// release client
@@ -20,16 +20,23 @@ func buildBlock(blockHeight int64) (*types.BlockMeta, *types.Block) {
 		logger.Error.Fatalln(err)
 	}
 
-	return block.BlockMeta, block.Block
+	validators, err := client.Client.Validators(&blockHeight)
+	if err != nil {
+		logger.Error.Fatalln(err)
+	}
+
+	return block.BlockMeta, block.Block, validators.Validators
 }
 
 func TestSaveBlock(t *testing.T) {
-	meta1, block1 := buildBlock(28558)
-	meta2, block2 := buildBlock(47349)
+	meta1, block1, vals1 := buildBlock(28558)
+	meta2, block2, vals2 := buildBlock(96319)
+	meta3, block3, vals3 := buildBlock(34241)
 
 	type args struct {
 		meta  *types.BlockMeta
 		block *types.Block
+		vals []*types.Validator
 	}
 	tests := []struct {
 		name string
@@ -40,6 +47,7 @@ func TestSaveBlock(t *testing.T) {
 			args: args{
 				meta: meta1,
 				block: block1,
+				vals: vals1,
 			},
 		},
 		{
@@ -47,12 +55,21 @@ func TestSaveBlock(t *testing.T) {
 			args: args{
 				meta: meta2,
 				block: block2,
+				vals: vals2,
+			},
+		},
+		{
+			name: "test save block",
+			args: args{
+				meta: meta3,
+				block: block3,
+				vals: vals3,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			SaveBlock(tt.args.meta, tt.args.block)
+			SaveBlock(tt.args.meta, tt.args.block, tt.args.vals)
 		})
 	}
 }

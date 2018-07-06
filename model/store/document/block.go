@@ -16,6 +16,7 @@ type Block struct {
 	NumTxs      int64             `bson:"num_txs"`
 	Meta        BlockMeta `bson:"meta"`
 	Block BlockContent `bson:"block"`
+	Validators []Validator `bson:"validators"`
 }
 
 type BlockMeta struct {
@@ -86,6 +87,13 @@ type Signature struct {
 	Type string `bson:"type"`
 	Value string `bson:"value"`
 }
+
+type Validator struct {
+	Address     string       `bson:"address"`
+	PubKey      string `bson:"pub_key"`
+	VotingPower int64         `bson:"voting_power"`
+	Accum int64 `bson:"accum"`
+} 
 
 
 func (d Block) Name() string {

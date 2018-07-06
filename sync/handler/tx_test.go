@@ -40,11 +40,11 @@ func buildDocData(blockHeight int64) store.Docs {
 
 
 func TestSaveTx(t *testing.T) {
-	docTxBank := buildDocData(1762)
-	docTxStakeCreate := buildDocData(46910)
-	docTxStakeEdit := buildDocData(49388)
-	docTxStakeDelegate := buildDocData(47349)
-	docTxStakeUnBond := buildDocData(34241)
+	//docTxBank := buildDocData(1762)
+	//docTxStakeCreate := buildDocData(46910)
+	//docTxStakeEdit := buildDocData(49388)
+	//docTxStakeDelegate := buildDocData(47349)
+	docTxStakeUnBond := buildDocData(96319)
 
 	type args struct {
 		docTx store.Docs
@@ -54,34 +54,34 @@ func TestSaveTx(t *testing.T) {
 		name string
 		args args
 	}{
-		{
-			name: "tx bank",
-			args: args{
-				docTx: docTxBank,
-				mutex: sync.Mutex{},
-			},
-		},
-		{
-			name: "tx stake/create",
-			args: args{
-				docTx: docTxStakeCreate,
-				mutex: sync.Mutex{},
-			},
-		},
-		{
-			name: "tx stake/edit",
-			args: args{
-				docTx: docTxStakeEdit,
-				mutex: sync.Mutex{},
-			},
-		},
-		{
-			name: "tx stake/delegate",
-			args: args{
-				docTx: docTxStakeDelegate,
-				mutex: sync.Mutex{},
-			},
-		},
+		//{
+		//	name: "tx bank",
+		//	args: args{
+		//		docTx: docTxBank,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
+		//{
+		//	name: "tx stake/create",
+		//	args: args{
+		//		docTx: docTxStakeCreate,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
+		//{
+		//	name: "tx stake/edit",
+		//	args: args{
+		//		docTx: docTxStakeEdit,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
+		//{
+		//	name: "tx stake/delegate",
+		//	args: args{
+		//		docTx: docTxStakeDelegate,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
 		{
 			name: "tx stake/unbond",
 			args: args{

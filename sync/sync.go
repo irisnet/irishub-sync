@@ -14,6 +14,7 @@ import (
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"sync"
+	"github.com/tendermint/tendermint/types"
 )
 
 var (
@@ -220,8 +221,18 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 			}
 		}
 
+		// get validatorSet at given height
+		var validators []*types.Validator
+		res, err := client.Client.Validators(&j)
+		if err != nil {
+			logger.Error.Printf("Can't get validatorSet at %v\n", j)
+		} else {
+			validators = res.Validators
+		}
+
+
 		// save block info
-		handler.SaveBlock(block.BlockMeta, block.Block)
+		handler.SaveBlock(block.BlockMeta, block.Block, validators)
 	}
 	
 	logger.Info.Printf("ThreadNo[%d] finish sync block from %d to %d\n",
