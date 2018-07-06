@@ -1,16 +1,16 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/irisnet/irishub-sync/model/store/document"
-	"github.com/tendermint/tendermint/types"
-	"github.com/irisnet/irishub-sync/model/store"
-	"github.com/irisnet/irishub-sync/module/codec"
 	"encoding/json"
+	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/tendermint/tendermint/types"
 )
 
-func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator)  {
+func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) {
 
 	hexFunc := func(bytes []byte) string {
 		return helper.BuildHex(bytes)
@@ -27,7 +27,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 		Hash: hexFunc(meta.Header.LastBlockID.Hash),
 		PartsHeader: document.PartSetHeader{
 			Total: meta.Header.LastBlockID.PartsHeader.Total,
-			Hash: hexFunc(meta.Header.LastBlockID.PartsHeader.Hash),
+			Hash:  hexFunc(meta.Header.LastBlockID.PartsHeader.Hash),
 		},
 	}
 
@@ -37,23 +37,23 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 			Hash: hexFunc(meta.BlockID.Hash),
 			PartsHeader: document.PartSetHeader{
 				Total: meta.BlockID.PartsHeader.Total,
-				Hash: hexFunc(meta.BlockID.PartsHeader.Hash),
+				Hash:  hexFunc(meta.BlockID.PartsHeader.Hash),
 			},
 		},
 		Header: document.Header{
-			ChainID: meta.Header.ChainID,
-			Height: meta.Header.Height,
-			Time: meta.Header.Time,
-			NumTxs: meta.Header.NumTxs,
-			LastBlockID: lastBlockId,
-			TotalTxs: meta.Header.TotalTxs,
-			LastCommitHash: hexFunc(meta.Header.LastCommitHash),
-			DataHash: hexFunc(meta.Header.DataHash),
-			ValidatorsHash: hexFunc(meta.Header.ValidatorsHash),
-			ConsensusHash: hexFunc(meta.Header.ConsensusHash),
-			AppHash: hexFunc(meta.Header.AppHash),
+			ChainID:         meta.Header.ChainID,
+			Height:          meta.Header.Height,
+			Time:            meta.Header.Time,
+			NumTxs:          meta.Header.NumTxs,
+			LastBlockID:     lastBlockId,
+			TotalTxs:        meta.Header.TotalTxs,
+			LastCommitHash:  hexFunc(meta.Header.LastCommitHash),
+			DataHash:        hexFunc(meta.Header.DataHash),
+			ValidatorsHash:  hexFunc(meta.Header.ValidatorsHash),
+			ConsensusHash:   hexFunc(meta.Header.ConsensusHash),
+			AppHash:         hexFunc(meta.Header.AppHash),
 			LastResultsHash: hexFunc(meta.Header.LastResultsHash),
-			EvidenceHash: hexFunc(meta.Header.EvidenceHash),
+			EvidenceHash:    hexFunc(meta.Header.EvidenceHash),
 		},
 	}
 
@@ -69,13 +69,13 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 			json.Unmarshal(out, &sig)
 			preCommit := document.Vote{
 				ValidatorAddress: v.ValidatorAddress.String(),
-				ValidatorIndex: v.ValidatorIndex,
-				Height: v.Height,
-				Round: v.Round,
-				Timestamp: v.Timestamp,
-				Type: v.Type,
-				BlockID: lastBlockId,
-				Signature: sig,
+				ValidatorIndex:   v.ValidatorIndex,
+				Height:           v.Height,
+				Round:            v.Round,
+				Timestamp:        v.Timestamp,
+				Type:             v.Type,
+				BlockID:          lastBlockId,
+				Signature:        sig,
 			}
 			preCommits = append(preCommits, preCommit)
 		}
@@ -83,7 +83,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 
 	blockContent := document.BlockContent{
 		LastCommit: document.Commit{
-			BlockID: lastBlockId,
+			BlockID:    lastBlockId,
 			Precommits: preCommits,
 		},
 	}
@@ -93,15 +93,14 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 	if len(validators) > 0 {
 		for _, v := range validators {
 			validator := document.Validator{
-				Address: v.Address.String(),
+				Address:     v.Address.String(),
 				VotingPower: v.VotingPower,
-				Accum: v.Accum,
-				PubKey: hexFunc(v.PubKey.Bytes()),
+				Accum:       v.Accum,
+				PubKey:      hexFunc(v.PubKey.Bytes()),
 			}
 			vals = append(vals, validator)
 		}
 	}
-
 
 	docBlock.Meta = blockMeta
 	docBlock.Block = blockContent

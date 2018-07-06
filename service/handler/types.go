@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/model/store"
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/util/helper"
 	"reflect"
 	"sync"
-	"github.com/irisnet/irishub-sync/util/helper"
 )
 
 // get tx type

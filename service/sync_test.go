@@ -1,13 +1,13 @@
-package sync
+package service
 
 import (
-	"testing"
 	"github.com/robfig/cron"
-	
+	"testing"
+
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	
-	"sync"
+
 	"github.com/irisnet/irishub-sync/module/logger"
+	"sync"
 	"time"
 )
 
@@ -24,18 +24,17 @@ func TestStart(t *testing.T) {
 		limitChan <- i
 		go func(goroutineNum int, ch chan int) {
 			logger.Info.Println("release limitChan")
-			<- limitChan
+			<-limitChan
 			defer func() {
 				logger.Info.Printf("%v goroutine send data to channel\n",
 					goroutineNum)
 				ch <- goroutineNum
 			}()
-			
+
 		}(i, nil)
 	}
-	
-	for
-	{
+
+	for {
 		select {
 		case <-unBufferChan:
 			activeGoroutineNum = activeGoroutineNum - 1
@@ -46,15 +45,14 @@ func TestStart(t *testing.T) {
 			}
 		}
 	}
-	
-	
+
 }
 
 func Test_startCron(t *testing.T) {
 	var wg sync.WaitGroup
 	var mutex sync.Mutex
 	wg.Add(2)
-	
+
 	spec := conf.SyncCron
 	c := cron.New()
 	c.AddFunc(spec, func() {
@@ -66,8 +64,6 @@ func Test_startCron(t *testing.T) {
 		mutex.Unlock()
 	})
 	go c.Start()
-	
+
 	wg.Wait()
 }
-
-

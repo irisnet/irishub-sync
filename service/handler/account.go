@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
-	"github.com/irisnet/irishub-sync/model/store/document"
-	"github.com/irisnet/irishub-sync/model/store"
+	"github.com/irisnet/irishub-sync/util/helper"
 	"sync"
 	"time"
-	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/util/helper"
 )
 
 // save account

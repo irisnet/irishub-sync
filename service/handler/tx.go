@@ -1,14 +1,12 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/model/store/document"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/model/store"
-	"sync"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"sync"
 )
-
-
 
 // save Tx document into collection
 func SaveTx(docTx store.Docs, mutex sync.Mutex) {
@@ -109,7 +107,7 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		if err != nil {
 			// candidate not exist
 			candidate = document.Candidate{
-				Address: docTx.ValidatorAddr,
+				Address:     docTx.ValidatorAddr,
 				Description: docTx.Description,
 			}
 		} else {

@@ -4,13 +4,13 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/irisnet/irishub-sync/model/store"
-	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/module/codec"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/util/helper"
 )
 
-func init()  {
+func init() {
 	helper.InitClientPool()
 	store.Init()
 }
@@ -37,7 +37,6 @@ func buildDocData(blockHeight int64) store.Docs {
 	}
 	return nil
 }
-
 
 func TestSaveTx(t *testing.T) {
 	//docTxBank := buildDocData(1762)

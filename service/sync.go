@@ -1,20 +1,20 @@
-package sync
+package service
 
 import (
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/irisnet/irishub-sync/model/store"
-	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/util/helper"
 	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/irisnet/irishub-sync/sync/handler"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/service/handler"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/util/helper"
 
-	"github.com/irisnet/irishub-sync/model/store/document"
+	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/robfig/cron"
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
-	"sync"
 	"github.com/tendermint/tendermint/types"
+	"sync"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 	// limit max goroutine
 	limitChan = make(chan int64, conf.SyncMaxGoroutine)
 
-	mutex sync.Mutex
+	mutex           sync.Mutex
 	mutexWatchBlock sync.Mutex
 )
 
@@ -32,12 +32,12 @@ var (
 func Start() {
 	var (
 		status *ctypes.ResultStatus
-		err error
-		i = 1
+		err    error
+		i      = 1
 	)
 	Init()
 	c := helper.GetClient().Client
-	
+
 	for {
 		logger.Info.Printf("Begin %v time fast sync task", i)
 		syncLatestHeight := fastSync(c)
@@ -51,14 +51,14 @@ func Start() {
 			}
 		}
 		latestHeight := status.SyncInfo.LatestBlockHeight
-		if syncLatestHeight >= latestHeight - 60 {
+		if syncLatestHeight >= latestHeight-60 {
 			logger.Info.Println("All fast sync task complete!")
 			break
 		}
 		logger.Info.Printf("End %v time fast sync task", i)
 		i++
 	}
-	
+
 	startCron(c)
 }
 
@@ -95,7 +95,7 @@ func startCron(client rpcClient.Client) {
 
 func watchBlock(c rpcClient.Client) {
 	mutexWatchBlock.Lock()
-	
+
 	syncTask, _ := document.QuerySyncTask()
 	status, _ := c.Status()
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
@@ -121,7 +121,7 @@ func watchBlock(c rpcClient.Client) {
 				err.Error())
 		}
 	}
-	
+
 	mutexWatchBlock.Unlock()
 }
 
@@ -136,7 +136,6 @@ func fastSync(c rpcClient.Client) int64 {
 	}
 
 	ch := make(chan int64)
-	
 
 	goroutineNum := (latestBlockHeight - syncTaskDoc.Height) / syncBlockNumFastSync
 
@@ -188,7 +187,7 @@ end:
 func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex), ch chan int64, threadNum int64) {
 	logger.Info.Printf("ThreadNo[%d] begin sync block from %d to %d\n",
 		threadNum, start, end)
-	
+
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
@@ -230,16 +229,15 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 			validators = res.Validators
 		}
 
-
 		// save block info
 		handler.SaveBlock(block.BlockMeta, block.Block, validators)
 	}
-	
+
 	logger.Info.Printf("ThreadNo[%d] finish sync block from %d to %d\n",
 		threadNum, start, end)
-	
-	<- limitChan
+
+	<-limitChan
 	ch <- threadNum
 	logger.Info.Printf("Send threadNum into channel: %v\n", threadNum)
-	
+
 }

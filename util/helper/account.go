@@ -3,17 +3,17 @@
 package helper
 
 import (
-	"github.com/irisnet/irishub-sync/model/store"
 	"github.com/irisnet/irishub-sync/module/codec"
+	"github.com/irisnet/irishub-sync/store"
 
+	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/pkg/errors"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	cmn "github.com/tendermint/tmlibs/common"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"fmt"
-	"github.com/irisnet/irishub-sync/module/logger"
-	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 )
 
 func QueryAccountBalance(address string) store.Coins {
@@ -67,4 +67,3 @@ func query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err 
 	}
 	return resp.Value, nil
 }
-
