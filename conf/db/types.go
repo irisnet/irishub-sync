@@ -11,7 +11,7 @@ var (
 	Port     = "27117"
 	User     = ""
 	Passwd   = ""
-	Database = "sync-iris-dev"
+	Database = "sync_iris"
 )
 
 // get value of env var
