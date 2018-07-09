@@ -24,7 +24,6 @@ func init() {
 	auth.RegisterWire(Cdc)
 
 	sdktypes.RegisterWire(Cdc)
-	//ctypes.RegisterAmino(Cdc)
 
 	wire.RegisterCrypto(Cdc)
 }

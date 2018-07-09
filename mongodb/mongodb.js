@@ -14,9 +14,9 @@ db.block.createIndex({"height": -1}, {"unique": true});
 db.stake_role_candidate.createIndex({"address": 1}, {"unique": true});
 db.stake_role_candidate.createIndex({"pub_key": 1});
 
-db.stake_role_delegator.createIndex({"pub_key": 1});
+db.stake_role_delegator.createIndex({"validator_addr": 1});
 db.stake_role_delegator.createIndex({"address": 1});
-db.stake_role_delegator.createIndex({"address": 1, "pub_key": 1}, {"unique": true});
+db.stake_role_delegator.createIndex({"address": 1, "validator_addr": 1}, {"unique": true});
 
 db.sync_task.createIndex({"chain_id": 1}, {"unique": true});
 
