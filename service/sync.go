@@ -63,7 +63,7 @@ func Start() {
 }
 
 func Init() {
-	store.Init()
+	store.InitWithAuth()
 
 	chainId := conf.ChainId
 	syncTask, err := document.QuerySyncTask()

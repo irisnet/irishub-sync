@@ -23,35 +23,39 @@ func RegisterDocs(d Docs) {
 	docs = append(docs, d)
 }
 
-func Init() {
-	if session == nil {
-		url := fmt.Sprintf("mongodb://%s:%s", conf.Host, conf.Port)
+//func Init() {
+//	if session == nil {
+//		url := fmt.Sprintf("mongodb://%s:%s", conf.Host, conf.Port)
+//
+//		var err error
+//		session, err = mgo.Dial(url)
+//		if err != nil {
+//			logger.Error.Fatalln(err)
+//		}
+//		logger.Info.Printf("Mgo start on %s\n", url)
+//		session.SetMode(mgo.Monotonic, true)
+//	}
+//}
 
-		var err error
-		session, err = mgo.Dial(url)
-		if err != nil {
-			logger.Error.Fatalln(err)
-		}
-		logger.Info.Printf("Mgo start on %s\n", url)
-		session.SetMode(mgo.Monotonic, true)
-	}
-}
+func InitWithAuth() {
+	addr := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
+	addrs := []string{addr}
 
-func InitWithAuth(addrs []string, username, password string) {
 	dialInfo := &mgo.DialInfo{
 		Addrs:     addrs, // []string{"192.168.6.122"}
-		Direct:    false,
-		Timeout:   time.Second * 1,
 		Database:  conf.Database,
-		Username:  username,
-		Password:  password,
+		Username:  conf.User,
+		Password:  conf.Passwd,
+		Direct:    false,
+		Timeout:   time.Second * 10,
 		PoolLimit: 4096, // Session.SetPoolLimit
 	}
 
-	session, err := mgo.DialWithInfo(dialInfo)
+	var err error
+	session, err = mgo.DialWithInfo(dialInfo)
 	session.SetMode(mgo.Monotonic, true)
-	if nil != err {
-		panic(err)
+	if err != nil {
+		logger.Error.Panicln(err)
 	}
 }
 
