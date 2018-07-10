@@ -9,7 +9,10 @@ services:
       ENV: dev
       DB_HOST: 127.0.0.1
       DB_PORT: 27117
+      DB_USER: user
+      DB_PASSWD: passwd
       DB_DATABASE: sync_iris
+
 
       SER_BC_NODE_URL: tcp://127.0.0.1:46657
       SER_BC_CHAIN_ID: test
