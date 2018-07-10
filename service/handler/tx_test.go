@@ -12,7 +12,7 @@ import (
 
 func init() {
 	helper.InitClientPool()
-	store.Init()
+	store.InitWithAuth()
 }
 
 func buildDocData(blockHeight int64) store.Docs {
