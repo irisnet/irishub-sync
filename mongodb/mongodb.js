@@ -41,22 +41,22 @@ db.tx_common.createIndex({"type": 1});
 db.tx_common.createIndex({"status": 1});
 
 // drop collection
-db.account.drop();
-db.block.drop();
-db.stake_role_candidate.drop();
-db.stake_role_delegator.drop();
-db.sync_task.drop();
-db.tx_stake.drop();
-db.tx_common.drop();
-
+// db.account.drop();
+// db.block.drop();
+// db.stake_role_candidate.drop();
+// db.stake_role_delegator.drop();
+// db.sync_task.drop();
+// db.tx_stake.drop();
+// db.tx_common.drop();
+//
 // remove collection data
-db.account.remove({});
-db.block.remove({});
-db.stake_role_candidate.remove({});
-db.stake_role_delegator.remove({});
-db.sync_task.remove({});
-db.tx_stake.remove({});
-db.tx_common.remove({});
+// db.account.remove({});
+// db.block.remove({});
+// db.stake_role_candidate.remove({});
+// db.stake_role_delegator.remove({});
+// db.sync_task.remove({});
+// db.tx_stake.remove({});
+// db.tx_common.remove({});
 
 
 
