@@ -13,6 +13,7 @@ services:
       DB_PASSWD: passwd
       DB_DATABASE: sync_irishub
 
+
       SER_BC_NODE_URL: tcp://127.0.0.1:46657
       SER_BC_CHAIN_ID: test
       SER_BC_TOKEN: iris

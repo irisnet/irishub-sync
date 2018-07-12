@@ -421,7 +421,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "039a4258aec0ad3c79b905677cceeab13b296a77"
+  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
 
 [[projects]]
   branch = "master"
