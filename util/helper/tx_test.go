@@ -1,17 +1,16 @@
+// package for parse tx struct from binary data
+
 package helper
 
 import (
 	"testing"
 
-	"github.com/irisnet/iris-sync-server/module/logger"
-
-	_ "github.com/cosmos/cosmos-sdk/modules/auth"
-	_ "github.com/cosmos/cosmos-sdk/modules/base"
-
+	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/tendermint/tendermint/types"
+	"github.com/irisnet/irishub-sync/module/logger"
 )
 
-func buildTxByte(blockHeight int64) types.Tx {
+func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 
 	InitClientPool()
 	client := GetClient()
@@ -26,57 +25,69 @@ func buildTxByte(blockHeight int64) types.Tx {
 
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
-		return txs[0]
+		return txs[0], block.Block
 	}
 
-	return nil
+	return nil, nil
 }
 
 func TestParseTx(t *testing.T) {
-
-	txCoinByte := buildTxByte(12453)
-	txStakeDeclareCandidacyByte := buildTxByte(19073)
-	txStakeDelegateByte := buildTxByte(13725)
-	txStakeUnBondByte := buildTxByte(14260)
-
+	coinByte, coinBlock := buildTxByte(1762)
+	scByte, scBlock := buildTxByte(46910)
+	seByte, seBlock := buildTxByte(49388)
+	sdByte, sdBlock := buildTxByte(47349)
+	suByte, suBlock := buildTxByte(34241)
 
 	type args struct {
 		txByte types.Tx
+		block *types.Block
 	}
 	tests := []struct {
 		name  string
 		args  args
+		want  string
+		want1 interface{}
 	}{
 		{
-			name: "tx_coin_send",
-			args: struct{ txByte types.Tx }{
-				txByte: txCoinByte,
-					},
-		},
-		{
-			name: "tx_stake_declareCandidacy",
-			args: struct{ txByte types.Tx }{
-				txByte: txStakeDeclareCandidacyByte,
-					},
-		},
-		{
-			name: "tx_stake_delegate",
-			args: struct{ txByte types.Tx }{
-				txByte: txStakeDelegateByte,
+			name: "test tx coin",
+			args: args{
+				txByte: coinByte,
+				block: coinBlock,
 			},
 		},
-
 		{
-			name: "tx_stake_unbond",
-			args: struct{ txByte types.Tx }{
-				txByte: txStakeUnBondByte,
+			name: "test tx stake/create",
+			args: args{
+				txByte: scByte,
+				block: scBlock,
+			},
+		},
+		{
+			name: "test tx stake/edit",
+			args: args{
+				txByte: seByte,
+				block: seBlock,
+			},
+		},
+		{
+			name: "test tx stake/delegate",
+			args: args{
+				txByte: sdByte,
+				block: sdBlock,
+			},
+		},
+		{
+			name: "test tx stake/unbond",
+			args: args{
+				txByte: suByte,
+				block: suBlock,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			txType, txContent := ParseTx(tt.args.txByte)
-			logger.Info.Printf("%s: tx type is %s, and struct is %+v\n", tt.name, txType, txContent)
+			res := ParseTx(codec.Cdc, tt.args.txByte, tt.args.block)
+			logger.Info.Printf("Tx is %v\n", ToJson(res))
 		})
 	}
 }

@@ -5,11 +5,9 @@ package helper
 
 import (
 	"errors"
-	"log"
+	conf "github.com/irisnet/irishub-sync/conf/server"
 
-	conf "github.com/irisnet/iris-sync-server/conf/server"
-
-	rpcClient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -47,7 +45,7 @@ func InitClientPool() {
 func GetClient() Client {
 	c, err := getClient()
 	if err != nil {
-		log.Fatal(err)
+		logger.Error.Fatalln(err.Error())
 	}
 	return c
 }
@@ -61,38 +59,47 @@ func (n Client) Release() {
 }
 
 func createConnection(id int64) Client {
-	client := Client{
-		Client: rpcClient.GetNode(conf.BlockChainMonitorUrl),
+	tmClient := Client{
+		Client: client.NewHTTP(conf.BlockChainMonitorUrl, "/websocket"),
 		used:   false,
 		id:     id,
 	}
-	pool.clients[id] = client
+	
+	if id == int64(len(pool.clients)) {
+		newSlice := make([]Client, pool.maxConnection)
+		for i, v := range pool.clients {
+			newSlice[i] = v
+		}
+		pool.clients = newSlice
+	}
+	pool.clients[id] = tmClient
 	pool.available++
-	return client
+	return tmClient
 }
 
 func getClient() (Client, error) {
 	if pool.available == 0 {
 		maxConnNum := int64(conf.MaxConnectionNum)
 		if pool.used < maxConnNum {
-			var client Client
-			for i := int64(len(pool.clients)); i < maxConnNum; i++ {
-				client = createConnection(i)
+			var tmClient Client
+			length := len(pool.clients)
+			for i := int64(length); i < maxConnNum; i++ {
+				tmClient = createConnection(i)
 			}
-			return client, nil
+			return tmClient, nil
 		} else {
-			log.Fatal("client pool has no available connection")
+			logger.Error.Fatalln("client pool has no available connection")
 		}
 	}
 
-	for _, client := range pool.clients {
-		if !client.used {
-			client.used = true
-			pool.clients[client.id] = client
+	for _, tmClient := range pool.clients {
+		if !tmClient.used {
+			tmClient.used = true
+			pool.clients[tmClient.id] = tmClient
 			pool.available--
 			pool.used++
-			log.Printf("current available coonection ：%d", pool.available)
-			return client, nil
+			logger.Info.Printf("current available coonection ：%d\n", pool.available)
+			return tmClient, nil
 		}
 	}
 	return Client{}, errors.New("pool is empty")

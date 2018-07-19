@@ -1,3 +1,6 @@
 .idea/
 vendor/
-*.conf
+.DS_Store
+sync-iris
+sync-iris-unix
+

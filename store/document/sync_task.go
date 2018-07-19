@@ -1,7 +1,7 @@
 package document
 
 import (
-	"github.com/irisnet/iris-sync-server/model/store"
+	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -24,17 +24,6 @@ func (c SyncTask) Name() string {
 
 func (c SyncTask) PkKvPair() map[string]interface{} {
 	return bson.M{"chain_id": c.ChainID}
-}
-
-func (c SyncTask) Index() []mgo.Index {
-	return []mgo.Index{
-		{
-			Key:        []string{"chain_id"},
-			Unique:     true,
-			DropDups:   false,
-			Background: true,
-		},
-	}
 }
 
 func QuerySyncTask() (SyncTask, error) {
