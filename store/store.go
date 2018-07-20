@@ -23,20 +23,6 @@ func RegisterDocs(d Docs) {
 	docs = append(docs, d)
 }
 
-//func Init() {
-//	if session == nil {
-//		url := fmt.Sprintf("mongodb://%s:%s", conf.Host, conf.Port)
-//
-//		var err error
-//		session, err = mgo.Dial(url)
-//		if err != nil {
-//			logger.Error.Fatalln(err)
-//		}
-//		logger.Info.Printf("Mgo start on %s\n", url)
-//		session.SetMode(mgo.Monotonic, true)
-//	}
-//}
-
 func InitWithAuth() {
 	addr := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
 	addrs := []string{addr}
@@ -118,6 +104,14 @@ func Update(h Docs) error {
 		return c.Update(key, h)
 	}
 	return ExecCollection(h.Name(), update)
+}
+
+func Delete(h Docs) error {
+	remove := func(c *mgo.Collection) error {
+		key := h.PkKvPair()
+		return c.Remove(key)
+	}
+	return ExecCollection(h.Name(), remove)
 }
 
 func Query(collectionName string, query bson.M, sort string, fields bson.M, skip int, limit int) (results []interface{}, err error) {

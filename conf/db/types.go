@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	Host     = "127.0.0.1"
+	Host     = "116.62.62.39"
 	Port     = "27217"
-	User     = "user"
-	Passwd   = "passwd"
-	Database = "sync_irishub"
+	User     = "iris"
+	Passwd   = "irispassword"
+	Database = "sync-iris"
 )
 
 // get value of env var

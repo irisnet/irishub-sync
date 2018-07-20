@@ -1,6 +1,6 @@
 .idea/
 vendor/
 .DS_Store
-sync-iris
-sync-iris-unix
-
+*.out
+irishub-sync
+irishub-sync-unix
