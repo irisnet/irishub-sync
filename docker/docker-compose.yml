@@ -2,20 +2,20 @@ version: "2"
 services:
   irishub-server:
     image: irisnet/irishub-sync:develop
-    container_name: c_irishub-sync-develop
+    container_name: c-irishub-sync-develop
     volumes:
       - /mnt/data/irishub-sync/log:/irishub-sync/log
     environment:
       ENV: dev
-      DB_HOST: 127.0.0.1
-      DB_PORT: 27117
-      DB_USER: user
-      DB_PASSWD: passwd
-      DB_DATABASE: sync_irishub
+      DB_HOST: 192.168.150.7
+      DB_PORT: 27217
+      DB_USER: iris
+      DB_PASSWD: irispassword
+      DB_DATABASE: sync-iris-dev
 
 
-      SER_BC_NODE_URL: tcp://127.0.0.1:46657
-      SER_BC_CHAIN_ID: test
+      SER_BC_NODE_URL: tcp://192.168.150.7:26657
+      SER_BC_CHAIN_ID: fuxi-develop
       SER_BC_TOKEN: iris
       SER_MAX_GOROUTINE: 60
       SER_SYNC_BLOCK_NUM: 8000

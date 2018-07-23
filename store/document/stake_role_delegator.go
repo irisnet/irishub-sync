@@ -5,7 +5,6 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 )
 
 const (
@@ -15,8 +14,8 @@ const (
 type Delegator struct {
 	Address       string    `bson:"address"`
 	ValidatorAddr string    `bson:"validator_addr"` // validatorAddr
-	Shares        int64     `bson:"shares"`
-	UpdateTime    time.Time `bson:"update_time"`
+	Shares        float64    `bson:"shares"`
+	OriginalShares string   `bson:"original_shares"`
 }
 
 func (d Delegator) Name() string {

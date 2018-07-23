@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = "tcp://116.62.62.39:26657"
-	ChainId              = "fuxi-1001"
+	BlockChainMonitorUrl = "tcp://127.0.0.1:26657"
+	ChainId              = "fuxi-develop"
 	Token                = "iris"
 	
 	InitConnectionNum    = 100 // fast init num of tendermint client pool

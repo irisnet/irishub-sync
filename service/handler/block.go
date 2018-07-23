@@ -80,7 +80,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 					Timestamp:        v.Timestamp,
 					Type:             v.Type,
 					BlockID:          lastBlockId,
-					//Signature:        sig,
+					Signature:        sig,
 				}
 				preCommits = append(preCommits, preCommit)
 			}
