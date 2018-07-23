@@ -125,6 +125,10 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		return docTx
 	case msgStakeUnbond:
 		msg := authTx.Msg.(msgStakeUnbond)
+		if msg.Shares == "MAX" {
+			// TODO: handle shares == MAX while unbond
+			msg.Shares = "0"
+		}
 		shares, err := strconv.Atoi(msg.Shares)
 		if err != nil {
 			logger.Error.Println(err)

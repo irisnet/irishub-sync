@@ -29,9 +29,9 @@ func buildBlock(blockHeight int64) (*types.BlockMeta, *types.Block, []*types.Val
 }
 
 func TestSaveBlock(t *testing.T) {
-	meta1, block1, vals1 := buildBlock(28558)
-	meta2, block2, vals2 := buildBlock(96319)
-	meta3, block3, vals3 := buildBlock(34241)
+	meta1, block1, vals1 := buildBlock(516)
+	meta2, block2, vals2 := buildBlock(515)
+	//meta3, block3, vals3 := buildBlock(34241)
 
 	type args struct {
 		meta  *types.BlockMeta
@@ -58,14 +58,14 @@ func TestSaveBlock(t *testing.T) {
 				vals:  vals2,
 			},
 		},
-		{
-			name: "test save block",
-			args: args{
-				meta:  meta3,
-				block: block3,
-				vals:  vals3,
-			},
-		},
+		//{
+		//	name: "test save block",
+		//	args: args{
+		//		meta:  meta3,
+		//		block: block3,
+		//		vals:  vals3,
+		//	},
+		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
