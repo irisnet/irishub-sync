@@ -129,7 +129,7 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 			// TODO: handle shares == MAX while unbond
 			msg.Shares = "0"
 		}
-		shares, err := strconv.Atoi(msg.Shares)
+		shares, err := strconv.ParseFloat(msg.Shares, 64)
 		if err != nil {
 			logger.Error.Println(err)
 			break
@@ -144,7 +144,7 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		docTx.DelegatorAddr = msg.DelegatorAddr.String()
 		docTx.ValidatorAddr = msg.ValidatorAddr.String()
 		docTx.Amount = store.Coin{
-			Amount: int64(shares),
+			Amount: shares,
 		}
 		docTx.Type = constant.TxTypeStakeUnbond
 		return docTx
@@ -172,7 +172,7 @@ func BuildCoins(coins sdktypes.Coins) store.Coins {
 func buildCoin(coin sdktypes.Coin) store.Coin {
 	return store.Coin{
 		Denom:  coin.Denom,
-		Amount: coin.Amount,
+		Amount: float64(coin.Amount),
 	}
 }
 
