@@ -6,12 +6,18 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"sync"
+	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/cosmos/cosmos-sdk/x/stake"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/irisnet/irishub-sync/module/codec"
 )
 
 // save Tx document into collection
 func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 	var (
 		methodName = "SaveTx: "
+		valAddress string
+		delAddress string
 	)
 
 	// save docTx document into database
@@ -53,41 +59,8 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		}
 		storeTxDocFunc(docTx)
 
-		mutex.Lock()
-		logger.Info.Printf("%v saveOrUpdate cndidates get lock\n", methodName)
-
-		cd, err := document.QueryCandidateByAddress(docTx.ValidatorAddr)
-
-		candidate := document.Candidate{
-			Address: docTx.ValidatorAddr,
-			PubKey:  docTx.PubKey,
-		}
-
-		if err == nil && cd.PubKey == "" {
-			// candidate exist
-			logger.Warning.Printf("%v Replace candidate from %+v to %+v\n", methodName, cd, candidate)
-			// TODO: in further share not equal amount
-			candidate.Shares = cd.Shares + docTx.Amount.Amount
-			candidate.VotingPower = int64(candidate.Shares)
-
-			// description of candidate is empty
-			if cd.Description.Moniker == "" {
-				candidate.Description = docTx.Description
-			}
-		} else {
-			// candidate not exist
-			candidate.Shares = docTx.Amount.Amount
-			candidate.VotingPower = int64(candidate.Shares)
-			candidate.Description = docTx.Description
-		}
-		candidate.UpdateTime = docTx.Time
-
-		store.SaveOrUpdate(candidate)
-
-		mutex.Unlock()
-		logger.Info.Printf("%v saveOrUpdate cndidates release lock\n", methodName)
+		valAddress = docTx.ValidatorAddr
 		break
-
 	case constant.TxTypeStakeEdit:
 		docTx, r := docTx.(document.StakeTxEditCandidacy)
 		if !r {
@@ -97,29 +70,7 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		}
 		storeTxDocFunc(docTx)
 
-		mutex.Lock()
-		logger.Info.Printf("%v saveOrUpdate cndidates get lock\n", methodName)
-
-		cd, err := document.QueryCandidateByAddress(docTx.ValidatorAddr)
-
-		var candidate document.Candidate
-
-		if err != nil {
-			// candidate not exist
-			candidate = document.Candidate{
-				Address:     docTx.ValidatorAddr,
-				Description: docTx.Description,
-			}
-		} else {
-			// candidate exist
-			cd.Description = docTx.Description
-			candidate = cd
-		}
-
-		store.SaveOrUpdate(candidate)
-
-		mutex.Unlock()
-		logger.Info.Printf("%v saveOrUpdate cndidates release lock\n", methodName)
+		valAddress = docTx.ValidatorAddr
 		break
 	case constant.TxTypeStakeDelegate:
 		docTx, r := docTx.(document.StakeTx)
@@ -130,43 +81,9 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		}
 		storeTxDocFunc(docTx)
 
-		mutex.Lock()
-		logger.Info.Printf("%v saveOrUpdate docTx type %v get lock\n",
-			methodName, txType)
-
-		candidate, err := document.QueryCandidateByAddress(docTx.ValidatorAddr)
-		// candidate is not exist
-		if err != nil {
-			logger.Warning.Printf("%v candidate is not exist while delegate, addrdelegator = %s ,addrvalidator = %s\n",
-				methodName, docTx.DelegatorAddr, docTx.ValidatorAddr)
-			candidate = document.Candidate{
-				Address: docTx.ValidatorAddr,
-			}
-		}
-
-		delegator, err := document.QueryDelegatorByAddressAndValAddr(docTx.DelegatorAddr, docTx.ValidatorAddr)
-		// delegator is not exist
-		if err != nil {
-			delegator = document.Delegator{
-				Address:       docTx.DelegatorAddr,
-				ValidatorAddr: docTx.ValidatorAddr,
-			}
-		}
-		// TODO: in further share not equal amount
-		delegator.Shares += docTx.Amount.Amount
-		delegator.UpdateTime = docTx.Time
-		store.SaveOrUpdate(delegator)
-
-		candidate.Shares += docTx.Amount.Amount
-		candidate.VotingPower += int64(docTx.Amount.Amount)
-		candidate.UpdateTime = docTx.Time
-		store.SaveOrUpdate(candidate)
-
-		mutex.Unlock()
-		logger.Info.Printf("%v saveOrUpdate docTx type %v release lock\n",
-			methodName, txType)
+		valAddress = docTx.ValidatorAddr
+		delAddress = docTx.DelegatorAddr
 		break
-
 	case constant.TxTypeStakeUnbond:
 		docTx, r := docTx.(document.StakeTx)
 		if !r {
@@ -176,42 +93,103 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		}
 		storeTxDocFunc(docTx)
 
-		mutex.Lock()
-		logger.Info.Printf("%v saveOrUpdate docTx type %v get lock\n",
-			methodName, txType)
+		valAddress = docTx.ValidatorAddr
+		delAddress = docTx.DelegatorAddr
+		break
+	}
 
-		delegator, err := document.QueryDelegatorByAddressAndValAddr(docTx.DelegatorAddr, docTx.ValidatorAddr)
-		// delegator is not exist
+	if valAddress != "" {
+		var (
+			candidate document.Candidate
+			delegator document.Delegator
+		)
+
+
+		// prepare validator data
+		validator, err := getValidator(valAddress)
+
 		if err != nil {
-			logger.Warning.Printf("%v delegator is not exist while unBond,add = %s,valAddr=%s\n",
-				methodName, docTx.DelegatorAddr, docTx.ValidatorAddr)
-			delegator = document.Delegator{
-				Address:       docTx.DelegatorAddr,
-				ValidatorAddr: docTx.ValidatorAddr,
-			}
+			logger.Error.Printf("%v get validator failed by valAddr %v\n", methodName, valAddress)
+			return
 		}
-		delegator.Shares -= docTx.Amount.Amount
-		delegator.UpdateTime = docTx.Time
-		store.SaveOrUpdate(delegator)
 
-		candidate, err2 := document.QueryCandidateByAddress(docTx.ValidatorAddr)
-		// candidate is not exist
-		if err2 != nil {
-			logger.Warning.Printf("%v candidate is not exist while unBond,add = %s,valAddr=%s\n",
-				methodName, docTx.DelegatorAddr, docTx.ValidatorAddr)
+		if validator.Owner == nil {
+			// validator not exist
 			candidate = document.Candidate{
-				Address: docTx.ValidatorAddr,
+				Address: valAddress,
+			}
+		} else {
+			// validator exist
+			description := document.Description{
+				Moniker: validator.Description.Moniker,
+				Identity: validator.Description.Identity,
+				Website: validator.Description.Website,
+				Details: validator.Description.Details,
+			}
+
+			floatShares, _ := validator.PoolShares.Amount.Float64()
+			candidate = document.Candidate{
+				Address: validator.Owner.String(),
+				PubKey:  helper.BuildHex(validator.PubKey.Bytes()),
+				Revoked: validator.Revoked,
+				Shares: floatShares,
+				OriginalShares: validator.PoolShares.Amount.String(),
+				VotingPower: floatShares,
+				Description: description,
+				BondHeight: validator.BondHeight,
+			}
+
+			// prepare delegator data
+			if delAddress != "" {
+				delegation, err := getDelegation(delAddress, valAddress)
+
+				if err != nil {
+					logger.Error.Printf("%v get delegation failed by valAddr %v and delAddr %v\n", methodName, valAddress, delAddress)
+					return
+				}
+
+				if delegation.DelegatorAddr == nil {
+					// can't get delegation when delegator unbond all token
+					delegator = document.Delegator{
+						Address: delAddress,
+						ValidatorAddr: valAddress,
+						Shares: float64(0),
+					}
+				} else {
+					// delegation exist
+					floatShares, _ := delegation.Shares.Float64()
+					delegator = document.Delegator{
+						Address: delegation.DelegatorAddr.String(),
+						ValidatorAddr: delegation.ValidatorAddr.String(),
+						Shares: floatShares,
+						OriginalShares: delegation.Shares.String(),
+					}
+				}
 			}
 		}
-		candidate.Shares -= docTx.Amount.Amount
-		candidate.VotingPower -= int64(docTx.Amount.Amount)
-		candidate.UpdateTime = docTx.Time
-		store.SaveOrUpdate(candidate)
+
+
+		mutex.Lock()
+		logger.Info.Printf("%v saveOrUpdate cndidates get lock\n", methodName)
+
+		// update or delete validator
+		if candidate.PubKey == "" {
+			store.Delete(candidate)
+		} else {
+			store.SaveOrUpdate(candidate)
+		}
+
+		// update or delete delegator
+		if delAddress != "" {
+			if delegator.Shares == float64(0) {
+				store.Delete(delegator)
+			} else {
+				store.SaveOrUpdate(delegator)
+			}
+		}
 
 		mutex.Unlock()
-		logger.Info.Printf("%v saveOrUpdate docTx type %v release lock\n",
-			methodName, txType)
-		break
+		logger.Info.Printf("%v saveOrUpdate cndidates release lock\n", methodName)
 	}
 }
 
@@ -282,4 +260,64 @@ func buildCommonTxData(docTx store.Docs, txType string) document.CommonTx {
 	}
 
 	return commonTx
+}
+
+// get validator
+func getValidator(valAddr string) (stake.Validator, error) {
+	var (
+		validatorAddr sdk.Address
+		err error
+		res stake.Validator
+	)
+
+	validatorAddr, err = sdk.GetAccAddressHex(valAddr)
+
+	resRaw, err := helper.Query(stake.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath)
+	if err != nil || resRaw == nil {
+		return res, err
+	}
+
+	codec.Cdc.MustUnmarshalBinary(resRaw, &res)
+
+	return res, err
+}
+
+// get delegation
+func getDelegation(delAddr, valAddr string) (stake.Delegation, error) {
+	var (
+		delegatorAddr sdk.Address
+		validatorAddr sdk.Address
+		err error
+
+		res stake.Delegation
+	)
+
+	delegatorAddr, err = sdk.GetAccAddressHex(delAddr)
+
+	if err != nil {
+		return res, err
+	}
+
+	validatorAddr, err = sdk.GetAccAddressHex(valAddr)
+
+	if err != nil {
+		return res, err
+	}
+	cdc := codec.Cdc
+	key := stake.GetDelegationKey(delegatorAddr, validatorAddr, cdc)
+
+	resRaw, err := helper.Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
+
+
+	if err != nil || resRaw == nil {
+		return res, err
+	}
+
+	err = cdc.UnmarshalBinary(resRaw, &res)
+
+	if err != nil {
+		return res, err
+	}
+
+	return res, err
 }

@@ -1,16 +1,20 @@
 package handler
 
 import (
-	"encoding/json"
-	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"github.com/tendermint/tendermint/types"
+	"github.com/irisnet/irishub-sync/module/codec"
+	"encoding/json"
 )
 
 func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) {
+
+	var (
+		methodName = "SaveBlock"
+	)
 
 	hexFunc := func(bytes []byte) string {
 		return helper.BuildHex(bytes)
@@ -64,20 +68,22 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 
 	if len(block.LastCommit.Precommits) > 0 {
 		for _, v := range block.LastCommit.Precommits {
-			var sig document.Signature
-			out, _ := codec.Cdc.MarshalJSON(v.Signature)
-			json.Unmarshal(out, &sig)
-			preCommit := document.Vote{
-				ValidatorAddress: v.ValidatorAddress.String(),
-				ValidatorIndex:   v.ValidatorIndex,
-				Height:           v.Height,
-				Round:            v.Round,
-				Timestamp:        v.Timestamp,
-				Type:             v.Type,
-				BlockID:          lastBlockId,
-				Signature:        sig,
+			if v != nil {
+				var sig document.Signature
+				out, _ := codec.Cdc.MarshalJSON(v.Signature)
+				json.Unmarshal(out, &sig)
+				preCommit := document.Vote{
+					ValidatorAddress: v.ValidatorAddress.String(),
+					ValidatorIndex:   v.ValidatorIndex,
+					Height:           v.Height,
+					Round:            v.Round,
+					Timestamp:        v.Timestamp,
+					Type:             v.Type,
+					BlockID:          lastBlockId,
+					Signature:        sig,
+				}
+				preCommits = append(preCommits, preCommit)
 			}
-			preCommits = append(preCommits, preCommit)
 		}
 	}
 
@@ -108,6 +114,6 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 
 	err := store.Save(docBlock)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Error.Printf("%v: err is %v", methodName, err)
 	}
 }

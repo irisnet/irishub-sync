@@ -12,7 +12,9 @@ const (
 	CollectionNmStakeTxEditCandidacy    = CollectionNmStakeTx
 )
 
-// StakeTx
+// ===============================
+// struct of delegate and unbond
+// ===============================
 type StakeTx struct {
 	TxHash        string     `bson:"tx_hash"`
 	Time          time.Time  `bson:"time"`
@@ -26,6 +28,14 @@ type StakeTx struct {
 	Status        string     `bson:"status"`
 }
 
+// Description
+type Description struct {
+	Moniker  string `bson:"moniker"`
+	Identity string `bson:"identity"`
+	Website  string `bson:"website"`
+	Details  string `bson:"details"`
+}
+
 func (c StakeTx) Name() string {
 	return CollectionNmStakeTx
 }
@@ -34,15 +44,9 @@ func (c StakeTx) PkKvPair() map[string]interface{} {
 	return bson.M{"tx_hash": c.TxHash}
 }
 
-// ======
-
-// Description
-type Description struct {
-	Moniker  string `bson:"moniker"`
-	Identity string `bson:"identity"`
-	Website  string `bson:"website"`
-	Details  string `bson:"details"`
-}
+// ============================
+// struct of createValidator
+// ============================
 
 type StakeTxDeclareCandidacy struct {
 	StakeTx     `bson:"stake_tx"`
@@ -57,7 +61,9 @@ func (s StakeTxDeclareCandidacy) PkKvPair() map[string]interface{} {
 	return bson.M{"stake_tx.tx_hash": s.TxHash}
 }
 
-// ======
+// ============================
+// struct of editValidator
+// ============================
 
 type StakeTxEditCandidacy struct {
 	StakeTx     `bson:"stake_tx"`

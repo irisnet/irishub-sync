@@ -6,7 +6,6 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 )
 
 const (
@@ -16,10 +15,12 @@ const (
 type Candidate struct {
 	Address     string      `bson:"address"` // owner, identity key
 	PubKey      string      `bson:"pub_key"`
-	Shares      int64       `bson:"shares"`
-	VotingPower int64       `bson:"voting_power"` // Voting power if pubKey is a considered a validator
+	Revoked     bool        `bson:"revoked"` // has the validator been revoked from bonded status
+	Shares      float64     `bson:"shares"`
+	OriginalShares string   `bson:"original_shares"`
+	VotingPower float64     `bson:"voting_power"` // Voting power if pubKey is a considered a validator
 	Description Description `bson:"description"`  // Description terms for the candidate
-	UpdateTime  time.Time   `bson:"update_time"`
+	BondHeight  int64       `bson:"bond_height"`
 }
 
 func (d Candidate) Name() string {
