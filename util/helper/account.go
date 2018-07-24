@@ -1,4 +1,4 @@
-// This package is used for query balance of account
+// This package is used for Query balance of account
 
 package helper
 
@@ -23,10 +23,10 @@ func QueryAccountBalance(address string) store.Coins {
 		return nil
 	}
 
-	res, err := query(auth.AddressStoreKey(addr), "acc", "key")
+	res, err := Query(auth.AddressStoreKey(addr), "acc", "key")
 
 	if err != nil {
-		logger.Error.Printf("query balance from tendermint failed, %+v\n", err)
+		logger.Error.Printf("Query balance from tendermint failed, %+v\n", err)
 		return nil
 	}
 
@@ -46,7 +46,7 @@ func QueryAccountBalance(address string) store.Coins {
 }
 
 // Query from Tendermint with the provided storename and path
-func query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err error) {
+func Query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err error) {
 	path := fmt.Sprintf("/store/%s/%s", storeName, endPath)
 	rpcClient := GetClient().Client
 	if err != nil {

@@ -1,4 +1,4 @@
-// This package is used for query balance of account
+// This package is used for Query balance of account
 
 package helper
 
