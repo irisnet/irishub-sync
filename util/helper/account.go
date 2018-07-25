@@ -48,7 +48,10 @@ func QueryAccountBalance(address string) store.Coins {
 // Query from Tendermint with the provided storename and path
 func Query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err error) {
 	path := fmt.Sprintf("/store/%s/%s", storeName, endPath)
-	rpcClient := GetClient().Client
+	client := GetClient()
+	defer client.Release()
+
+	rpcClient := client.Client
 	if err != nil {
 		return res, err
 	}
