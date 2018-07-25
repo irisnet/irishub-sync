@@ -10,6 +10,9 @@ import (
 
 // get tx type
 func GetTxType(docTx store.Docs) string {
+	if docTx == nil {
+		return ""
+	}
 	if !reflect.ValueOf(docTx).FieldByName("Type").IsValid() {
 		logger.Error.Printf("type which is field name of stake docTx is missed, docTx is %+v\n",
 			helper.ToJson(docTx))
