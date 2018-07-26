@@ -25,6 +25,8 @@ func GetTxType(docTx store.Docs) string {
 
 func Handle(docTx store.Docs, mutex sync.Mutex, funChains []func(tx store.Docs, mutex sync.Mutex)) {
 	for _, fun := range funChains {
-		fun(docTx, mutex)
+		if docTx != nil {
+			fun(docTx, mutex)
+		}
 	}
 }
