@@ -39,11 +39,11 @@ func buildDocData(blockHeight int64) store.Docs {
 }
 
 func TestSaveTx(t *testing.T) {
-	docTxBank := buildDocData(1707)
+	docTxBank := buildDocData(19352)
 	//docTxStakeCreate := buildDocData(46910)
-	docTxStakeUnBond := buildDocData(5240)
-	docTxStakeEdit := buildDocData(17026)
-	docTxStakeDelegate := buildDocData(1760)
+	//docTxStakeUnBond := buildDocData(5240)
+	//docTxStakeEdit := buildDocData(17026)
+	//docTxStakeDelegate := buildDocData(1760)
 
 	type args struct {
 		docTx store.Docs
@@ -67,27 +67,27 @@ func TestSaveTx(t *testing.T) {
 		//		mutex: sync.Mutex{},
 		//	},
 		//},
-		{
-			name: "tx stake/edit",
-			args: args{
-				docTx: docTxStakeEdit,
-				mutex: sync.Mutex{},
-			},
-		},
-		{
-			name: "tx stake/delegate",
-			args: args{
-				docTx: docTxStakeDelegate,
-				mutex: sync.Mutex{},
-			},
-		},
-		{
-			name: "tx stake/unbond",
-			args: args{
-				docTx: docTxStakeUnBond,
-				mutex: sync.Mutex{},
-			},
-		},
+		//{
+		//	name: "tx stake/edit",
+		//	args: args{
+		//		docTx: docTxStakeEdit,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
+		//{
+		//	name: "tx stake/delegate",
+		//	args: args{
+		//		docTx: docTxStakeDelegate,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
+		//{
+		//	name: "tx stake/unbond",
+		//	args: args{
+		//		docTx: docTxStakeUnBond,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -101,8 +101,8 @@ func Test_getValidator(t *testing.T) {
 		valAddr string
 	}
 	tests := []struct {
-		name    string
-		args    args
+		name string
+		args args
 	}{
 		{
 			name: "test get validator",
@@ -128,8 +128,8 @@ func Test_getDelegation(t *testing.T) {
 		valAddr string
 	}
 	tests := []struct {
-		name    string
-		args    args
+		name string
+		args args
 	}{
 		{
 			name: "test get delegation",

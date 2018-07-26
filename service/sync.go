@@ -13,6 +13,7 @@ import (
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
+	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/tendermint/tendermint/types"
 	"sync"
 )
@@ -107,7 +108,7 @@ func watchBlock(c rpcClient.Client) {
 	ch := make(chan int64)
 	limitChan <- 1
 
-	go syncBlock(syncTask.Height+1, latestBlockHeight, funcChain, ch, 0)
+	go syncBlock(syncTask.Height+1, latestBlockHeight, funcChain, ch, 0, constant.SyncTypeWatch)
 
 	select {
 	case <-ch:
@@ -154,7 +155,7 @@ func fastSync(c rpcClient.Client) int64 {
 		if i == goroutineNum {
 			end = latestBlockHeight
 		}
-		go syncBlock(start, end, funcChain, ch, i)
+		go syncBlock(start, end, funcChain, ch, i, constant.SyncTypeFastSync)
 	}
 
 	for {
@@ -184,9 +185,10 @@ end:
 	}
 }
 
-func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex), ch chan int64, threadNum int64) {
-	logger.Info.Printf("ThreadNo[%d] begin sync block from %d to %d\n",
-		threadNum, start, end)
+func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex),
+	ch chan int64, threadNum int64, syncType string) {
+	logger.Info.Printf("%v: ThreadNo[%d] begin sync block from %d to %d\n",
+		syncType, threadNum, start, end)
 
 	client := helper.GetClient()
 	// release client
@@ -231,10 +233,15 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 
 		// save block info
 		handler.SaveBlock(block.BlockMeta, block.Block, validators)
+
+		// compare and update validators during watch block
+		if syncType == constant.SyncTypeWatch {
+			handler.CompareAndUpdateValidators(validators)
+		}
 	}
 
-	logger.Info.Printf("ThreadNo[%d] finish sync block from %d to %d\n",
-		threadNum, start, end)
+	logger.Info.Printf("%v: ThreadNo[%d] finish sync block from %d to %d\n",
+		syncType, threadNum, start, end)
 
 	<-limitChan
 	ch <- threadNum

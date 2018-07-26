@@ -1,15 +1,15 @@
 package handler
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/stake"
+	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
-	"sync"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/cosmos/cosmos-sdk/x/stake"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/irisnet/irishub-sync/module/codec"
+	"sync"
 )
 
 // save Tx document into collection
@@ -104,7 +104,6 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 			delegator document.Delegator
 		)
 
-
 		// prepare validator data
 		validator, err := getValidator(valAddress)
 
@@ -119,25 +118,7 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 				Address: valAddress,
 			}
 		} else {
-			// validator exist
-			description := document.Description{
-				Moniker: validator.Description.Moniker,
-				Identity: validator.Description.Identity,
-				Website: validator.Description.Website,
-				Details: validator.Description.Details,
-			}
-
-			floatShares, _ := validator.PoolShares.Amount.Float64()
-			candidate = document.Candidate{
-				Address: validator.Owner.String(),
-				PubKey:  helper.BuildHex(validator.PubKey.Bytes()),
-				Revoked: validator.Revoked,
-				Shares: floatShares,
-				OriginalShares: validator.PoolShares.Amount.String(),
-				VotingPower: floatShares,
-				Description: description,
-				BondHeight: validator.BondHeight,
-			}
+			candidate = BuildValidatorDocument(validator)
 
 			// prepare delegator data
 			if delAddress != "" {
@@ -151,23 +132,23 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 				if delegation.DelegatorAddr == nil {
 					// can't get delegation when delegator unbond all token
 					delegator = document.Delegator{
-						Address: delAddress,
-						ValidatorAddr: valAddress,
-						Shares: float64(0),
+						Address:        delAddress,
+						ValidatorAddr:  valAddress,
+						Shares:         float64(0),
+						OriginalShares: "",
 					}
 				} else {
 					// delegation exist
 					floatShares, _ := delegation.Shares.Float64()
 					delegator = document.Delegator{
-						Address: delegation.DelegatorAddr.String(),
-						ValidatorAddr: delegation.ValidatorAddr.String(),
-						Shares: floatShares,
+						Address:        delegation.DelegatorAddr.String(),
+						ValidatorAddr:  delegation.ValidatorAddr.String(),
+						Shares:         floatShares,
 						OriginalShares: delegation.Shares.String(),
 					}
 				}
 			}
 		}
-
 
 		mutex.Lock()
 		logger.Info.Printf("%v saveOrUpdate cndidates get lock\n", methodName)
@@ -181,7 +162,7 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 
 		// update or delete delegator
 		if delAddress != "" {
-			if delegator.Shares == float64(0) {
+			if delegator.OriginalShares == "" {
 				store.Delete(delegator)
 			} else {
 				store.SaveOrUpdate(delegator)
@@ -266,8 +247,8 @@ func buildCommonTxData(docTx store.Docs, txType string) document.CommonTx {
 func getValidator(valAddr string) (stake.Validator, error) {
 	var (
 		validatorAddr sdk.Address
-		err error
-		res stake.Validator
+		err           error
+		res           stake.Validator
 	)
 
 	validatorAddr, err = sdk.GetAccAddressHex(valAddr)
@@ -287,7 +268,7 @@ func getDelegation(delAddr, valAddr string) (stake.Delegation, error) {
 	var (
 		delegatorAddr sdk.Address
 		validatorAddr sdk.Address
-		err error
+		err           error
 
 		res stake.Delegation
 	)
@@ -307,7 +288,6 @@ func getDelegation(delAddr, valAddr string) (stake.Delegation, error) {
 	key := stake.GetDelegationKey(delegatorAddr, validatorAddr, cdc)
 
 	resRaw, err := helper.Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
-
 
 	if err != nil || resRaw == nil {
 		return res, err
