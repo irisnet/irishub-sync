@@ -101,26 +101,34 @@ func watchBlock(c rpcClient.Client) {
 	status, _ := c.Status()
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
-	funcChain := []func(tx store.Docs, mutex sync.Mutex){
-		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
-	}
+	// note: interval two block, to avoid get can't delegation at latest block
+	//       sdk of this version may has some problem
+	if syncTask.Height+2 <= latestBlockHeight {
+		funcChain := []func(tx store.Docs, mutex sync.Mutex){
+			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
+		}
 
-	ch := make(chan int64)
-	limitChan <- 1
+		ch := make(chan int64)
+		limitChan <- 1
 
-	go syncBlock(syncTask.Height+1, latestBlockHeight, funcChain, ch, 0, constant.SyncTypeWatch)
+		go syncBlock(syncTask.Height+1, latestBlockHeight-1, funcChain, ch, 0, constant.SyncTypeWatch)
 
-	select {
-	case <-ch:
-		logger.Info.Printf("Watch block, current height is %v \n", latestBlockHeight)
 		block, _ := c.Block(&latestBlockHeight)
 		syncTask.Height = block.Block.Height
 		syncTask.Time = block.Block.Time
-		err := store.Update(syncTask)
-		if err != nil {
-			logger.Error.Printf("Update syncTask fail, err is %v",
-				err.Error())
+
+		select {
+		case <-ch:
+			logger.Info.Printf("Watch block, current height is %v \n", latestBlockHeight)
+			err := store.Update(syncTask)
+			if err != nil {
+				logger.Error.Printf("Update syncTask fail, err is %v",
+					err.Error())
+			}
 		}
+	} else {
+		logger.Info.Printf("%v: wait, synced height is %v, latest height is %v\n",
+			constant.SyncTypeWatch, syncTask.Height, latestBlockHeight)
 	}
 
 	mutexWatchBlock.Unlock()

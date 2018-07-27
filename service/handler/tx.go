@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	"github.com/irisnet/irishub-sync/module/codec"
@@ -19,6 +20,7 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		valAddress string
 		delAddress string
 	)
+	logger.Info.Printf("Start %v\n", methodName)
 
 	// save docTx document into database
 	storeTxDocFunc := func(doc store.Docs) {
@@ -108,7 +110,7 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 		validator, err := getValidator(valAddress)
 
 		if err != nil {
-			logger.Error.Printf("%v get validator failed by valAddr %v\n", methodName, valAddress)
+			logger.Error.Printf("%v: get validator failed by valAddr %v\n", methodName, valAddress)
 			return
 		}
 
@@ -124,8 +126,13 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 			if delAddress != "" {
 				delegation, err := getDelegation(delAddress, valAddress)
 
+				logger.Info.Printf("%v: delegation: %v\n",
+					methodName, fmt.Sprintf("delAddr: %v, valAddr: %v, shares: %v",
+						delegation.DelegatorAddr.String(), delegation.ValidatorAddr.String(),
+						delegation.Shares.String()))
+
 				if err != nil {
-					logger.Error.Printf("%v get delegation failed by valAddr %v and delAddr %v\n", methodName, valAddress, delAddress)
+					logger.Error.Printf("%v: get delegation failed by valAddr %v and delAddr %v\n", methodName, valAddress, delAddress)
 					return
 				}
 
@@ -145,33 +152,42 @@ func SaveTx(docTx store.Docs, mutex sync.Mutex) {
 						ValidatorAddr:  delegation.ValidatorAddr.String(),
 						Shares:         floatShares,
 						OriginalShares: delegation.Shares.String(),
+						Height:         delegation.Height,
 					}
 				}
 			}
 		}
 
 		mutex.Lock()
-		logger.Info.Printf("%v saveOrUpdate cndidates get lock\n", methodName)
+		logger.Info.Printf("%v: saveOrUpdate vals and dels get lock\n", methodName)
 
 		// update or delete validator
 		if candidate.PubKey == "" {
 			store.Delete(candidate)
+			logger.Info.Printf("%v: delete candidate, addr is %v\n", methodName, candidate.Address)
 		} else {
 			store.SaveOrUpdate(candidate)
+			logger.Info.Printf("%v: saveOrUpdate candidate, addr is %v\n", methodName, candidate.Address)
 		}
 
 		// update or delete delegator
 		if delAddress != "" {
-			if delegator.OriginalShares == "" {
+			if delegator.Shares <= float64(0) {
 				store.Delete(delegator)
+				logger.Info.Printf("%v: delete delegator, delVar is %v, valAddr is %v\n",
+					methodName, delegator.Address, delegator.ValidatorAddr)
 			} else {
 				store.SaveOrUpdate(delegator)
+				logger.Info.Printf("%v: saveOrUpdate delegator, delVar is %v, valAddr is %v\n",
+					methodName, delegator.Address, delegator.ValidatorAddr)
 			}
 		}
 
 		mutex.Unlock()
-		logger.Info.Printf("%v saveOrUpdate cndidates release lock\n", methodName)
+		logger.Info.Printf("%v: saveOrUpdate vals and dels release lock\n", methodName)
 	}
+
+	logger.Info.Printf("End %v\n", methodName)
 }
 
 // build common tx data through parse tx

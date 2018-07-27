@@ -128,15 +128,17 @@ func BuildValidatorDocument(v stake.Validator) document.Candidate {
 	}
 
 	floatShares, _ := v.PoolShares.Amount.Float64()
+	floatDelegatorShares, _ := v.DelegatorShares.Float64()
 	doc := document.Candidate{
-		Address:        v.Owner.String(),
-		PubKey:         helper.BuildHex(v.PubKey.Bytes()),
-		PubKeyAddr:     v.PubKey.Address().String(),
-		Revoked:        v.Revoked,
-		Shares:         floatShares,
-		OriginalShares: v.PoolShares.Amount.String(),
-		Description:    description,
-		BondHeight:     v.BondHeight,
+		Address:         v.Owner.String(),
+		PubKey:          helper.BuildHex(v.PubKey.Bytes()),
+		PubKeyAddr:      v.PubKey.Address().String(),
+		Revoked:         v.Revoked,
+		Shares:          floatShares,
+		OriginalShares:  v.PoolShares.Amount.String(),
+		DelegatorShares: floatDelegatorShares,
+		Description:     description,
+		BondHeight:      v.BondHeight,
 	}
 
 	doc.VotingPower = doc.Shares
