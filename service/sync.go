@@ -113,7 +113,8 @@ func watchBlock(c rpcClient.Client) {
 
 		go syncBlock(syncTask.Height+1, latestBlockHeight-1, funcChain, ch, 0, constant.SyncTypeWatch)
 
-		block, _ := c.Block(&latestBlockHeight)
+		syncedLatestBlockHeight := latestBlockHeight - 1
+		block, _ := c.Block(&syncedLatestBlockHeight)
 		syncTask.Height = block.Block.Height
 		syncTask.Time = block.Block.Time
 
