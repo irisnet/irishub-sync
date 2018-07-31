@@ -13,6 +13,7 @@ import (
 	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
+	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/tendermint/tendermint/types"
 	"sync"
 )
@@ -100,26 +101,39 @@ func watchBlock(c rpcClient.Client) {
 	status, _ := c.Status()
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
-	funcChain := []func(tx store.Docs, mutex sync.Mutex){
-		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
-	}
+	// note: interval two block, to avoid get can't delegation at latest block
+	//       sdk of this version may has some problem
+	if syncTask.Height+2 <= latestBlockHeight {
+		logger.Info.Printf("%v: latest height is %v\n",
+			constant.SyncTypeWatch, latestBlockHeight)
 
-	ch := make(chan int64)
-	limitChan <- 1
-
-	go syncBlock(syncTask.Height+1, latestBlockHeight, funcChain, ch, 0)
-
-	select {
-	case <-ch:
-		logger.Info.Printf("Watch block, current height is %v \n", latestBlockHeight)
-		block, _ := c.Block(&latestBlockHeight)
-		syncTask.Height = block.Block.Height
-		syncTask.Time = block.Block.Time
-		err := store.Update(syncTask)
-		if err != nil {
-			logger.Error.Printf("Update syncTask fail, err is %v",
-				err.Error())
+		funcChain := []func(tx store.Docs, mutex sync.Mutex){
+			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 		}
+
+		ch := make(chan int64)
+		limitChan <- 1
+
+		go syncBlock(syncTask.Height+1, latestBlockHeight-1, funcChain, ch, 0, constant.SyncTypeWatch)
+
+		syncedLatestBlockHeight := latestBlockHeight - 1
+		block, _ := c.Block(&syncedLatestBlockHeight)
+		syncTask.Height = syncedLatestBlockHeight
+		syncTask.Time = block.Block.Time
+
+		select {
+		case <-ch:
+			logger.Info.Printf("%v: synced height is %v \n",
+				constant.SyncTypeWatch, syncedLatestBlockHeight)
+			err := store.Update(syncTask)
+			if err != nil {
+				logger.Error.Printf("Update syncTask fail, err is %v",
+					err.Error())
+			}
+		}
+	} else {
+		logger.Info.Printf("%v: wait, synced height is %v, latest height is %v\n",
+			constant.SyncTypeWatch, syncTask.Height, latestBlockHeight)
 	}
 
 	mutexWatchBlock.Unlock()
@@ -154,7 +168,7 @@ func fastSync(c rpcClient.Client) int64 {
 		if i == goroutineNum {
 			end = latestBlockHeight
 		}
-		go syncBlock(start, end, funcChain, ch, i)
+		go syncBlock(start, end, funcChain, ch, i, constant.SyncTypeFastSync)
 	}
 
 	for {
@@ -184,9 +198,10 @@ end:
 	}
 }
 
-func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex), ch chan int64, threadNum int64) {
-	logger.Info.Printf("ThreadNo[%d] begin sync block from %d to %d\n",
-		threadNum, start, end)
+func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex),
+	ch chan int64, threadNum int64, syncType string) {
+	logger.Info.Printf("%v: ThreadNo[%d] begin sync block from %d to %d\n",
+		syncType, threadNum, start, end)
 
 	client := helper.GetClient()
 	// release client
@@ -231,10 +246,15 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 
 		// save block info
 		handler.SaveBlock(block.BlockMeta, block.Block, validators)
+
+		// compare and update validators during watch block
+		if syncType == constant.SyncTypeWatch {
+			handler.CompareAndUpdateValidators(validators)
+		}
 	}
 
-	logger.Info.Printf("ThreadNo[%d] finish sync block from %d to %d\n",
-		threadNum, start, end)
+	logger.Info.Printf("%v: ThreadNo[%d] finish sync block from %d to %d\n",
+		syncType, threadNum, start, end)
 
 	<-limitChan
 	ch <- threadNum

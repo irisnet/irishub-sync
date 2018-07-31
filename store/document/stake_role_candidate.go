@@ -13,14 +13,16 @@ const (
 )
 
 type Candidate struct {
-	Address     string      `bson:"address"` // owner, identity key
-	PubKey      string      `bson:"pub_key"`
-	Revoked     bool        `bson:"revoked"` // has the validator been revoked from bonded status
-	Shares      float64     `bson:"shares"`
-	OriginalShares string   `bson:"original_shares"`
-	VotingPower float64     `bson:"voting_power"` // Voting power if pubKey is a considered a validator
-	Description Description `bson:"description"`  // Description terms for the candidate
-	BondHeight  int64       `bson:"bond_height"`
+	Address         string      `bson:"address"` // owner, identity key
+	PubKey          string      `bson:"pub_key"`
+	PubKeyAddr      string      `bson:"pub_key_addr"`
+	Revoked         bool        `bson:"revoked"` // has the validator been revoked from bonded status
+	Shares          float64     `bson:"shares"`
+	OriginalShares  string      `bson:"original_shares"`
+	DelegatorShares float64     `bson:"delegator_shares"`
+	VotingPower     float64     `bson:"voting_power"` // Voting power if pubKey is a considered a validator
+	Description     Description `bson:"description"`  // Description terms for the candidate
+	BondHeight      int64       `bson:"bond_height"`
 }
 
 func (d Candidate) Name() string {
@@ -44,4 +46,54 @@ func QueryCandidateByAddress(address string) (Candidate, error) {
 	}
 
 	return result, nil
+}
+
+func (d Candidate) Query(query bson.M, sorts ...string) (
+	results []Candidate, err error) {
+	exop := func(c *mgo.Collection) error {
+		return c.Find(query).Sort(sorts...).All(&results)
+	}
+	return results, store.ExecCollection(d.Name(), exop)
+}
+
+func (d Candidate) Remove(query bson.M) error {
+	remove := func(c *mgo.Collection) error {
+		changeInfo, err := c.RemoveAll(query)
+		logger.Info.Printf("Remove candidates, remove info is %+v\n", changeInfo)
+		return err
+	}
+	return store.ExecCollection(d.Name(), remove)
+}
+
+func (d Candidate) GetUnRevokeValidators() ([]Candidate, error) {
+	query := bson.M{
+		"revoked": false,
+	}
+
+	sorts := make([]string, 0)
+
+	candidates, err := d.Query(query, sorts...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return candidates, nil
+}
+
+func (d Candidate) RemoveCandidates() error {
+	query := bson.M{}
+	return d.Remove(query)
+}
+
+func (d Candidate) SaveAll(candidates []Candidate) error {
+	var docs []interface{}
+
+	for _, v := range candidates {
+		docs = append(docs, v)
+	}
+
+	err := store.SaveAll(d.Name(), docs)
+
+	return err
 }

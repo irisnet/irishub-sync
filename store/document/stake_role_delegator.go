@@ -12,10 +12,11 @@ const (
 )
 
 type Delegator struct {
-	Address       string    `bson:"address"`
-	ValidatorAddr string    `bson:"validator_addr"` // validatorAddr
-	Shares        float64    `bson:"shares"`
-	OriginalShares string   `bson:"original_shares"`
+	Address        string  `bson:"address"`
+	ValidatorAddr  string  `bson:"validator_addr"` // validatorAddr
+	Shares         float64 `bson:"shares"`
+	OriginalShares string  `bson:"original_shares"`
+	Height         int64   `bson:"height"`
 }
 
 func (d Delegator) Name() string {

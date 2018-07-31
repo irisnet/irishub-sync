@@ -80,6 +80,14 @@ func Save(h Docs) error {
 	return ExecCollection(h.Name(), save)
 }
 
+func SaveAll(collectionName string, docs []interface{}) error {
+	session := getSession()
+	defer session.Close()
+
+	c := session.DB(conf.Database).C(collectionName)
+	return c.Insert(docs...)
+}
+
 func SaveOrUpdate(h Docs) error {
 	save := func(c *mgo.Collection) error {
 		n, err := c.Find(h.PkKvPair()).Count()
