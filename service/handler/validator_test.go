@@ -118,12 +118,6 @@ func Test_sliceContains(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			res := sliceContains(tt.args.s, tt.args.e)
 			fmt.Println(res)
-			shares := 0.45
-			if shares == float64(0) {
-				fmt.Println("equal")
-			} else {
-				fmt.Println("not equal")
-			}
 		})
 	}
 }

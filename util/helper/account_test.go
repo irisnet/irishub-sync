@@ -21,13 +21,13 @@ func TestQueryAccountBalance(t *testing.T) {
 		{
 			name: "test balance not nil",
 			args: args{
-				address: "D770D45DEA7548076F8A27F9C9749B200934F1B4",
+				address: "faa1j29yg75chqnvggpzpxrz2akc8caqh3mvfm8ajj",
 			},
 		},
 		{
 			name: "test balance is nil",
 			args: args{
-				address: "D770D45DEA7548076F8A27F9C9749B200934F1B9",
+				address: "faa1utem9ysq9gkpkhnrrtznmrxyy238kwd0gkcz60",
 			},
 		},
 	}

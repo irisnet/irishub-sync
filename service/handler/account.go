@@ -28,8 +28,10 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 			Height:  height,
 		}
 
-		if err := store.Save(account); err != nil {
-			logger.Trace.Printf("%v Record exists, account is %v, err is %s\n",
+		err := store.Save(account)
+
+		if err != nil && err.Error() != "Record exists" {
+			logger.Error.Printf("%v Record exists, account is %v, err is %s\n",
 				methodName, account.Address, err.Error())
 		}
 	}
@@ -42,7 +44,7 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 	}
 
 	switch txType {
-	case constant.TxTypeBank:
+	case constant.TxTypeTransfer:
 		docTx, r := docTx.(document.CommonTx)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -55,7 +57,7 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 		fun(docTx.From, updateTime, height)
 		fun(docTx.To, updateTime, height)
 		break
-	case constant.TxTypeStakeCreate:
+	case constant.TxTypeStakeCreateValidator:
 		docTx, r := docTx.(document.StakeTxDeclareCandidacy)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -67,8 +69,11 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 		height = docTx.Height
 
 		fun(address, updateTime, height)
+		if docTx.DelegatorAddr != "" {
+			fun(docTx.DelegatorAddr, updateTime, height)
+		}
 		break
-	case constant.TxTypeStakeEdit:
+	case constant.TxTypeStakeEditValidator:
 		docTx, r := docTx.(document.StakeTxEditCandidacy)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -81,7 +86,8 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 
 		fun(address, updateTime, height)
 		break
-	case constant.TxTypeStakeDelegate, constant.TxTypeStakeUnbond:
+	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding,
+		constant.TxTypeStakeCompleteUnbonding:
 		stakeTx, r := docTx.(document.StakeTx)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -130,7 +136,7 @@ func UpdateBalance(docTx store.Docs, mutex sync.Mutex) {
 	}
 
 	switch txType {
-	case constant.TxTypeBank:
+	case constant.TxTypeTransfer:
 		docTx, r := docTx.(document.CommonTx)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -140,7 +146,7 @@ func UpdateBalance(docTx store.Docs, mutex sync.Mutex) {
 		fun(docTx.From)
 		fun(docTx.To)
 		break
-	case constant.TxTypeStakeCreate:
+	case constant.TxTypeStakeCreateValidator:
 		docTx, r := docTx.(document.StakeTxDeclareCandidacy)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -148,8 +154,11 @@ func UpdateBalance(docTx store.Docs, mutex sync.Mutex) {
 			break
 		}
 		fun(docTx.ValidatorAddr)
+		if docTx.DelegatorAddr != "" {
+			fun(docTx.DelegatorAddr)
+		}
 		break
-	case constant.TxTypeStakeEdit:
+	case constant.TxTypeStakeEditValidator:
 		docTx, r := docTx.(document.StakeTxEditCandidacy)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
@@ -158,7 +167,8 @@ func UpdateBalance(docTx store.Docs, mutex sync.Mutex) {
 		}
 		fun(docTx.ValidatorAddr)
 		break
-	case constant.TxTypeStakeDelegate, constant.TxTypeStakeUnbond:
+	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding,
+		constant.TxTypeStakeCompleteUnbonding:
 		docTx, r := docTx.(document.StakeTx)
 		if !r {
 			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
