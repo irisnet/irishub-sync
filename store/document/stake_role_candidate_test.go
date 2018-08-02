@@ -67,8 +67,8 @@ func TestCandidate_SaveAll(t *testing.T) {
 			PubKey:         "1",
 			PubKeyAddr:     "1",
 			Revoked:        true,
-			Shares:         float64(9.0),
-			OriginalShares: "9.0",
+			Tokens:         float64(9.0),
+			OriginalTokens: "9.0",
 			VotingPower:    float64(9.0),
 			Description: Description{
 				Moniker: "1",
@@ -81,8 +81,8 @@ func TestCandidate_SaveAll(t *testing.T) {
 			PubKey:         "2",
 			PubKeyAddr:     "2",
 			Revoked:        false,
-			Shares:         float64(9.0),
-			OriginalShares: "9.0",
+			Tokens:         float64(9.0),
+			OriginalTokens: "9.0",
 			VotingPower:    float64(9.0),
 			Description: Description{
 				Moniker: "2",

@@ -11,15 +11,17 @@ const (
 )
 
 type CommonTx struct {
-	TxHash string      `bson:"tx_hash"`
 	Time   time.Time   `bson:"time"`
 	Height int64       `bson:"height"`
+	TxHash string      `bson:"tx_hash"`
 	From   string      `bson:"from"`
 	To     string      `bson:"to"`
 	Amount store.Coins `bson:"amount"`
 	Type   string      `bson:"type"`
 	Fee    store.Fee   `bson:"fee"`
+	Memo   string      `bson:"memo"`
 	Status string      `bson:"status"`
+	Log    string      `bson:"log"`
 }
 
 func (d CommonTx) Name() string {

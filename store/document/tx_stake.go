@@ -12,9 +12,9 @@ const (
 	CollectionNmStakeTxEditCandidacy    = CollectionNmStakeTx
 )
 
-// ===============================
-// struct of delegate and unbond
-// ===============================
+// ===========================================================
+// struct of delegate、beginUnbonding and completeUnbonding
+// ===========================================================
 type StakeTx struct {
 	TxHash        string     `bson:"tx_hash"`
 	Time          time.Time  `bson:"time"`
@@ -25,7 +25,9 @@ type StakeTx struct {
 	Type          string     `bson:"type"`
 	Amount        store.Coin `bson:"amount"`
 	Fee           store.Fee  `bson:"fee"`
+	Memo          string     `bson:"memo"`
 	Status        string     `bson:"status"`
+	Log           string     `bson:"log"`
 }
 
 // Description
