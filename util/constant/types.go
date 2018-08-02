@@ -3,12 +3,12 @@
 package constant
 
 const (
-	TxTypeTransfer               = "transfer"
-	TxTypeStakeCreateValidator   = "createValidator"
-	TxTypeStakeEditValidator     = "editValidator"
-	TxTypeStakeDelegate          = "delegate"
-	TxTypeStakeBeginUnbonding    = "beginUnbonding"
-	TxTypeStakeCompleteUnbonding = "completeUnbonding"
+	TxTypeTransfer               = "Transfer"
+	TxTypeStakeCreateValidator   = "CreateValidator"
+	TxTypeStakeEditValidator     = "EditValidator"
+	TxTypeStakeDelegate          = "Delegate"
+	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
+	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
 
 	TxStatusSuccess = "success"
 	TxStatusFail    = "fail"
