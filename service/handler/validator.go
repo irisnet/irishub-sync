@@ -3,6 +3,7 @@ package handler
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/stake"
+	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store/document"
@@ -62,12 +63,16 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 		if err != nil {
 			logger.Error.Printf("%v: err is %v\n", methodName, err)
 		}
+
 		codec.Cdc.MustUnmarshalBinary(resRaw, &kvs)
 		for _, v := range kvs {
 			var (
 				validator stake.Validator
 			)
-			err2 := codec.Cdc.UnmarshalBinary(v.Value, &validator)
+
+			addr := v.Key[1:]
+			validator, err2 := staketypes.UnmarshalValidator(codec.Cdc, addr, v.Value)
+
 			if err2 != nil {
 				logger.Error.Printf("%v: err is %v\n", methodName, err2)
 			}
@@ -127,21 +132,25 @@ func BuildValidatorDocument(v stake.Validator) document.Candidate {
 		Details:  v.Description.Details,
 	}
 
-	floatShares, _ := v.PoolShares.Amount.Float64()
+	floatTokens, _ := v.Tokens.Float64()
 	floatDelegatorShares, _ := v.DelegatorShares.Float64()
+	pubKey, err := sdk.Bech32ifyValPub(v.PubKey)
+	if err != nil {
+		logger.Error.Printf("Can't get validator pubKey, validator is %v:\n", v)
+	}
 	doc := document.Candidate{
 		Address:         v.Owner.String(),
-		PubKey:          helper.BuildHex(v.PubKey.Bytes()),
+		PubKey:          pubKey,
 		PubKeyAddr:      v.PubKey.Address().String(),
 		Revoked:         v.Revoked,
-		Shares:          floatShares,
-		OriginalShares:  v.PoolShares.Amount.String(),
+		Tokens:          floatTokens,
+		OriginalTokens:  v.Tokens.RatString(),
 		DelegatorShares: floatDelegatorShares,
 		Description:     description,
 		BondHeight:      v.BondHeight,
 	}
 
-	doc.VotingPower = doc.Shares
+	doc.VotingPower = doc.Tokens
 
 	return doc
 }

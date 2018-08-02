@@ -39,11 +39,12 @@ func buildDocData(blockHeight int64) store.Docs {
 }
 
 func TestSaveTx(t *testing.T) {
-	docTxBank := buildDocData(19352)
+	//docTxBank := buildDocData(17)
 	//docTxStakeCreate := buildDocData(46910)
-	//docTxStakeUnBond := buildDocData(5240)
-	//docTxStakeEdit := buildDocData(17026)
-	//docTxStakeDelegate := buildDocData(1760)
+	docTxStakeBeginUnBond := buildDocData(2753)
+	//docTxStakeCompleteUnBond := buildDocData(287)
+	//docTxStakeEdit := buildDocData(127)
+	//docTxStakeDelegate := buildDocData(81)
 
 	type args struct {
 		docTx store.Docs
@@ -53,13 +54,13 @@ func TestSaveTx(t *testing.T) {
 		name string
 		args args
 	}{
-		{
-			name: "tx bank",
-			args: args{
-				docTx: docTxBank,
-				mutex: sync.Mutex{},
-			},
-		},
+		//{
+		//	name: "tx bank",
+		//	args: args{
+		//		docTx: docTxBank,
+		//		mutex: sync.Mutex{},
+		//	},
+		//},
 		//{
 		//	name: "tx stake/create",
 		//	args: args{
@@ -81,10 +82,17 @@ func TestSaveTx(t *testing.T) {
 		//		mutex: sync.Mutex{},
 		//	},
 		//},
+		{
+			name: "tx stake/beginUnbonding",
+			args: args{
+				docTx: docTxStakeBeginUnBond,
+				mutex: sync.Mutex{},
+			},
+		},
 		//{
-		//	name: "tx stake/unbond",
+		//	name: "tx stake/completeUnbonding",
 		//	args: args{
-		//		docTx: docTxStakeUnBond,
+		//		docTx: docTxStakeCompleteUnBond,
 		//		mutex: sync.Mutex{},
 		//	},
 		//},
@@ -107,7 +115,7 @@ func Test_getValidator(t *testing.T) {
 		{
 			name: "test get validator",
 			args: args{
-				valAddr: "441EF0233B416CF486E21D0377B8758F25FECEAB",
+				valAddr: "faa1wp3jgnndsfyxxfeyluu9wsu0yxeseqn6f76fq3",
 			},
 		},
 	}
@@ -134,18 +142,24 @@ func Test_getDelegation(t *testing.T) {
 		{
 			name: "test get delegation",
 			args: args{
-				delAddr: "7E2E6D4764016042B8A82B6EC8B041C79FE5580C",
-				valAddr: "441EF0233B416CF486E21D0377B8758F25FECEAB",
+				delAddr: "faa1utem9ysq9gkpkhnrrtznmrxyy238kwd0gkcz60",
+				valAddr: "faa1wp3jgnndsfyxxfeyluu9wsu0yxeseqn6f76fq3",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res, err := getDelegation(tt.args.delAddr, tt.args.valAddr)
+			if res.DelegatorAddr == nil {
+				logger.Info.Println("delegation is empty")
+			}
 			if err != nil {
 				logger.Error.Fatalln(err)
 			}
+
 			logger.Info.Println(helper.ToJson(res))
+			logger.Info.Println(res.Shares.RatString())
+			logger.Info.Println(res.Shares.Float64())
 		})
 	}
 }

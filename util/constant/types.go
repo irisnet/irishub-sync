@@ -3,13 +3,15 @@
 package constant
 
 const (
-	TxTypeBank          = "coin"
-	TxTypeStakeCreate   = "declareCandidacy"
-	TxTypeStakeEdit     = "editCandidacy"
-	TxTypeStakeDelegate = "delegate"
-	TxTypeStakeUnbond   = "unbond"
+	TxTypeTransfer               = "transfer"
+	TxTypeStakeCreateValidator   = "createValidator"
+	TxTypeStakeEditValidator     = "editValidator"
+	TxTypeStakeDelegate          = "delegate"
+	TxTypeStakeBeginUnbonding    = "beginUnbonding"
+	TxTypeStakeCompleteUnbonding = "completeUnbonding"
 
 	TxStatusSuccess = "success"
+	TxStatusFail    = "fail"
 
 	EnvNameDbHost     = "DB_HOST"
 	EnvNameDbPort     = "DB_PORT"

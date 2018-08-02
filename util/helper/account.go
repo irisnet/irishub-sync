@@ -11,19 +11,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/pkg/errors"
+	cmn "github.com/tendermint/tendermint/libs/common"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	cmn "github.com/tendermint/tmlibs/common"
 )
 
+// query account balance from sdk store
 func QueryAccountBalance(address string) store.Coins {
-	addr, err := sdk.GetValAddressHex(address)
+	addr, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
 		logger.Error.Printf("get addr from hex failed, %+v\n", err)
 		return nil
 	}
 
-	res, err := Query(auth.AddressStoreKey(addr), "acc", "key")
+	res, err := Query(auth.AddressStoreKey(addr), "acc",
+		constant.StoreDefaultEndPath)
 
 	if err != nil {
 		logger.Error.Printf("Query balance from tendermint failed, %+v\n", err)
