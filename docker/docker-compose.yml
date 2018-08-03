@@ -8,14 +8,14 @@ services:
     environment:
       ENV: dev
       DB_HOST: 192.168.150.7
-      DB_PORT: 27217
+      DB_PORT: 30000
       DB_USER: iris
       DB_PASSWD: irispassword
-      DB_DATABASE: sync-iris-dev
+      DB_DATABASE: sync-iris
 
 
       SER_BC_NODE_URL: tcp://192.168.150.7:26657
-      SER_BC_CHAIN_ID: fuxi-develop
+      SER_BC_CHAIN_ID: rainbow-dev
       SER_BC_TOKEN: iris
       SER_MAX_GOROUTINE: 60
       SER_SYNC_BLOCK_NUM: 8000
