@@ -142,7 +142,11 @@ func watchBlock(c rpcClient.Client) {
 // fast sync data from blockChain
 func fastSync(c rpcClient.Client) int64 {
 	syncTaskDoc, _ := document.QuerySyncTask()
-	status, _ := c.Status()
+	status, err := c.Status()
+	if err != nil {
+		logger.Error.Printf("TmClient err, %v\n", err)
+		return 0
+	}
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	funcChain := []func(tx store.Docs, mutex sync.Mutex){
