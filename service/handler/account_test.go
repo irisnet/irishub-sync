@@ -8,11 +8,12 @@ import (
 )
 
 func TestSaveAccount(t *testing.T) {
-	docTxBank := buildDocData(1707)
+	docTxBank := buildDocData(17)
 	//docTxStakeCreate := buildDocData(46910)
-	docTxStakeUnBond := buildDocData(5240)
-	docTxStakeEdit := buildDocData(17026)
-	docTxStakeDelegate := buildDocData(1760)
+	docTxStakeBeginUnBonding := buildDocData(148)
+	docTxStakeCompleteUnBonding := buildDocData(287)
+	docTxStakeEdit := buildDocData(127)
+	docTxStakeDelegate := buildDocData(81)
 
 	type args struct {
 		docTx store.Docs
@@ -51,9 +52,16 @@ func TestSaveAccount(t *testing.T) {
 			},
 		},
 		{
-			name: "tx stake/unbond",
+			name: "tx stake/beginUnbonding",
 			args: args{
-				docTx: docTxStakeUnBond,
+				docTx: docTxStakeBeginUnBonding,
+				mutex: sync.Mutex{},
+			},
+		},
+		{
+			name: "tx stake/completeUnbonding",
+			args: args{
+				docTx: docTxStakeCompleteUnBonding,
 				mutex: sync.Mutex{},
 			},
 		},
@@ -66,11 +74,12 @@ func TestSaveAccount(t *testing.T) {
 }
 
 func TestUpdateBalance(t *testing.T) {
-	docTxBank := buildDocData(1707)
+	docTxBank := buildDocData(17)
 	//docTxStakeCreate := buildDocData(46910)
-	docTxStakeUnBond := buildDocData(5240)
-	docTxStakeEdit := buildDocData(17026)
-	docTxStakeDelegate := buildDocData(1760)
+	docTxStakeBeginUnBonding := buildDocData(148)
+	docTxStakeCompleteUnBonding := buildDocData(287)
+	docTxStakeEdit := buildDocData(127)
+	docTxStakeDelegate := buildDocData(81)
 
 	type args struct {
 		docTx store.Docs
@@ -109,9 +118,16 @@ func TestUpdateBalance(t *testing.T) {
 			},
 		},
 		{
-			name: "tx stake/unbond",
+			name: "tx stake/beginUnbonding",
 			args: args{
-				docTx: docTxStakeUnBond,
+				docTx: docTxStakeBeginUnBonding,
+				mutex: sync.Mutex{},
+			},
+		},
+		{
+			name: "tx stake/completeUnbonding",
+			args: args{
+				docTx: docTxStakeCompleteUnBonding,
 				mutex: sync.Mutex{},
 			},
 		},

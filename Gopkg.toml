@@ -24,47 +24,38 @@
 #   go-tests = true
 #   unused-packages = true
 
-
-[[constraint]]
-  name = "github.com/robfig/cron"
-  version = "1.1.0"
+# ------------------------------------------------
+# cosmos-sdk and tendermint deps
+# ------------------------------------------------
 
 [[constraint]]
   name = "github.com/cosmos/cosmos-sdk"
-  version = "v0.19.1-rc1"
+  version = "=v0.23.0-iris"
+  source = "https://github.com/irisnet/cosmos-sdk.git"
 
 [[override]]
-  name = "github.com/tendermint/abci"
-  version = "=0.12.0"
-
-[[override]]
-  name = "github.com/tendermint/go-crypto"
-  version = "=0.6.2"
-
-[[override]]
-  name = "github.com/tendermint/go-amino"
-  version = "=0.9.9"
+   name = "github.com/tendermint/go-amino"
+   version = "=0.10.1"
 
 [[override]]
   name = "github.com/tendermint/iavl"
-  version = "=0.8.0-rc0"
+  version = "=v0.9.2"
 
 [[override]]
   name = "github.com/tendermint/tendermint"
-  version = "=0.21.0"
+  version = "=v0.22.6"
 
-[[override]]
-  name = "github.com/tendermint/tmlibs"
-  version = "=v0.9.0"
-
-# this got updated and broke, so locked to an old working commit ...
-[[override]]
-  name = "google.golang.org/genproto"
-  revision = "7fd901a49ba6a7f87732eb344f6e3c5b19d1b200"
+# ------------------------------------------------
+# project deps
+# ------------------------------------------------
 
 [[constraint]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
+
+[[constraint]]
+  name = "github.com/robfig/cron"
+  version = "1.1.0"
 
 [[constraint]]
   branch = "v2"

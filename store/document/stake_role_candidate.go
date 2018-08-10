@@ -17,8 +17,8 @@ type Candidate struct {
 	PubKey          string      `bson:"pub_key"`
 	PubKeyAddr      string      `bson:"pub_key_addr"`
 	Revoked         bool        `bson:"revoked"` // has the validator been revoked from bonded status
-	Shares          float64     `bson:"shares"`
-	OriginalShares  string      `bson:"original_shares"`
+	Tokens          float64     `bson:"tokens"`
+	OriginalTokens  string      `bson:"original_tokens"`
 	DelegatorShares float64     `bson:"delegator_shares"`
 	VotingPower     float64     `bson:"voting_power"` // Voting power if pubKey is a considered a validator
 	Description     Description `bson:"description"`  // Description terms for the candidate

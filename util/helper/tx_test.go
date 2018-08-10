@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/tendermint/tendermint/types"
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/tendermint/tendermint/types"
 )
 
 func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
@@ -32,15 +32,16 @@ func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 }
 
 func TestParseTx(t *testing.T) {
-	coinByte, coinBlock := buildTxByte(1762)
-	scByte, scBlock := buildTxByte(46910)
-	seByte, seBlock := buildTxByte(49388)
-	sdByte, sdBlock := buildTxByte(47349)
-	suByte, suBlock := buildTxByte(34241)
+	coinByte, coinBlock := buildTxByte(17)
+	//scByte, scBlock := buildTxByte(46910)
+	seByte, seBlock := buildTxByte(127)
+	sdByte, sdBlock := buildTxByte(81)
+	suBByte, suBBlock := buildTxByte(148)
+	suCByte, suCBlock := buildTxByte(287)
 
 	type args struct {
 		txByte types.Tx
-		block *types.Block
+		block  *types.Block
 	}
 	tests := []struct {
 		name  string
@@ -52,35 +53,42 @@ func TestParseTx(t *testing.T) {
 			name: "test tx coin",
 			args: args{
 				txByte: coinByte,
-				block: coinBlock,
+				block:  coinBlock,
 			},
 		},
-		{
-			name: "test tx stake/create",
-			args: args{
-				txByte: scByte,
-				block: scBlock,
-			},
-		},
+		//{
+		//	name: "test tx stake/create",
+		//	args: args{
+		//		txByte: scByte,
+		//		block: scBlock,
+		//	},
+		//},
 		{
 			name: "test tx stake/edit",
 			args: args{
 				txByte: seByte,
-				block: seBlock,
+				block:  seBlock,
 			},
 		},
 		{
 			name: "test tx stake/delegate",
 			args: args{
 				txByte: sdByte,
-				block: sdBlock,
+				block:  sdBlock,
 			},
 		},
 		{
-			name: "test tx stake/unbond",
+			name: "test tx stake/completeUnbonding",
 			args: args{
-				txByte: suByte,
-				block: suBlock,
+				txByte: suBByte,
+				block:  suBBlock,
+			},
+		},
+		{
+			name: "test tx stake/beginUnbonding",
+			args: args{
+				txByte: suCByte,
+				block:  suCBlock,
 			},
 		},
 	}

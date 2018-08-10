@@ -70,8 +70,7 @@ func Save(h Docs) error {
 		pk := h.PkKvPair()
 		n, _ := c.Find(pk).Count()
 		if n >= 1 {
-			errMsg := fmt.Sprintf("Record existed while save %v, data is %+v\n",
-				h.Name(), h)
+			errMsg := fmt.Sprintf("Record exists")
 			return errors.New(errMsg)
 		}
 		// logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
