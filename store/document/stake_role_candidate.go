@@ -1,7 +1,6 @@
 package document
 
 import (
-	"errors"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
@@ -31,21 +30,6 @@ func (d Candidate) Name() string {
 
 func (d Candidate) PkKvPair() map[string]interface{} {
 	return bson.M{"address": d.Address}
-}
-
-func QueryCandidateByAddress(address string) (Candidate, error) {
-	var result Candidate
-	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"address": address}).One(&result)
-		return err
-	}
-
-	if store.ExecCollection(CollectionNmStakeRoleCandidate, query) != nil {
-		logger.Info.Println("candidate is Empty")
-		return result, errors.New("candidate is Empty")
-	}
-
-	return result, nil
 }
 
 func (d Candidate) Query(query bson.M, sorts ...string) (
