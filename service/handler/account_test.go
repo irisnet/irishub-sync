@@ -4,19 +4,13 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
 )
 
 func TestSaveAccount(t *testing.T) {
-	docTxBank := buildDocData(17)
-	//docTxStakeCreate := buildDocData(46910)
-	docTxStakeBeginUnBonding := buildDocData(148)
-	docTxStakeCompleteUnBonding := buildDocData(287)
-	docTxStakeEdit := buildDocData(127)
-	docTxStakeDelegate := buildDocData(81)
 
 	type args struct {
-		docTx store.Docs
+		docTx document.CommonTx
 		mutex sync.Mutex
 	}
 	tests := []struct {
@@ -26,42 +20,42 @@ func TestSaveAccount(t *testing.T) {
 		{
 			name: "tx bank",
 			args: args{
-				docTx: docTxBank,
+				docTx: buildDocData(BankHeight),
 				mutex: sync.Mutex{},
 			},
 		},
-		//{
-		//	name: "tx stake/create",
-		//	args: args{
-		//		docTx: docTxStakeCreate,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
+		{
+			name: "tx stake/create",
+			args: args{
+				docTx: buildDocData(StakeCreateHeight),
+				mutex: sync.Mutex{},
+			},
+		},
 		{
 			name: "tx stake/edit",
 			args: args{
-				docTx: docTxStakeEdit,
+				docTx: buildDocData(StakeEditHeight),
 				mutex: sync.Mutex{},
 			},
 		},
 		{
 			name: "tx stake/delegate",
 			args: args{
-				docTx: docTxStakeDelegate,
+				docTx: buildDocData(StakeDelegateHeight),
 				mutex: sync.Mutex{},
 			},
 		},
 		{
 			name: "tx stake/beginUnbonding",
 			args: args{
-				docTx: docTxStakeBeginUnBonding,
+				docTx: buildDocData(StakeBeginUnbondingHeight),
 				mutex: sync.Mutex{},
 			},
 		},
 		{
 			name: "tx stake/completeUnbonding",
 			args: args{
-				docTx: docTxStakeCompleteUnBonding,
+				docTx: buildDocData(StakeCompleteUnbondingHeight),
 				mutex: sync.Mutex{},
 			},
 		},
@@ -74,15 +68,8 @@ func TestSaveAccount(t *testing.T) {
 }
 
 func TestUpdateBalance(t *testing.T) {
-	docTxBank := buildDocData(17)
-	//docTxStakeCreate := buildDocData(46910)
-	docTxStakeBeginUnBonding := buildDocData(148)
-	docTxStakeCompleteUnBonding := buildDocData(287)
-	docTxStakeEdit := buildDocData(127)
-	docTxStakeDelegate := buildDocData(81)
-
 	type args struct {
-		docTx store.Docs
+		docTx document.CommonTx
 		mutex sync.Mutex
 	}
 	tests := []struct {
@@ -92,42 +79,42 @@ func TestUpdateBalance(t *testing.T) {
 		{
 			name: "tx bank",
 			args: args{
-				docTx: docTxBank,
+				docTx: buildDocData(BankHeight),
 				mutex: sync.Mutex{},
 			},
 		},
-		//{
-		//	name: "tx stake/create",
-		//	args: args{
-		//		docTx: docTxStakeCreate,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
+		{
+			name: "tx stake/create",
+			args: args{
+				docTx: buildDocData(StakeCreateHeight),
+				mutex: sync.Mutex{},
+			},
+		},
 		{
 			name: "tx stake/edit",
 			args: args{
-				docTx: docTxStakeEdit,
+				docTx: buildDocData(StakeEditHeight),
 				mutex: sync.Mutex{},
 			},
 		},
 		{
 			name: "tx stake/delegate",
 			args: args{
-				docTx: docTxStakeDelegate,
+				docTx: buildDocData(StakeDelegateHeight),
 				mutex: sync.Mutex{},
 			},
 		},
 		{
 			name: "tx stake/beginUnbonding",
 			args: args{
-				docTx: docTxStakeBeginUnBonding,
+				docTx: buildDocData(StakeBeginUnbondingHeight),
 				mutex: sync.Mutex{},
 			},
 		},
 		{
 			name: "tx stake/completeUnbonding",
 			args: args{
-				docTx: docTxStakeCompleteUnBonding,
+				docTx: buildDocData(StakeCompleteUnbondingHeight),
 				mutex: sync.Mutex{},
 			},
 		},

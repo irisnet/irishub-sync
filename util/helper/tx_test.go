@@ -32,12 +32,12 @@ func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 }
 
 func TestParseTx(t *testing.T) {
-	coinByte, coinBlock := buildTxByte(17)
-	//scByte, scBlock := buildTxByte(46910)
-	seByte, seBlock := buildTxByte(127)
-	sdByte, sdBlock := buildTxByte(81)
-	suBByte, suBBlock := buildTxByte(148)
-	suCByte, suCBlock := buildTxByte(287)
+	coinByte, coinBlock := buildTxByte(17694)
+	scByte, scBlock := buildTxByte(28848)
+	seByte, seBlock := buildTxByte(28581)
+	sdByte, sdBlock := buildTxByte(28596)
+	suBByte, suBBlock := buildTxByte(28604)
+	suCByte, suCBlock := buildTxByte(28852)
 
 	type args struct {
 		txByte types.Tx
@@ -56,13 +56,13 @@ func TestParseTx(t *testing.T) {
 				block:  coinBlock,
 			},
 		},
-		//{
-		//	name: "test tx stake/create",
-		//	args: args{
-		//		txByte: scByte,
-		//		block: scBlock,
-		//	},
-		//},
+		{
+			name: "test tx stake/create",
+			args: args{
+				txByte: scByte,
+				block:  scBlock,
+			},
+		},
 		{
 			name: "test tx stake/edit",
 			args: args{

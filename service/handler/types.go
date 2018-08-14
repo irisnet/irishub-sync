@@ -1,31 +1,23 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub-sync/util/helper"
-	"reflect"
+	"github.com/irisnet/irishub-sync/store/document"
 	"sync"
 )
 
 // get tx type
-func GetTxType(docTx store.Docs) string {
-	if docTx == nil {
+func GetTxType(docTx document.CommonTx) string {
+	if docTx.TxHash == "" {
 		return ""
 	}
-	if !reflect.ValueOf(docTx).FieldByName("Type").IsValid() {
-		logger.Error.Printf("type which is field name of stake docTx is missed, docTx is %+v\n",
-			helper.ToJson(docTx))
-		return ""
-	}
-	txType := reflect.ValueOf(docTx).FieldByName("Type").String()
+	txType := docTx.Type
 
 	return txType
 }
 
-func Handle(docTx store.Docs, mutex sync.Mutex, funChains []func(tx store.Docs, mutex sync.Mutex)) {
+func Handle(docTx document.CommonTx, mutex sync.Mutex, funChains []func(tx document.CommonTx, mutex sync.Mutex)) {
 	for _, fun := range funChains {
-		if docTx != nil {
+		if docTx.TxHash != "" {
 			fun(docTx, mutex)
 		}
 	}

@@ -7,7 +7,17 @@ import (
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
+)
+
+const (
+	BankHeight                   = 17694
+	StakeCreateHeight            = 28848
+	StakeEditHeight              = 28581
+	StakeDelegateHeight          = 29209
+	StakeBeginUnbondingHeight    = 29214
+	StakeCompleteUnbondingHeight = 29306
 )
 
 func init() {
@@ -15,8 +25,7 @@ func init() {
 	store.InitWithAuth()
 }
 
-func buildDocData(blockHeight int64) store.Docs {
-
+func buildDocData(blockHeight int64) document.CommonTx {
 	client := helper.GetClient()
 	// release client
 	defer client.Release()
@@ -35,67 +44,60 @@ func buildDocData(blockHeight int64) store.Docs {
 		return docTx
 
 	}
-	return nil
+	return document.CommonTx{}
 }
 
 func TestSaveTx(t *testing.T) {
-	//docTxBank := buildDocData(17)
-	//docTxStakeCreate := buildDocData(46910)
-	docTxStakeBeginUnBond := buildDocData(2753)
-	//docTxStakeCompleteUnBond := buildDocData(287)
-	//docTxStakeEdit := buildDocData(127)
-	//docTxStakeDelegate := buildDocData(81)
-
 	type args struct {
-		docTx store.Docs
+		docTx document.CommonTx
 		mutex sync.Mutex
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
-		//{
-		//	name: "tx bank",
-		//	args: args{
-		//		docTx: docTxBank,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
-		//{
-		//	name: "tx stake/create",
-		//	args: args{
-		//		docTx: docTxStakeCreate,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
-		//{
-		//	name: "tx stake/edit",
-		//	args: args{
-		//		docTx: docTxStakeEdit,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
-		//{
-		//	name: "tx stake/delegate",
-		//	args: args{
-		//		docTx: docTxStakeDelegate,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
 		{
-			name: "tx stake/beginUnbonding",
+			name: "tx bank",
 			args: args{
-				docTx: docTxStakeBeginUnBond,
+				docTx: buildDocData(BankHeight),
 				mutex: sync.Mutex{},
 			},
 		},
-		//{
-		//	name: "tx stake/completeUnbonding",
-		//	args: args{
-		//		docTx: docTxStakeCompleteUnBond,
-		//		mutex: sync.Mutex{},
-		//	},
-		//},
+		{
+			name: "tx stake/create",
+			args: args{
+				docTx: buildDocData(StakeCreateHeight),
+				mutex: sync.Mutex{},
+			},
+		},
+		{
+			name: "tx stake/edit",
+			args: args{
+				docTx: buildDocData(StakeEditHeight),
+				mutex: sync.Mutex{},
+			},
+		},
+		{
+			name: "tx stake/delegate",
+			args: args{
+				docTx: buildDocData(StakeDelegateHeight),
+				mutex: sync.Mutex{},
+			},
+		},
+		{
+			name: "tx stake/beginUnbonding",
+			args: args{
+				docTx: buildDocData(StakeBeginUnbondingHeight),
+				mutex: sync.Mutex{},
+			},
+		},
+		{
+			name: "tx stake/completeUnbonding",
+			args: args{
+				docTx: buildDocData(StakeCompleteUnbondingHeight),
+				mutex: sync.Mutex{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -115,7 +117,7 @@ func Test_getValidator(t *testing.T) {
 		{
 			name: "test get validator",
 			args: args{
-				valAddr: "faa1wp3jgnndsfyxxfeyluu9wsu0yxeseqn6f76fq3",
+				valAddr: "faa15lpdxlk0hwkewmncdhlyfle8jc3k9xzhh75txs",
 			},
 		},
 	}

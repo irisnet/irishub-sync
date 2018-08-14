@@ -21,15 +21,15 @@ func TestQueryAccountBalance(t *testing.T) {
 		{
 			name: "test balance not nil",
 			args: args{
-				address: "faa1j29yg75chqnvggpzpxrz2akc8caqh3mvfm8ajj",
+				address: "faa1r0ljqhd7vwrpwh8h8fa5luh89nljrnkqcdgfr0",
 			},
 		},
-		{
-			name: "test balance is nil",
-			args: args{
-				address: "faa1utem9ysq9gkpkhnrrtznmrxyy238kwd0gkcz60",
-			},
-		},
+		//{
+		//	name: "test balance is nil",
+		//	args: args{
+		//		address: "faa1utem9ysq9gkpkhnrrtznmrxyy238kwd0gkcz60",
+		//	},
+		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
