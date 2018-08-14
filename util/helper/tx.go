@@ -3,9 +3,8 @@
 package helper
 
 import (
-	"github.com/irisnet/irishub-sync/store/document"
-
 	"encoding/hex"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/wire"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -13,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/tendermint/tendermint/types"
 	"strings"
@@ -27,16 +27,17 @@ type (
 	msgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
 )
 
-func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
+func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.CommonTx {
 	var (
 		authTx     auth.StdTx
 		methodName = "ParseTx"
+		docTx      document.CommonTx
 	)
 
 	err := cdc.UnmarshalBinary(txBytes, &authTx)
 	if err != nil {
 		logger.Error.Println(err)
-		return nil
+		return docTx
 	}
 
 	height := block.Height
@@ -52,14 +53,14 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 	msgs := authTx.GetMsgs()
 	if len(msgs) <= 0 {
 		logger.Warning.Printf("%v: can't get msgs\n", methodName)
-		return nil
+		return docTx
 	}
 	msg := msgs[0]
 
 	switch msg.(type) {
 	case msgTransfer:
 		msg := msg.(msgTransfer)
-		docTx := document.CommonTx{
+		docTx = document.CommonTx{
 			Height: height,
 			Time:   time,
 			TxHash: txHash,
@@ -75,7 +76,7 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 		return docTx
 	case msgStakeCreate:
 		msg := msg.(msgStakeCreate)
-		stakeTx := document.StakeTx{
+		docTx = document.CommonTx{
 			Height: height,
 			Time:   time,
 			TxHash: txHash,
@@ -84,27 +85,33 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 			Status: status,
 			Log:    log,
 		}
-		stakeTx.ValidatorAddr = msg.ValidatorAddr.String()
-		stakeTx.DelegatorAddr = msg.DelegatorAddr.String()
-		stakeTx.PubKey = BuildHex(msg.PubKey.Bytes())
-		stakeTx.Amount = buildCoin(msg.Delegation)
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.To = ""
+		docTx.Amount = []store.Coin{buildCoin(msg.Delegation)}
+		docTx.Type = constant.TxTypeStakeCreateValidator
 
-		description := document.Description{
+		// struct of createValidator
+		valDes := document.ValDescription{
 			Moniker:  msg.Moniker,
 			Identity: msg.Identity,
 			Website:  msg.Website,
 			Details:  msg.Details,
 		}
-
-		docTx := document.StakeTxDeclareCandidacy{
-			StakeTx:     stakeTx,
-			Description: description,
+		pubKey, err := sdk.Bech32ifyValPub(msg.PubKey)
+		if err != nil {
+			logger.Error.Printf("%v: Can't get pubKey, txHash is %v\n",
+				methodName, txHash)
+			pubKey = ""
 		}
-		docTx.Type = constant.TxTypeStakeCreateValidator
+		docTx.StakeCreateValidator = document.StakeCreateValidator{
+			PubKey:      pubKey,
+			Description: valDes,
+		}
+
 		return docTx
 	case msgStakeEdit:
 		msg := msg.(msgStakeEdit)
-		stakeTx := document.StakeTx{
+		docTx = document.CommonTx{
 			Height: height,
 			Time:   time,
 			TxHash: txHash,
@@ -113,24 +120,26 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 			Status: status,
 			Log:    log,
 		}
-		stakeTx.ValidatorAddr = msg.ValidatorAddr.String()
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.To = ""
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeStakeEditValidator
 
-		description := document.Description{
+		// struct of editValidator
+		valDes := document.ValDescription{
 			Moniker:  msg.Moniker,
 			Identity: msg.Identity,
 			Website:  msg.Website,
 			Details:  msg.Details,
 		}
-
-		docTx := document.StakeTxEditCandidacy{
-			StakeTx:     stakeTx,
-			Description: description,
+		docTx.StakeEditValidator = document.StakeEditValidator{
+			Description: valDes,
 		}
-		docTx.Type = constant.TxTypeStakeEditValidator
+
 		return docTx
 	case msgStakeDelegate:
 		msg := msg.(msgStakeDelegate)
-		docTx := document.StakeTx{
+		docTx = document.CommonTx{
 			Height: height,
 			Time:   time,
 			TxHash: txHash,
@@ -139,16 +148,17 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 			Status: status,
 			Log:    log,
 		}
-		docTx.DelegatorAddr = msg.DelegatorAddr.String()
-		docTx.ValidatorAddr = msg.ValidatorAddr.String()
-		docTx.Amount = buildCoin(msg.Delegation)
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+		docTx.Amount = []store.Coin{buildCoin(msg.Delegation)}
 		docTx.Type = constant.TxTypeStakeDelegate
+
 		return docTx
 	case msgStakeBeginUnbonding:
 		msg := msg.(msgStakeBeginUnbonding)
 		shares, _ := msg.SharesAmount.Float64()
 
-		docTx := document.StakeTx{
+		docTx = document.CommonTx{
 			Height: height,
 			Time:   time,
 			TxHash: txHash,
@@ -157,17 +167,19 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 			Status: status,
 			Log:    log,
 		}
-		docTx.DelegatorAddr = msg.DelegatorAddr.String()
-		docTx.ValidatorAddr = msg.ValidatorAddr.String()
-		docTx.Amount = store.Coin{
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+
+		coin := store.Coin{
 			Amount: shares,
 		}
+		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeStakeBeginUnbonding
 		return docTx
 	case msgStakeCompleteUnbonding:
 		msg := msg.(msgStakeCompleteUnbonding)
 
-		docTx := document.StakeTx{
+		docTx := document.CommonTx{
 			Height: height,
 			Time:   time,
 			TxHash: txHash,
@@ -176,15 +188,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) store.Docs {
 			Status: status,
 			Log:    log,
 		}
-		docTx.DelegatorAddr = msg.DelegatorAddr.String()
-		docTx.ValidatorAddr = msg.ValidatorAddr.String()
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+		docTx.Amount = nil
 		docTx.Type = constant.TxTypeStakeCompleteUnbonding
 		return docTx
 	default:
 		logger.Info.Println("unknown msg type")
 	}
 
-	return nil
+	return docTx
 }
 
 func BuildCoins(coins sdktypes.Coins) store.Coins {

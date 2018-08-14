@@ -22,6 +22,26 @@ type CommonTx struct {
 	Memo   string      `bson:"memo"`
 	Status string      `bson:"status"`
 	Log    string      `bson:"log"`
+
+	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
+	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
+}
+
+// Description
+type ValDescription struct {
+	Moniker  string `bson:"moniker"`
+	Identity string `bson:"identity"`
+	Website  string `bson:"website"`
+	Details  string `bson:"details"`
+}
+
+type StakeCreateValidator struct {
+	PubKey      string         `bson:"pub_key"`
+	Description ValDescription `bson:"description"`
+}
+
+type StakeEditValidator struct {
+	Description ValDescription `bson:"description"`
 }
 
 func (d CommonTx) Name() string {

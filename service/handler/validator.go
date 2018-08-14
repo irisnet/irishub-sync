@@ -125,7 +125,7 @@ func sliceContains(s []string, e string) bool {
 }
 
 func BuildValidatorDocument(v stake.Validator) document.Candidate {
-	description := document.Description{
+	description := document.ValDescription{
 		Moniker:  v.Description.Moniker,
 		Identity: v.Description.Identity,
 		Website:  v.Description.Website,
