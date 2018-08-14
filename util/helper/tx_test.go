@@ -3,16 +3,20 @@
 package helper
 
 import (
-	"testing"
-
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/types"
+	"os"
+	"testing"
 )
 
-func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
-
+func TestMain(m *testing.M) {
 	InitClientPool()
+	code := m.Run()
+	os.Exit(code)
+}
+
+func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 	client := GetClient()
 	// release client
 	defer client.Release()

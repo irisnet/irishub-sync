@@ -1,9 +1,7 @@
 package document
 
 import (
-	"errors"
 	"github.com/irisnet/irishub-sync/store"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -16,7 +14,17 @@ type Delegator struct {
 	ValidatorAddr  string  `bson:"validator_addr"` // validatorAddr
 	Shares         float64 `bson:"shares"`
 	OriginalShares string  `bson:"original_shares"`
-	Height         int64   `bson:"height"`
+	BondedHeight   int64   `bson:"height"`
+
+	UnbondingDelegation UnbondingDelegation `bson:"unbonding_delegation"`
+}
+
+// UnbondingDelegation reflects a delegation's passive unbonding queue.
+type UnbondingDelegation struct {
+	CreationHeight int64       `bson:"creation_height"` // height which the unbonding took place
+	MinTime        int64       `bson:"min_time"`        // unix time for unbonding completion
+	InitialBalance store.Coins `bson:"initial_balance"` // atoms initially scheduled to receive at completion
+	Balance        store.Coins `bson:"balance"`         // atoms to receive at completion
 }
 
 func (d Delegator) Name() string {
@@ -25,18 +33,4 @@ func (d Delegator) Name() string {
 
 func (d Delegator) PkKvPair() map[string]interface{} {
 	return bson.M{"address": d.Address, "validator_addr": d.ValidatorAddr}
-}
-
-func QueryDelegatorByAddressAndValAddr(address string, valAddr string) (Delegator, error) {
-	var result Delegator
-	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"address": address, "validator_addr": valAddr}).Sort("-shares").One(&result)
-		return err
-	}
-
-	if store.ExecCollection(CollectionNmStakeRoleDelegator, query) != nil {
-		return result, errors.New("delegator is Empty")
-	}
-
-	return result, nil
 }
