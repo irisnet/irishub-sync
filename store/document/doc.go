@@ -11,4 +11,5 @@ func init() {
 	store.RegisterDocs(new(Block))
 	store.RegisterDocs(new(CommonTx))
 	store.RegisterDocs(new(SyncTask))
+	store.RegisterDocs(new(ValidatorUpTime))
 }

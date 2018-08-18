@@ -36,12 +36,12 @@ func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 }
 
 func TestParseTx(t *testing.T) {
-	coinByte, coinBlock := buildTxByte(17694)
-	scByte, scBlock := buildTxByte(28848)
-	seByte, seBlock := buildTxByte(28581)
-	sdByte, sdBlock := buildTxByte(28596)
-	suBByte, suBBlock := buildTxByte(28604)
-	suCByte, suCBlock := buildTxByte(28852)
+	coinByte, coinBlock := buildTxByte(19)
+	//scByte, scBlock := buildTxByte(28848)
+	seByte, seBlock := buildTxByte(555)
+	sdByte, sdBlock := buildTxByte(50)
+	suBByte, suBBlock := buildTxByte(596)
+	suCByte, suCBlock := buildTxByte(1432)
 
 	type args struct {
 		txByte types.Tx
@@ -60,13 +60,13 @@ func TestParseTx(t *testing.T) {
 				block:  coinBlock,
 			},
 		},
-		{
-			name: "test tx stake/create",
-			args: args{
-				txByte: scByte,
-				block:  scBlock,
-			},
-		},
+		//{
+		//	name: "test tx stake/create",
+		//	args: args{
+		//		txByte: scByte,
+		//		block:  scBlock,
+		//	},
+		//},
 		{
 			name: "test tx stake/edit",
 			args: args{
@@ -82,14 +82,14 @@ func TestParseTx(t *testing.T) {
 			},
 		},
 		{
-			name: "test tx stake/completeUnbonding",
+			name: "test tx stake/beginUnbonding",
 			args: args{
 				txByte: suBByte,
 				block:  suBBlock,
 			},
 		},
 		{
-			name: "test tx stake/beginUnbonding",
+			name: "test tx stake/completeUnbonding",
 			args: args{
 				txByte: suCByte,
 				block:  suCBlock,

@@ -5,15 +5,9 @@ import (
 	"testing"
 
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/store"
 )
 
-func InitDB() {
-	store.InitWithAuth()
-}
-
 func TestCandidate_GetUnRevokeValidators(t *testing.T) {
-	InitDB()
 
 	tests := []struct {
 		name string
@@ -38,8 +32,6 @@ func TestCandidate_GetUnRevokeValidators(t *testing.T) {
 }
 
 func TestCandidate_RemoveCandidates(t *testing.T) {
-	InitDB()
-
 	tests := []struct {
 		name string
 	}{
@@ -59,8 +51,6 @@ func TestCandidate_RemoveCandidates(t *testing.T) {
 }
 
 func TestCandidate_SaveAll(t *testing.T) {
-	InitDB()
-
 	candidates := []Candidate{
 		{
 			Address:        "1",
@@ -70,7 +60,7 @@ func TestCandidate_SaveAll(t *testing.T) {
 			Tokens:         float64(9.0),
 			OriginalTokens: "9.0",
 			VotingPower:    float64(9.0),
-			Description: Description{
+			Description: ValDescription{
 				Moniker: "1",
 			},
 			BondHeight: 1,
@@ -84,7 +74,7 @@ func TestCandidate_SaveAll(t *testing.T) {
 			Tokens:         float64(9.0),
 			OriginalTokens: "9.0",
 			VotingPower:    float64(9.0),
-			Description: Description{
+			Description: ValDescription{
 				Moniker: "2",
 			},
 			BondHeight: 2,

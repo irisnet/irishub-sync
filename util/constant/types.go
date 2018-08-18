@@ -32,4 +32,7 @@ const (
 	// define sync type
 	SyncTypeFastSync = "fastSync"
 	SyncTypeWatch    = "watch"
+
+	//
+	IntervalBlockAnalyzeValidatorUpTime = int64(100)
 )
