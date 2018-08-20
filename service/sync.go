@@ -92,10 +92,15 @@ func Start() {
 
 // start cron scheduler
 func startCron() {
-	spec := conf.SyncCron
 	c := cron.New()
-	c.AddFunc(spec, func() {
+	c.AddFunc(conf.CronWatchBlock, func() {
 		watchBlock()
+	})
+	c.AddFunc(conf.CronCalculateUpTime, func() {
+		handler.CalculateAndSaveValidatorUpTime()
+	})
+	c.AddFunc(conf.CronCalculateTxGas, func() {
+		handler.CalculateTxGasAndGasPrice()
 	})
 	go c.Start()
 }
@@ -138,10 +143,9 @@ func watchBlock() {
 		case <-ch:
 			logger.Info.Printf("%v: synced height is %v \n",
 				constant.SyncTypeWatch, syncedLatestBlockHeight)
-			err := store.Update(syncTask)
-			if err != nil {
-				logger.Error.Printf("%v: Update syncTask fail, err is %v",
-					err.Error())
+			if err := store.Update(syncTask); err != nil {
+				logger.Error.Printf("%v: Update syncTask fail, err is %v\n",
+					methodName, err.Error())
 			}
 		}
 	} else {

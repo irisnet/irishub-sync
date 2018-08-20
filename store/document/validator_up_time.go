@@ -7,7 +7,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const CollectionName = "validator_uptime"
+const CollectionName = "validator_up_time"
 
 type ValidatorUpTime struct {
 	ValAddress string  `bson:"val_address"`

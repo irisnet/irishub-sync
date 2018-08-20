@@ -2,6 +2,8 @@ package document
 
 import (
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/util/constant"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -52,4 +54,25 @@ func (d CommonTx) Name() string {
 
 func (d CommonTx) PkKvPair() map[string]interface{} {
 	return bson.M{"tx_hash": d.TxHash}
+}
+
+func (d CommonTx) Query(query, fields bson.M, sort []string, skip, limit int) (
+	results []CommonTx, err error) {
+	exop := func(c *mgo.Collection) error {
+		return c.Find(query).Sort(sort...).Select(fields).Skip(skip).Limit(limit).All(&results)
+	}
+	return results, store.ExecCollection(d.Name(), exop)
+}
+
+func (d CommonTx) CalculateTxGasAndGasPrice(txType string, limit int) (
+	[]CommonTx, error) {
+	query := bson.M{
+		"type":   txType,
+		"status": constant.TxStatusSuccess,
+	}
+	fields := bson.M{}
+	sort := []string{"-height"}
+	skip := 0
+
+	return d.Query(query, fields, sort, skip, limit)
 }

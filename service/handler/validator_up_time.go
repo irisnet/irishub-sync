@@ -10,15 +10,19 @@ import (
 // latest x blocks, calculate how much precommit which validator had execute(n).
 // so upTime is n / x
 // note: this method is not goroutine safety, it should be execute during watch block.
-func CalculateAndSaveValidatorUptime(latestHeight int64) {
+func CalculateAndSaveValidatorUpTime() {
 	var (
 		methodName    = "AnalyzeValidatorUpTime"
-		intervalBlock = constant.IntervalBlockAnalyzeValidatorUpTime
+		intervalBlock = constant.IntervalBlockNumCalculateValidatorUpTime
 		blockModel    document.Block
 		model         document.ValidatorUpTime
 		valUpTimes    []document.ValidatorUpTime
 	)
 	logger.Info.Printf("%v: Start\n", methodName)
+
+	// query synced latest height
+	syncTask, _ := document.QuerySyncTask()
+	latestHeight := syncTask.Height
 
 	// get validator precommit
 	res, err := blockModel.CalculateValidatorPreCommit(latestHeight-intervalBlock, latestHeight)

@@ -33,6 +33,7 @@ const (
 	SyncTypeFastSync = "fastSync"
 	SyncTypeWatch    = "watch"
 
-	//
-	IntervalBlockAnalyzeValidatorUpTime = int64(100)
+	// define interval block num and tx num
+	IntervalBlockNumCalculateValidatorUpTime = int64(100)
+	IntervalTxNumCalculateTxGas              = 100
 )
