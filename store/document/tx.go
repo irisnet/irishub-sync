@@ -13,19 +13,20 @@ const (
 )
 
 type CommonTx struct {
-	Time     time.Time   `bson:"time"`
-	Height   int64       `bson:"height"`
-	TxHash   string      `bson:"tx_hash"`
-	From     string      `bson:"from"`
-	To       string      `bson:"to"`
-	Amount   store.Coins `bson:"amount"`
-	Type     string      `bson:"type"`
-	Fee      store.Fee   `bson:"fee"`
-	Memo     string      `bson:"memo"`
-	Status   string      `bson:"status"`
-	Log      string      `bson:"log"`
-	GasUsed  int64       `bson:"gas_used"`
-	GasPrice float64     `bson:"gas_price"`
+	Time      time.Time       `bson:"time"`
+	Height    int64           `bson:"height"`
+	TxHash    string          `bson:"tx_hash"`
+	From      string          `bson:"from"`
+	To        string          `bson:"to"`
+	Amount    store.Coins     `bson:"amount"`
+	Type      string          `bson:"type"`
+	Fee       store.Fee       `bson:"fee"`
+	Memo      string          `bson:"memo"`
+	Status    string          `bson:"status"`
+	Log       string          `bson:"log"`
+	GasUsed   int64           `bson:"gas_used"`
+	GasPrice  float64         `bson:"gas_price"`
+	ActualFee store.ActualFee `bson:"actual_fee"`
 
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`

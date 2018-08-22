@@ -34,6 +34,7 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 		methodName = "ParseTx"
 		docTx      document.CommonTx
 		gasPrice   float64
+		actualFee  store.ActualFee
 	)
 
 	err := cdc.UnmarshalBinary(txBytes, &authTx)
@@ -48,7 +49,7 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 	fee := buildFee(authTx.Fee)
 	memo := authTx.Memo
 
-	// get tx status, gasUsed, gasPrice from tx result
+	// get tx status, gasUsed, gasPrice and actualFee from tx result
 	status, result, err := getTxResult(txBytes.Hash())
 	if err != nil {
 		logger.Error.Printf("%v: can't get txResult, err is %v\n", methodName, err)
@@ -57,8 +58,13 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 	gasUsed := result.GasUsed
 	if len(fee.Amount) > 0 {
 		gasPrice = fee.Amount[0].Amount / float64(fee.Gas)
+		actualFee = store.ActualFee{
+			Denom:  fee.Amount[0].Denom,
+			Amount: float64(gasUsed) * gasPrice,
+		}
 	} else {
 		gasPrice = 0
+		actualFee = store.ActualFee{}
 	}
 
 	msgs := authTx.GetMsgs()
@@ -72,15 +78,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 	case msgTransfer:
 		msg := msg.(msgTransfer)
 		docTx = document.CommonTx{
-			Height:   height,
-			Time:     time,
-			TxHash:   txHash,
-			Fee:      fee,
-			Memo:     memo,
-			Status:   status,
-			Log:      log,
-			GasUsed:  gasUsed,
-			GasPrice: gasPrice,
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
 		}
 		docTx.From = msg.Inputs[0].Address.String()
 		docTx.To = msg.Outputs[0].Address.String()
@@ -90,15 +97,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 	case msgStakeCreate:
 		msg := msg.(msgStakeCreate)
 		docTx = document.CommonTx{
-			Height:   height,
-			Time:     time,
-			TxHash:   txHash,
-			Fee:      fee,
-			Memo:     memo,
-			Status:   status,
-			Log:      log,
-			GasUsed:  gasUsed,
-			GasPrice: gasPrice,
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
 		}
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.To = ""
@@ -127,15 +135,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 	case msgStakeEdit:
 		msg := msg.(msgStakeEdit)
 		docTx = document.CommonTx{
-			Height:   height,
-			Time:     time,
-			TxHash:   txHash,
-			Fee:      fee,
-			Memo:     memo,
-			Status:   status,
-			Log:      log,
-			GasUsed:  gasUsed,
-			GasPrice: gasPrice,
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
 		}
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.To = ""
@@ -157,15 +166,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 	case msgStakeDelegate:
 		msg := msg.(msgStakeDelegate)
 		docTx = document.CommonTx{
-			Height:   height,
-			Time:     time,
-			TxHash:   txHash,
-			Fee:      fee,
-			Memo:     memo,
-			Status:   status,
-			Log:      log,
-			GasUsed:  gasUsed,
-			GasPrice: gasPrice,
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
 		}
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
@@ -178,15 +188,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 		shares, _ := msg.SharesAmount.Float64()
 
 		docTx = document.CommonTx{
-			Height:   height,
-			Time:     time,
-			TxHash:   txHash,
-			Fee:      fee,
-			Memo:     memo,
-			Status:   status,
-			Log:      log,
-			GasUsed:  gasUsed,
-			GasPrice: gasPrice,
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
 		}
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
@@ -201,15 +212,16 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 		msg := msg.(msgStakeCompleteUnbonding)
 
 		docTx := document.CommonTx{
-			Height:   height,
-			Time:     time,
-			TxHash:   txHash,
-			Fee:      fee,
-			Memo:     memo,
-			Status:   status,
-			Log:      log,
-			GasUsed:  gasUsed,
-			GasPrice: gasPrice,
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
 		}
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
