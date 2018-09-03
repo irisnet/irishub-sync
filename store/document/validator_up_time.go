@@ -35,6 +35,10 @@ func (d ValidatorUpTime) RemoveAll() error {
 func (d ValidatorUpTime) SaveAll(validatorUpTimes []ValidatorUpTime) error {
 	var docs []interface{}
 
+	if len(validatorUpTimes) == 0 {
+		return nil
+	}
+
 	for _, v := range validatorUpTimes {
 		docs = append(docs, v)
 	}
