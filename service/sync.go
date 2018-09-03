@@ -10,9 +10,9 @@ import (
 
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/robfig/cron"
-	rpcClient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
+	"fmt"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/tendermint/tendermint/types"
 	"sync"
@@ -25,9 +25,31 @@ var (
 	// limit max goroutine
 	limitChan = make(chan int64, conf.SyncMaxGoroutine)
 
-	mutex           sync.Mutex
-	mutexWatchBlock sync.Mutex
+	mutex, mutexWatchBlock sync.Mutex
+
+	methodName string
 )
+
+func init() {
+	// init store
+	store.InitWithAuth()
+
+	// init client pool
+	chainId := conf.ChainId
+	syncTask, err := document.QuerySyncTask()
+	if err != nil {
+		if chainId == "" {
+			logger.Error.Fatalln("sync process start failed, chainId is empty")
+		}
+		syncTask = document.SyncTask{
+			Height:  0,
+			ChainID: chainId,
+		}
+		store.Save(syncTask)
+	}
+
+	helper.InitClientPool()
+}
 
 // start sync server
 func Start() {
@@ -36,16 +58,20 @@ func Start() {
 		err    error
 		i      = 1
 	)
-	Init()
-	c := helper.GetClient().Client
+	client := helper.GetClient()
+	defer client.Release()
 
+	c := client.Client
+
+	// fast sync
 	for {
 		logger.Info.Printf("Begin %v time fast sync task", i)
-		syncLatestHeight := fastSync(c)
+		syncLatestHeight := fastSync()
 		status, err = c.Status()
 		if err != nil {
 			logger.Error.Printf("TmClient err and try again, %v\n", err.Error())
-			c := helper.GetClient().Client
+			client := helper.GetClient()
+			c := client.Client
 			status, err = c.Status()
 			if err != nil {
 				logger.Error.Fatalf("TmClient err and exit, %v\n", err.Error())
@@ -60,61 +86,53 @@ func Start() {
 		i++
 	}
 
-	startCron(c)
-}
-
-func Init() {
-	store.InitWithAuth()
-
-	chainId := conf.ChainId
-	syncTask, err := document.QuerySyncTask()
-
-	if err != nil {
-		if chainId == "" {
-			logger.Error.Fatalln("sync process start failed,chainId is empty")
-		}
-		syncTask = document.SyncTask{
-			Height:  0,
-			ChainID: chainId,
-		}
-		store.Save(syncTask)
-	}
-
-	// init client pool
-	helper.InitClientPool()
+	// watch sync
+	startCron()
 }
 
 // start cron scheduler
-func startCron(client rpcClient.Client) {
-	spec := conf.SyncCron
+func startCron() {
 	c := cron.New()
-	c.AddFunc(spec, func() {
-		watchBlock(client)
+	c.AddFunc(conf.CronWatchBlock, func() {
+		watchBlock()
+	})
+	c.AddFunc(conf.CronCalculateUpTime, func() {
+		handler.CalculateAndSaveValidatorUpTime()
+	})
+	c.AddFunc(conf.CronCalculateTxGas, func() {
+		handler.CalculateTxGasAndGasPrice()
 	})
 	go c.Start()
 }
 
-func watchBlock(c rpcClient.Client) {
+func watchBlock() {
+	methodName = constant.SyncTypeWatch
+
+	client := helper.GetClient()
+	defer client.Release()
+
 	mutexWatchBlock.Lock()
 
-	syncTask, _ := document.QuerySyncTask()
+	c := client.Client
 	status, _ := c.Status()
+
+	syncTask, _ := document.QuerySyncTask()
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	// note: interval two block, to avoid get can't delegation at latest block
 	//       sdk of this version may has some problem
-	if syncTask.Height+2 <= latestBlockHeight {
+	if syncTask.Height+1 <= latestBlockHeight-1 {
 		logger.Info.Printf("%v: latest height is %v\n",
-			constant.SyncTypeWatch, latestBlockHeight)
+			methodName, latestBlockHeight)
 
-		funcChain := []func(tx store.Docs, mutex sync.Mutex){
+		funcChain := []func(tx document.CommonTx, mutex sync.Mutex){
 			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 		}
 
 		ch := make(chan int64)
 		limitChan <- 1
 
-		go syncBlock(syncTask.Height+1, latestBlockHeight-1, funcChain, ch, 0, constant.SyncTypeWatch)
+		go syncBlock(syncTask.Height+1, latestBlockHeight-1, 0, ch, constant.SyncTypeWatch, funcChain)
 
 		syncedLatestBlockHeight := latestBlockHeight - 1
 		block, _ := c.Block(&syncedLatestBlockHeight)
@@ -125,35 +143,45 @@ func watchBlock(c rpcClient.Client) {
 		case <-ch:
 			logger.Info.Printf("%v: synced height is %v \n",
 				constant.SyncTypeWatch, syncedLatestBlockHeight)
-			err := store.Update(syncTask)
-			if err != nil {
-				logger.Error.Printf("Update syncTask fail, err is %v",
-					err.Error())
+			if err := store.Update(syncTask); err != nil {
+				logger.Error.Printf("%v: Update syncTask fail, err is %v\n",
+					methodName, err.Error())
 			}
 		}
 	} else {
 		logger.Info.Printf("%v: wait, synced height is %v, latest height is %v\n",
-			constant.SyncTypeWatch, syncTask.Height, latestBlockHeight)
+			methodName, syncTask.Height, latestBlockHeight)
 	}
 
 	mutexWatchBlock.Unlock()
 }
 
 // fast sync data from blockChain
-func fastSync(c rpcClient.Client) int64 {
-	syncTaskDoc, _ := document.QuerySyncTask()
+func fastSync() int64 {
+	methodName = constant.SyncTypeFastSync
+
+	client := helper.GetClient()
+	defer client.Release()
+
+	c := client.Client
 	status, err := c.Status()
 	if err != nil {
 		logger.Error.Printf("TmClient err, %v\n", err)
 		return 0
 	}
-	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
-	funcChain := []func(tx store.Docs, mutex sync.Mutex){
+	// define functions which should be executed
+	// during parse tx and block
+	funcChain := []func(tx document.CommonTx, mutex sync.Mutex){
 		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 	}
 
+	// define unbuffered channel
 	ch := make(chan int64)
+
+	// define how many goroutine should be used during fast sync
+	syncTaskDoc, _ := document.QuerySyncTask()
+	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	goroutineNum := (latestBlockHeight - syncTaskDoc.Height) / syncBlockNumFastSync
 
@@ -172,14 +200,15 @@ func fastSync(c rpcClient.Client) int64 {
 		if i == goroutineNum {
 			end = latestBlockHeight
 		}
-		go syncBlock(start, end, funcChain, ch, i, constant.SyncTypeFastSync)
+		go syncBlock(start, end, i, ch, constant.SyncTypeFastSync, funcChain)
 	}
 
 	for {
 		select {
 		case threadNo := <-ch:
 			activeGoroutineNum = activeGoroutineNum - 1
-			logger.Info.Printf("ThreadNo[%d] is over and active thread num is %d\n", threadNo, activeGoroutineNum)
+			logger.Info.Printf("%v: ThreadNo[%d] is over and active thread num is %d\n",
+				methodName, threadNo, activeGoroutineNum)
 			if activeGoroutineNum == 0 {
 				goto end
 			}
@@ -188,39 +217,44 @@ func fastSync(c rpcClient.Client) int64 {
 
 end:
 	{
-		logger.Info.Println("This fastSync task complete!")
+		logger.Info.Printf("%v: This fastSync task complete!", methodName)
 		// update syncTask document
 		block, _ := c.Block(&latestBlockHeight)
 		syncTaskDoc.Height = block.Block.Height
 		syncTaskDoc.Time = block.Block.Time
 		err := store.Update(syncTaskDoc)
 		if err != nil {
-			logger.Error.Printf("Update syncTask fail, err is %v",
-				err.Error())
+			logger.Error.Printf("%v: Update syncTask fail, err is %v",
+				methodName, err.Error())
 		}
 		return syncTaskDoc.Height
 	}
 }
 
-func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex sync.Mutex),
-	ch chan int64, threadNum int64, syncType string) {
+func syncBlock(start, end, threadNum int64,
+	ch chan int64, syncType string,
+	funcChain []func(tx document.CommonTx, mutex sync.Mutex)) {
+
+	methodName = fmt.Sprintf("syncBlock_%s", syncType)
+
 	logger.Info.Printf("%v: ThreadNo[%d] begin sync block from %d to %d\n",
-		syncType, threadNum, start, end)
+		methodName, threadNum, start, end)
 
 	client := helper.GetClient()
-	// release client
 	defer client.Release()
 
-	for j := start; j <= end; j++ {
-		block, err := client.Client.Block(&j)
+	for b := start; b <= end; b++ {
+		block, err := client.Client.Block(&b)
 		if err != nil {
-			logger.Error.Printf("Invalid block height %d and err is %v, try again\n", j, err.Error())
+			logger.Error.Printf("%v: Invalid block height %d and err is %v, try again\n",
+				methodName, b, err.Error())
 			// try again
 			client2 := helper.GetClient()
-			block, err = client2.Client.Block(&j)
+			block, err = client2.Client.Block(&b)
 			if err != nil {
 				ch <- threadNum
-				logger.Error.Fatalf("Invalid block height %d and err is %v\n", j, err.Error())
+				logger.Error.Fatalf("%v: Invalid block height %d and err is %v\n",
+					methodName, b, err.Error())
 			}
 		}
 		if block.BlockMeta.Header.NumTxs > 0 {
@@ -229,11 +263,12 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 				docTx := helper.ParseTx(codec.Cdc, txByte, block.Block)
 				txHash := helper.BuildHex(txByte.Hash())
 				if txHash == "" {
-					logger.Warning.Printf("Tx has no hash, skip this tx."+
-						""+"tx is %v\n", helper.ToJson(docTx))
+					logger.Warning.Printf("%v: Tx has no hash, skip this tx."+
+						""+"tx is %v\n", methodName, helper.ToJson(docTx))
 					continue
 				}
-				logger.Info.Printf("===========threadNo[%d] find tx, txHash=%s\n", threadNum, txHash)
+				logger.Info.Printf("%v: ====ThreadNo[%d] find tx, txHash=%s\n",
+					methodName, threadNum, txHash)
 
 				handler.Handle(docTx, mutex, funcChain)
 			}
@@ -241,9 +276,9 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 
 		// get validatorSet at given height
 		var validators []*types.Validator
-		res, err := client.Client.Validators(&j)
+		res, err := client.Client.Validators(&b)
 		if err != nil {
-			logger.Error.Printf("Can't get validatorSet at %v\n", j)
+			logger.Error.Printf("%v: Can't get validatorSet at %v\n", methodName, b)
 		} else {
 			validators = res.Validators
 		}
@@ -258,10 +293,10 @@ func syncBlock(start int64, end int64, funcChain []func(tx store.Docs, mutex syn
 	}
 
 	logger.Info.Printf("%v: ThreadNo[%d] finish sync block from %d to %d\n",
-		syncType, threadNum, start, end)
+		methodName, threadNum, start, end)
 
 	<-limitChan
 	ch <- threadNum
-	logger.Info.Printf("Send threadNum into channel: %v\n", threadNum)
-
+	logger.Info.Printf("%v: Send threadNum into channel: %v\n",
+		methodName, threadNum)
 }

@@ -3,21 +3,23 @@ package server
 import (
 	"os"
 	"strconv"
-	
-	"github.com/irisnet/irishub-sync/util/constant"
+
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 var (
 	BlockChainMonitorUrl = "tcp://127.0.0.1:26657"
-	ChainId              = "fuxi-develop"
+	ChainId              = "rainbow-dev"
 	Token                = "iris"
-	
-	InitConnectionNum    = 100 // fast init num of tendermint client pool
-	MaxConnectionNum     = 1000 // max size of tendermint client pool
-	SyncCron             = "0-59 * * * * *"
-	
-	SyncMaxGoroutine     = 60 // max go routine in server
+
+	InitConnectionNum   = 100              // fast init num of tendermint client pool
+	MaxConnectionNum    = 1000             // max size of tendermint client pool
+	CronWatchBlock      = "0-59 * * * * *" // every seconds
+	CronCalculateUpTime = "0 */1 * * * *"  // every minute
+	CronCalculateTxGas  = "0 */5 * * * *"  // every five minute
+
+	SyncMaxGoroutine     = 60   // max go routine in server
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
 )
 
@@ -29,21 +31,21 @@ func init() {
 		logger.Info.Printf("The value of env var %v is %v\n",
 			constant.EnvNameSerNetworkNodeUrl, nodeUrl)
 	}
-	
+
 	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
 	if found {
 		ChainId = chainId
 		logger.Info.Printf("The value of env var %v is %v\n",
 			constant.EnvNameSerNetworkChainId, chainId)
 	}
-	
+
 	token, found := os.LookupEnv(constant.EnvNameSerNetworkToken)
 	if found {
 		Token = token
 		logger.Info.Printf("The value of env var %v is %v\n",
 			constant.EnvNameSerNetworkToken, token)
 	}
-	
+
 	maxGoroutine, found := os.LookupEnv(constant.EnvNameSerMaxGoRoutine)
 	if found {
 		var err error
@@ -55,7 +57,7 @@ func init() {
 		logger.Info.Printf("The value of env var %v is %v\n",
 			constant.EnvNameSerMaxGoRoutine, maxGoroutine)
 	}
-	
+
 	syncBlockNum, found := os.LookupEnv(constant.EnvNameSerSyncBlockNum)
 	if found {
 		var err error

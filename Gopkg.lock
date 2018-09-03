@@ -29,7 +29,7 @@
   branch = "master"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
-  revision = "f5e261fc9ec3437697fb31d8b38453c293204b29"
+  revision = "79e00513b1011888b1e675157ab89f527f901cae"
 
 [[projects]]
   name = "github.com/btcsuite/btcutil"
@@ -55,23 +55,25 @@
     "x/auth",
     "x/auth/client/cli",
     "x/bank",
+    "x/gov",
     "x/ibc",
     "x/mock",
+    "x/params",
     "x/slashing",
     "x/stake",
     "x/stake/keeper",
     "x/stake/tags",
     "x/stake/types"
   ]
-  revision = "ad65531bc2c204d81b61adf1559f2594c35b71b0"
+  revision = "c69a00d827e16cf91b35ac533cadfff7ee454519"
   source = "https://github.com/irisnet/cosmos-sdk.git"
-  version = "v0.23.0-iris"
+  version = "v0.23.0-iris1"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/ebuchman/fail-test"
@@ -107,8 +109,8 @@
 [[projects]]
   name = "github.com/go-stack/stack"
   packages = ["."]
-  revision = "259ab82a6cad3992b4e21ff5cac294ccb06474bc"
-  version = "v1.7.0"
+  revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
+  version = "v1.8.0"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
@@ -160,7 +162,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
@@ -173,13 +174,20 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
+  revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/irisnet/irishub"
+  packages = ["modules/upgrade"]
+  revision = "1c33e265dc3a7822bd1e383f164a2ffef670b2f5"
+  version = "v0.4.0-rc0"
 
 [[projects]]
   branch = "master"
@@ -212,10 +220,10 @@
   version = "v1.0.1"
 
 [[projects]]
-  branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
+  revision = "fa473d140ef3c6adf42d6b391fe76707f1f243c8"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -306,13 +314,13 @@
   branch = "master"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
-  revision = "7c0cea34c8ece3fbeb2b27ab9b59511d360fb394"
+  revision = "14d3d4c518341bea657dd8a226f5121c0ff8c9f2"
 
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
-  version = "v1.0.1"
+  revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/spf13/viper"
@@ -346,7 +354,7 @@
     "leveldb/table",
     "leveldb/util"
   ]
-  revision = "c4c61651e9e37fa117f53c5a906d3b63090d8445"
+  revision = "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
 
 [[projects]]
   branch = "master"
@@ -432,8 +440,9 @@
     "types",
     "version"
   ]
-  revision = "5fdbcd70df57b71ffba71e1ff5f00d617852a9c0"
-  version = "v0.22.6"
+  revision = "fb697db81e3f0b04fb9c6f393ce9a09b984a4687"
+  source = "https://github.com/irisnet/tendermint.git"
+  version = "v0.22.6-iris1"
 
 [[projects]]
   name = "github.com/zondax/ledger-goclient"
@@ -456,7 +465,7 @@
     "ripemd160",
     "salsa20/salsa"
   ]
-  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
+  revision = "614d502a4dac94afa3a6ce146bd1736da82514c6"
 
 [[projects]]
   name = "golang.org/x/net"
@@ -476,7 +485,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "3dc4335d56c789b04b0ba99b7a37249d9b614314"
+  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -503,7 +512,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "daca94659cb50e9f37c1b834680f2e46358f10b0"
+  revision = "c66870c02cf823ceb633bcd05be3c7cda29976f4"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -558,6 +567,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ee90dda26269411b9ab2a4f2ef46f6dcec9f08ca3debd4bd28f7a28718eed4bc"
+  inputs-digest = "587956dfab91b3ddd3602321f47b07ce78692c333be9c49402a81197f9ddfc34"
   solver-name = "gps-cdcl"
   solver-version = 1

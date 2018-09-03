@@ -1,6 +1,8 @@
 package document
 
 import (
+	"github.com/irisnet/irishub-sync/store"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -101,4 +103,47 @@ func (d Block) Name() string {
 
 func (d Block) PkKvPair() map[string]interface{} {
 	return bson.M{"height": d.Height}
+}
+
+type ResValidatorPreCommits struct {
+	Address       string `bson:"_id"`
+	PreCommitsNum int64  `bson:"num"`
+}
+
+func (d Block) CalculateValidatorPreCommit(startBlock, endBlock int64) ([]ResValidatorPreCommits, error) {
+
+	var res []ResValidatorPreCommits
+	query := []bson.M{
+		{
+			"$match": bson.M{
+				"height": bson.M{"$gt": startBlock, "$lte": endBlock},
+			},
+		},
+		{
+			"$unwind": "$block.last_commit.precommits",
+		},
+		{
+			"$group": bson.M{
+				"_id": "$block.last_commit.precommits.validator_address",
+				"num": bson.M{
+					"$sum": 1,
+				},
+			},
+		},
+		{
+			"$sort": bson.M{"num": -1},
+		},
+	}
+
+	fun := func(c *mgo.Collection) error {
+		return c.Pipe(query).All(&res)
+	}
+
+	err := store.ExecCollection(d.Name(), fun)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

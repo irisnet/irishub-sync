@@ -8,7 +8,6 @@ import (
 
 	"github.com/irisnet/irishub-sync/module/logger"
 	"sync"
-	"time"
 )
 
 func TestStart(t *testing.T) {
@@ -50,18 +49,14 @@ func TestStart(t *testing.T) {
 
 func Test_startCron(t *testing.T) {
 	var wg sync.WaitGroup
-	var mutex sync.Mutex
 	wg.Add(2)
 
-	spec := conf.SyncCron
 	c := cron.New()
-	c.AddFunc(spec, func() {
-		mutex.Lock()
-		var sleepSecond time.Duration
-		sleepSecond = 3
-		time.Sleep(time.Second * sleepSecond)
-		logger.Info.Printf("awake up after %v second\n", sleepSecond)
-		mutex.Unlock()
+	c.AddFunc(conf.CronCalculateUpTime, func() {
+		logger.Info.Println("every one minute execute code")
+	})
+	c.AddFunc(conf.CronCalculateTxGas, func() {
+		logger.Info.Println("every five minute execute code")
 	})
 	go c.Start()
 

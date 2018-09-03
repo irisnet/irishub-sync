@@ -2,20 +2,12 @@ package handler
 
 import (
 	"fmt"
-	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"github.com/tendermint/tendermint/types"
 	"testing"
 )
 
-func Init() {
-	store.InitWithAuth()
-	helper.InitClientPool()
-}
-
 func TestCompareAndUpdateValidators(t *testing.T) {
-	Init()
-
 	c := helper.GetClient()
 	defer c.Release()
 

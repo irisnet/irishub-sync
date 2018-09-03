@@ -11,7 +11,7 @@ import (
 )
 
 // save account
-func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
+func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
 	var (
 		address    string
 		updateTime time.Time
@@ -44,61 +44,20 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 	}
 
 	switch txType {
-	case constant.TxTypeTransfer:
-		docTx, r := docTx.(document.CommonTx)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
+	case constant.TxTypeTransfer, constant.TxTypeStakeDelegate,
+		constant.TxTypeStakeBeginUnbonding, constant.TxTypeStakeCompleteUnbonding:
 		updateTime = docTx.Time
 		height = docTx.Height
 
 		fun(docTx.From, updateTime, height)
 		fun(docTx.To, updateTime, height)
 		break
-	case constant.TxTypeStakeCreateValidator:
-		docTx, r := docTx.(document.StakeTxDeclareCandidacy)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
-		address = docTx.ValidatorAddr
+	case constant.TxTypeStakeCreateValidator, constant.TxTypeStakeEditValidator:
+		address = docTx.From
 		updateTime = docTx.Time
 		height = docTx.Height
 
 		fun(address, updateTime, height)
-		if docTx.DelegatorAddr != "" {
-			fun(docTx.DelegatorAddr, updateTime, height)
-		}
-		break
-	case constant.TxTypeStakeEditValidator:
-		docTx, r := docTx.(document.StakeTxEditCandidacy)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
-		address = docTx.ValidatorAddr
-		updateTime = docTx.Time
-		height = docTx.Height
-
-		fun(address, updateTime, height)
-		break
-	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding,
-		constant.TxTypeStakeCompleteUnbonding:
-		stakeTx, r := docTx.(document.StakeTx)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
-		updateTime = stakeTx.Time
-		height = stakeTx.Height
-
-		fun(stakeTx.ValidatorAddr, updateTime, height)
-		fun(stakeTx.DelegatorAddr, updateTime, height)
 		break
 	}
 
@@ -106,7 +65,7 @@ func SaveAccount(docTx store.Docs, mutex sync.Mutex) {
 }
 
 // update account balance
-func UpdateBalance(docTx store.Docs, mutex sync.Mutex) {
+func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
 	var (
 		methodName = "UpdateBalance: "
 	)
@@ -136,47 +95,13 @@ func UpdateBalance(docTx store.Docs, mutex sync.Mutex) {
 	}
 
 	switch txType {
-	case constant.TxTypeTransfer:
-		docTx, r := docTx.(document.CommonTx)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
+	case constant.TxTypeTransfer, constant.TxTypeStakeDelegate,
+		constant.TxTypeStakeBeginUnbonding, constant.TxTypeStakeCompleteUnbonding:
 		fun(docTx.From)
 		fun(docTx.To)
 		break
-	case constant.TxTypeStakeCreateValidator:
-		docTx, r := docTx.(document.StakeTxDeclareCandidacy)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
-		fun(docTx.ValidatorAddr)
-		if docTx.DelegatorAddr != "" {
-			fun(docTx.DelegatorAddr)
-		}
-		break
-	case constant.TxTypeStakeEditValidator:
-		docTx, r := docTx.(document.StakeTxEditCandidacy)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
-		fun(docTx.ValidatorAddr)
-		break
-	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding,
-		constant.TxTypeStakeCompleteUnbonding:
-		docTx, r := docTx.(document.StakeTx)
-		if !r {
-			logger.Error.Printf("%v get docuemnt from docTx failed. docTx type is %v\n",
-				methodName, txType)
-			break
-		}
-		fun(docTx.ValidatorAddr)
-		fun(docTx.DelegatorAddr)
+	case constant.TxTypeStakeCreateValidator, constant.TxTypeStakeEditValidator:
+		fun(docTx.From)
 		break
 	}
 

@@ -3,9 +3,8 @@ package helper
 import (
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"encoding/binary"
+	"strconv"
 )
-
 
 // convert object to json
 func ToJson(v interface{}) string {
@@ -16,7 +15,6 @@ func ToJson(v interface{}) string {
 	return string(data)
 }
 
-// byte to int
-func BytesToInt(bytes []byte) uint64 {
-	return binary.BigEndian.Uint64(bytes)
+func ParseStrToFloat(s string) (float64, error) {
+	return strconv.ParseFloat(s, 64)
 }
