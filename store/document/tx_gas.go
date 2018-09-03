@@ -50,6 +50,10 @@ func (d TxGas) RemoveAll() error {
 func (d TxGas) SaveAll(txGases []TxGas) error {
 	var docs []interface{}
 
+	if len(txGases) == 0 {
+		return nil
+	}
+
 	for _, v := range txGases {
 		docs = append(docs, v)
 	}
