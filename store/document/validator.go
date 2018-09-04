@@ -73,6 +73,10 @@ func (d Candidate) RemoveCandidates() error {
 func (d Candidate) SaveAll(candidates []Candidate) error {
 	var docs []interface{}
 
+	if len(candidates) == 0 {
+		return nil
+	}
+
 	for _, v := range candidates {
 		docs = append(docs, v)
 	}
