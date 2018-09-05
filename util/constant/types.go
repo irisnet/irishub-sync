@@ -9,6 +9,9 @@ const (
 	TxTypeStakeDelegate          = "Delegate"
 	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
 	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
+	TxTypeSubmitProposal         = "SubmitProposal"
+	TxTypeDeposit                = "Deposit"
+	TxTypeVote                   = "Vote"
 
 	TxStatusSuccess = "success"
 	TxStatusFail    = "fail"

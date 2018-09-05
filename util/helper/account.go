@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -41,5 +42,5 @@ func QueryAccountBalance(address string) store.Coins {
 		return nil
 	}
 
-	return BuildCoins(account.GetCoins())
+	return types.BuildCoins(account.GetCoins())
 }

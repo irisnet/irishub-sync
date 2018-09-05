@@ -125,7 +125,7 @@ func watchBlock() {
 		logger.Info.Printf("%v: latest height is %v\n",
 			methodName, latestBlockHeight)
 
-		funcChain := []func(tx document.CommonTx, mutex sync.Mutex){
+		funcChain := []handler.Action{
 			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 		}
 
@@ -233,7 +233,7 @@ end:
 
 func syncBlock(start, end, threadNum int64,
 	ch chan int64, syncType string,
-	funcChain []func(tx document.CommonTx, mutex sync.Mutex)) {
+	funcChain []handler.Action) {
 
 	methodName = fmt.Sprintf("syncBlock_%s", syncType)
 
