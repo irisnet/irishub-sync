@@ -102,6 +102,9 @@ func startCron() {
 	c.AddFunc(conf.CronCalculateTxGas, func() {
 		handler.CalculateTxGasAndGasPrice()
 	})
+	c.AddFunc(conf.SyncProposalStatus, func() {
+		handler.SyncProposalStatus()
+	})
 	go c.Start()
 }
 

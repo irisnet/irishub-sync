@@ -39,4 +39,9 @@ const (
 	// define interval block num and tx num
 	IntervalBlockNumCalculateValidatorUpTime = int64(100)
 	IntervalTxNumCalculateTxGas              = 100
+
+	StatusDepositPeriod = "DepositPeriod"
+	StatusVotingPeriod  = "VotingPeriod"
+	StatusPassed        = "Passed"
+	StatusRejected      = "Rejected"
 )

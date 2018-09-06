@@ -19,13 +19,13 @@ type Proposal struct {
 	SubmitTime       time.Time   `bson:"submit_time"`
 	VotingStartBlock int64       `bson:"voting_start_block"`
 	TotalDeposit     store.Coins `bson:"total_deposit"`
-	Vote             []PVote     `bson:"vote"`
+	Votes            []PVote     `bson:"votes"`
 }
 
 type PVote struct {
-	Voter  string `json:"voter"`
-	Option string `json:"option"`
-	Time   string `json:"time"`
+	Voter  string    `json:"voter"`
+	Option string    `json:"option"`
+	Time   time.Time `json:"time"`
 }
 
 func (m Proposal) Name() string {
@@ -39,7 +39,7 @@ func (m Proposal) PkKvPair() map[string]interface{} {
 func QueryProposal(proposalId int64) (Proposal, error) {
 	var result Proposal
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"proposal_id": proposalId}).Sort("-amount.amount").One(&result)
+		err := c.Find(bson.M{"proposal_id": proposalId}).Sort("-submit_block").One(&result)
 		return err
 	}
 
@@ -49,5 +49,18 @@ func QueryProposal(proposalId int64) (Proposal, error) {
 		return result, err
 	}
 
+	return result, nil
+}
+func QueryByStatus(status []string) ([]Proposal, error) {
+	var result []Proposal
+	query := func(c *mgo.Collection) error {
+		err := c.Find(bson.M{"status": bson.M{"$in": status}}).All(&result)
+		return err
+	}
+	err := store.ExecCollection(CollectionNmProposal, query)
+
+	if err != nil {
+		return result, err
+	}
 	return result, nil
 }
