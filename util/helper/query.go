@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"github.com/cosmos/cosmos-sdk/wire"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	"github.com/cosmos/cosmos-sdk/x/stake/types"
 
@@ -133,4 +134,13 @@ func Query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err 
 		return res, errors.Errorf("Query failed: (%d) %s", resp.Code, resp.Log)
 	}
 	return resp.Value, nil
+}
+
+func QuerySubspace(cdc *wire.Codec, subspace []byte, storeName string) (res []sdk.KVPair, err error) {
+	resRaw, err := Query(subspace, storeName, "subspace")
+	if err != nil {
+		return res, err
+	}
+	cdc.MustUnmarshalBinary(resRaw, &res)
+	return
 }

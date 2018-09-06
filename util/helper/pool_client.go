@@ -6,9 +6,14 @@ package helper
 import (
 	"errors"
 	conf "github.com/irisnet/irishub-sync/conf/server"
+	"github.com/robfig/cron"
 
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
+)
+
+var (
+	pool = ClientPool{}
 )
 
 type Client struct {
@@ -25,7 +30,37 @@ type ClientPool struct {
 	initConnection int64
 }
 
-var pool = ClientPool{}
+func (pool ClientPool) ping() {
+	go func() {
+		task := cron.New()
+		task.AddFunc("0/5 * * * * *", func() {
+			var clients []Client
+			iterator := pool.iterator()
+			for iterator.HasNext() {
+				c := iterator.Next().(Client)
+				if !c.heartbeat() {
+					logger.Error.Printf("client node[%d] is stop", c.id)
+					iterator.Remove()
+				} else {
+					clients = append(clients, c)
+				}
+			}
+			pool.clients = clients
+			logger.Info.Printf("current available client :%d\n", len(clients))
+		})
+		task.Start()
+	}()
+}
+
+func (pool ClientPool) iterator() Iterator {
+	var d []interface{}
+	for _, data := range pool.clients {
+		d = append(d, data)
+	}
+	return &ArrayIterator{
+		data: &d,
+	}
+}
 
 // init clientPool
 // while init a client, available which is a var of clientPool should +1
@@ -38,6 +73,7 @@ func InitClientPool() {
 	for i := int64(0); i < initConnectionNum; i++ {
 		createConnection(i)
 	}
+	pool.ping()
 }
 
 // get client from pool
@@ -51,11 +87,22 @@ func GetClient() Client {
 }
 
 // release client
-func (n Client) Release() {
-	n.used = false
-	pool.clients[n.id] = n
+func (c Client) Release() {
+	c.used = false
+	pool.clients[c.id] = c
 	pool.available++
 	pool.used--
+}
+
+func (c Client) heartbeat() bool {
+	logger.Info.Printf("client node[%d] heartbeat", c.id)
+	if !c.used {
+		http := c.Client.(*client.HTTP)
+		if _, err := http.Health(); err != nil {
+			return false
+		}
+	}
+	return true
 }
 
 func createConnection(id int64) Client {
@@ -64,7 +111,7 @@ func createConnection(id int64) Client {
 		used:   false,
 		id:     id,
 	}
-	
+
 	if id == int64(len(pool.clients)) {
 		newSlice := make([]Client, pool.maxConnection)
 		for i, v := range pool.clients {
@@ -98,7 +145,6 @@ func getClient() (Client, error) {
 			pool.clients[tmClient.id] = tmClient
 			pool.available--
 			pool.used++
-			logger.Info.Printf("current available coonection ：%d\n", pool.available)
 			return tmClient, nil
 		}
 	}

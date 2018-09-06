@@ -2,6 +2,7 @@ package document
 
 import (
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -30,6 +31,8 @@ type CommonTx struct {
 
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
+	Msg                  types.Msg            `bson:"-"`
+	ProposalId           int64                `bson:"-"`
 }
 
 // Description

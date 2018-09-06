@@ -9,6 +9,9 @@ const (
 	TxTypeStakeDelegate          = "Delegate"
 	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
 	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
+	TxTypeSubmitProposal         = "SubmitProposal"
+	TxTypeDeposit                = "Deposit"
+	TxTypeVote                   = "Vote"
 
 	TxStatusSuccess = "success"
 	TxStatusFail    = "fail"
@@ -36,4 +39,9 @@ const (
 	// define interval block num and tx num
 	IntervalBlockNumCalculateValidatorUpTime = int64(100)
 	IntervalTxNumCalculateTxGas              = 100
+
+	StatusDepositPeriod = "DepositPeriod"
+	StatusVotingPeriod  = "VotingPeriod"
+	StatusPassed        = "Passed"
+	StatusRejected      = "Rejected"
 )

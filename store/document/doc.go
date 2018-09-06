@@ -13,4 +13,5 @@ func init() {
 	store.RegisterDocs(new(SyncTask))
 	store.RegisterDocs(new(ValidatorUpTime))
 	store.RegisterDocs(new(TxGas))
+	store.RegisterDocs(new(TxMsg))
 }

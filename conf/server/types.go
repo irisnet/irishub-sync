@@ -18,6 +18,7 @@ var (
 	CronWatchBlock      = "0-59 * * * * *" // every seconds
 	CronCalculateUpTime = "0 */1 * * * *"  // every minute
 	CronCalculateTxGas  = "0 */5 * * * *"  // every five minute
+	SyncProposalStatus  = "0 */1 * * * *"  // every minute
 
 	SyncMaxGoroutine     = 60   // max go routine in server
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine

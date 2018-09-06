@@ -32,6 +32,8 @@ db.tx_common.createIndex({"status": 1});
 db.validator_up_time.createIndex({"val_address": 1}, {"unique": true});
 
 db.tx_gas.createIndex({"tx_type": 1}, {"unique": true});
+db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
+db.tx_msg.createIndex({"hash": 1}, {"unique": true});
 
 // drop collection
 // db.account.drop();
