@@ -96,8 +96,7 @@ func start() {
 		if err != nil {
 			logger.Error.Printf("TmClient err and try again, %v\n", err.Error())
 			client := helper.GetClient()
-			c := client.Client
-			status, err = c.Status()
+			status, err = client.Status()
 			if err != nil {
 				logger.Error.Fatalf("TmClient err and exit, %v\n", err.Error())
 			}
@@ -194,7 +193,14 @@ func fastSync() int64 {
 	ch := make(chan int64)
 
 	// define how many goroutine should be used during fast sync
-	syncTaskDoc, _ := document.QuerySyncTask()
+	syncTaskDoc, err := document.QuerySyncTask()
+	if err != nil {
+		syncTaskDoc = document.SyncTask{
+			Height:  0,
+			ChainID: conf.ChainId,
+		}
+		store.Save(syncTaskDoc)
+	}
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	goroutineNum := (latestBlockHeight - syncTaskDoc.Height) / syncBlockNumFastSync
