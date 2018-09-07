@@ -8,18 +8,22 @@ import (
 	"github.com/robfig/cron"
 )
 
-var pool *gcp.ObjectPool
-var ctx = context.Background()
+var (
+	factory PoolFactory
+	pool    *NodePool
+	ctx     = context.Background()
+)
 
 func init() {
-	peersMap := map[string]endPoint{}
-	peersMap[generateId(conf.BlockChainMonitorUrl)] = endPoint{
+	peersMap := map[string]EndPoint{}
+	peersMap[generateId(conf.BlockChainMonitorUrl)] = EndPoint{
 		Address:   conf.BlockChainMonitorUrl,
 		Available: true,
 	}
 
-	factory := PoolFactory{
+	factory = PoolFactory{
 		peersMap: peersMap,
+		cron:     cron.New(),
 	}
 	config := gcp.NewDefaultPoolConfig()
 
@@ -33,17 +37,35 @@ func init() {
 	logger.Info.Printf("MaxTotal %d ", config.MaxTotal)
 	logger.Info.Printf("MaxIdle %d ", config.MaxIdle)
 	logger.Info.Printf("MinIdle %d ", config.MinIdle)
-	pool = gcp.NewObjectPool(ctx, &factory, config)
+	pool = &NodePool{
+		gcp.NewObjectPool(ctx, &factory, config),
+	}
 	//自动搜索可用节点
-	factory.beginFetch()
+	factory.StartCrawlPeers()
+}
+
+type EndPoint struct {
+	Address   string
+	Available bool
+}
+
+type NodePool struct {
+	*gcp.ObjectPool
 }
 
 type PoolFactory struct {
-	peersMap map[string]endPoint
+	peersMap map[string]EndPoint
+	cron     *cron.Cron
+}
+
+func ClosePool() {
+	logger.Info.Printf("release resource :%s", "nodePool")
+	pool.Close(ctx)
+	factory.cron.Stop()
 }
 
 func (f *PoolFactory) MakeObject(ctx context.Context) (*gcp.PooledObject, error) {
-	endpoint := f.pullEndPoint()
+	endpoint := f.GetEndPoint()
 	logger.Info.Printf("PoolFactory MakeObject select peer[%v]  \n", endpoint)
 	return gcp.NewPooledObject(newClient(endpoint.Address)), nil
 }
@@ -94,7 +116,7 @@ func (f *PoolFactory) PassivateObject(ctx context.Context, object *gcp.PooledObj
 	return err
 }
 
-func (f *PoolFactory) pullEndPoint() endPoint {
+func (f *PoolFactory) GetEndPoint() EndPoint {
 	logger.Info.Printf("PoolFactory pullEndPoint peers %v ", f.peersMap)
 	var key string
 	for key = range f.peersMap {
@@ -106,16 +128,15 @@ func (f *PoolFactory) pullEndPoint() endPoint {
 	return f.peersMap[key]
 }
 
-func (f *PoolFactory) beginFetch() {
+func (f *PoolFactory) StartCrawlPeers() {
 	go func() {
-		c := cron.New()
-		c.AddFunc("0 0/1 * * * *", func() {
+		f.cron.AddFunc("0 0/1 * * * *", func() {
 			defer func() {
 				if err := recover(); err != nil {
-					logger.Error.Printf("PoolFactory beginFetch error: %v ", err)
+					logger.Error.Printf("PoolFactory StartCrawlPeers error: %v ", err)
 				}
 			}()
-			logger.Info.Printf("PoolFactory beginFetch peers %v ", f.peersMap)
+			logger.Info.Printf("PoolFactory StartCrawlPeers peers %v ", f.peersMap)
 			c, err := pool.BorrowObject(ctx)
 			if err == nil {
 				logger.Info.Printf("PoolFactory peers %v ########", c)
@@ -124,7 +145,7 @@ func (f *PoolFactory) beginFetch() {
 				for _, addr := range addrs {
 					key := generateId(addr)
 					if _, ok := f.peersMap[key]; !ok {
-						f.peersMap[key] = endPoint{
+						f.peersMap[key] = EndPoint{
 							Address:   addr,
 							Available: true,
 						}
@@ -144,12 +165,6 @@ func (f *PoolFactory) beginFetch() {
 				}
 			}
 		})
-		c.Start()
+		f.cron.Start()
 	}()
-
-}
-
-type endPoint struct {
-	Address   string
-	Available bool
 }

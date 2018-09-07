@@ -21,36 +21,65 @@ import (
 var (
 	// how many block each goroutine need to sync when do fast sync
 	syncBlockNumFastSync = int64(conf.SyncBlockNumFastSync)
-
 	// limit max goroutine
-	limitChan = make(chan int64, conf.SyncMaxGoroutine)
-
+	limitChan              = make(chan int64, conf.SyncMaxGoroutine)
 	mutex, mutexWatchBlock sync.Mutex
-
-	methodName string
+	methodName             string
+	engine                 *SyncEngine
 )
 
 func init() {
-	// init store
-	store.InitWithAuth()
-
-	// init client pool
-	chainId := conf.ChainId
-	syncTask, err := document.QuerySyncTask()
-	if err != nil {
-		if chainId == "" {
-			logger.Error.Fatalln("sync process start failed, chainId is empty")
-		}
-		syncTask = document.SyncTask{
-			Height:  0,
-			ChainID: chainId,
-		}
-		store.Save(syncTask)
+	engine = &SyncEngine{
+		cron: cron.New(),
 	}
 }
 
+type SyncEngine struct {
+	cron *cron.Cron
+}
+
+func (engine *SyncEngine) AddTask(spec string, cmd func()) {
+	myCron := engine.cron
+	myCron.AddFunc(spec, cmd)
+}
+
+func (engine *SyncEngine) Start() {
+	engine.AddTask(conf.CronWatchBlock, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
+		watchBlock()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
+	})
+	engine.AddTask(conf.CronCalculateUpTime, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
+		handler.CalculateAndSaveValidatorUpTime()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
+	})
+	engine.AddTask(conf.CronCalculateTxGas, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
+		handler.CalculateTxGasAndGasPrice()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
+	})
+	engine.AddTask(conf.SyncProposalStatus, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "SyncProposalStatus")
+		handler.SyncProposalStatus()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "SyncProposalStatus")
+	})
+	start()
+	// start cron scheduler
+	engine.cron.Start()
+}
+
+func (engine *SyncEngine) Stop() {
+	logger.Info.Printf("release resource :%s", "SyncEngine")
+	engine.cron.Stop()
+}
+
+func GetSyncEngine() *SyncEngine {
+	return engine
+}
+
 // start sync server
-func Start() {
+func start() {
 	var (
 		status *ctypes.ResultStatus
 		err    error
@@ -81,36 +110,9 @@ func Start() {
 		logger.Info.Printf("End %v time fast sync task", i)
 		i++
 	}
-
-	// watch sync
-	startCron()
 }
 
 // start cron scheduler
-func startCron() {
-	c := cron.New()
-	c.AddFunc(conf.CronWatchBlock, func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
-		watchBlock()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
-	})
-	c.AddFunc(conf.CronCalculateUpTime, func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
-		handler.CalculateAndSaveValidatorUpTime()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
-	})
-	c.AddFunc(conf.CronCalculateTxGas, func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
-		handler.CalculateTxGasAndGasPrice()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
-	})
-	c.AddFunc(conf.SyncProposalStatus, func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "SyncProposalStatus")
-		handler.SyncProposalStatus()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "SyncProposalStatus")
-	})
-	go c.Start()
-}
 
 func watchBlock() {
 	methodName = constant.SyncTypeWatch
@@ -184,7 +186,7 @@ func fastSync() int64 {
 
 	// define functions which should be executed
 	// during parse tx and block
-	funcChain := []func(tx document.CommonTx, mutex sync.Mutex){
+	funcChain := []handler.Action{
 		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 	}
 
