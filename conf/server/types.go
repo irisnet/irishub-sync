@@ -29,23 +29,23 @@ func init() {
 	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkNodeUrl)
 	if found {
 		BlockChainMonitorUrl = nodeUrl
-		logger.Info.Printf("The value of env var %v is %v\n",
-			constant.EnvNameSerNetworkNodeUrl, nodeUrl)
 	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl)
 
 	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
 	if found {
 		ChainId = chainId
-		logger.Info.Printf("The value of env var %v is %v\n",
-			constant.EnvNameSerNetworkChainId, chainId)
 	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameSerNetworkChainId, ChainId)
 
 	token, found := os.LookupEnv(constant.EnvNameSerNetworkToken)
 	if found {
 		Token = token
-		logger.Info.Printf("The value of env var %v is %v\n",
-			constant.EnvNameSerNetworkToken, token)
 	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameSerNetworkToken, Token)
 
 	maxGoroutine, found := os.LookupEnv(constant.EnvNameSerMaxGoRoutine)
 	if found {
@@ -55,9 +55,9 @@ func init() {
 			logger.Error.Fatalf("Convert str to int failed, env var is %v\n",
 				constant.EnvNameSerMaxGoRoutine)
 		}
-		logger.Info.Printf("The value of env var %v is %v\n",
-			constant.EnvNameSerMaxGoRoutine, maxGoroutine)
 	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameSerMaxGoRoutine, SyncMaxGoroutine)
 
 	syncBlockNum, found := os.LookupEnv(constant.EnvNameSerSyncBlockNum)
 	if found {
@@ -67,7 +67,7 @@ func init() {
 			logger.Error.Fatalf("Convert str to int failed, env var is %v\n",
 				constant.EnvNameSerSyncBlockNum)
 		}
-		logger.Info.Printf("The value of env var %v is %v\n",
-			constant.EnvNameSerSyncBlockNum, SyncBlockNumFastSync)
 	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameSerSyncBlockNum, SyncBlockNumFastSync)
 }

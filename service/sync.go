@@ -21,38 +21,65 @@ import (
 var (
 	// how many block each goroutine need to sync when do fast sync
 	syncBlockNumFastSync = int64(conf.SyncBlockNumFastSync)
-
 	// limit max goroutine
-	limitChan = make(chan int64, conf.SyncMaxGoroutine)
-
+	limitChan              = make(chan int64, conf.SyncMaxGoroutine)
 	mutex, mutexWatchBlock sync.Mutex
-
-	methodName string
+	methodName             string
+	engine                 *SyncEngine
 )
 
 func init() {
-	// init store
-	store.InitWithAuth()
-
-	// init client pool
-	chainId := conf.ChainId
-	syncTask, err := document.QuerySyncTask()
-	if err != nil {
-		if chainId == "" {
-			logger.Error.Fatalln("sync process start failed, chainId is empty")
-		}
-		syncTask = document.SyncTask{
-			Height:  0,
-			ChainID: chainId,
-		}
-		store.Save(syncTask)
+	engine = &SyncEngine{
+		cron: cron.New(),
 	}
+}
 
-	helper.InitClientPool()
+type SyncEngine struct {
+	cron *cron.Cron
+}
+
+func (engine *SyncEngine) AddTask(spec string, cmd func()) {
+	myCron := engine.cron
+	myCron.AddFunc(spec, cmd)
+}
+
+func (engine *SyncEngine) Start() {
+	engine.AddTask(conf.CronWatchBlock, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
+		watchBlock()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
+	})
+	engine.AddTask(conf.CronCalculateUpTime, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
+		handler.CalculateAndSaveValidatorUpTime()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
+	})
+	engine.AddTask(conf.CronCalculateTxGas, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
+		handler.CalculateTxGasAndGasPrice()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
+	})
+	engine.AddTask(conf.SyncProposalStatus, func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "SyncProposalStatus")
+		handler.SyncProposalStatus()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "SyncProposalStatus")
+	})
+	start()
+	// start cron scheduler
+	engine.cron.Start()
+}
+
+func (engine *SyncEngine) Stop() {
+	logger.Info.Printf("release resource :%s", "SyncEngine")
+	engine.cron.Stop()
+}
+
+func GetSyncEngine() *SyncEngine {
+	return engine
 }
 
 // start sync server
-func Start() {
+func start() {
 	var (
 		status *ctypes.ResultStatus
 		err    error
@@ -61,18 +88,15 @@ func Start() {
 	client := helper.GetClient()
 	defer client.Release()
 
-	c := client.Client
-
 	// fast sync
 	for {
 		logger.Info.Printf("Begin %v time fast sync task", i)
 		syncLatestHeight := fastSync()
-		status, err = c.Status()
+		status, err = client.Status()
 		if err != nil {
 			logger.Error.Printf("TmClient err and try again, %v\n", err.Error())
 			client := helper.GetClient()
-			c := client.Client
-			status, err = c.Status()
+			status, err = client.Status()
 			if err != nil {
 				logger.Error.Fatalf("TmClient err and exit, %v\n", err.Error())
 			}
@@ -85,39 +109,27 @@ func Start() {
 		logger.Info.Printf("End %v time fast sync task", i)
 		i++
 	}
-
-	// watch sync
-	startCron()
 }
 
 // start cron scheduler
-func startCron() {
-	c := cron.New()
-	c.AddFunc(conf.CronWatchBlock, func() {
-		watchBlock()
-	})
-	c.AddFunc(conf.CronCalculateUpTime, func() {
-		handler.CalculateAndSaveValidatorUpTime()
-	})
-	c.AddFunc(conf.CronCalculateTxGas, func() {
-		handler.CalculateTxGasAndGasPrice()
-	})
-	c.AddFunc(conf.SyncProposalStatus, func() {
-		handler.SyncProposalStatus()
-	})
-	go c.Start()
-}
 
 func watchBlock() {
 	methodName = constant.SyncTypeWatch
 
 	client := helper.GetClient()
-	defer client.Release()
-
 	mutexWatchBlock.Lock()
-
-	c := client.Client
-	status, _ := c.Status()
+	defer func() {
+		mutexWatchBlock.Unlock()
+		if err := recover(); err != nil {
+			logger.Error.Println(err)
+		}
+		client.Release()
+	}()
+	status, err := client.Status()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	syncTask, _ := document.QuerySyncTask()
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
@@ -138,7 +150,7 @@ func watchBlock() {
 		go syncBlock(syncTask.Height+1, latestBlockHeight-1, 0, ch, constant.SyncTypeWatch, funcChain)
 
 		syncedLatestBlockHeight := latestBlockHeight - 1
-		block, _ := c.Block(&syncedLatestBlockHeight)
+		block, _ := client.Block(&syncedLatestBlockHeight)
 		syncTask.Height = syncedLatestBlockHeight
 		syncTask.Time = block.Block.Time
 
@@ -156,7 +168,6 @@ func watchBlock() {
 			methodName, syncTask.Height, latestBlockHeight)
 	}
 
-	mutexWatchBlock.Unlock()
 }
 
 // fast sync data from blockChain
@@ -166,8 +177,7 @@ func fastSync() int64 {
 	client := helper.GetClient()
 	defer client.Release()
 
-	c := client.Client
-	status, err := c.Status()
+	status, err := client.Status()
 	if err != nil {
 		logger.Error.Printf("TmClient err, %v\n", err)
 		return 0
@@ -175,7 +185,7 @@ func fastSync() int64 {
 
 	// define functions which should be executed
 	// during parse tx and block
-	funcChain := []func(tx document.CommonTx, mutex sync.Mutex){
+	funcChain := []handler.Action{
 		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 	}
 
@@ -183,7 +193,14 @@ func fastSync() int64 {
 	ch := make(chan int64)
 
 	// define how many goroutine should be used during fast sync
-	syncTaskDoc, _ := document.QuerySyncTask()
+	syncTaskDoc, err := document.QuerySyncTask()
+	if err != nil {
+		syncTaskDoc = document.SyncTask{
+			Height:  0,
+			ChainID: conf.ChainId,
+		}
+		store.Save(syncTaskDoc)
+	}
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	goroutineNum := (latestBlockHeight - syncTaskDoc.Height) / syncBlockNumFastSync
@@ -222,7 +239,7 @@ end:
 	{
 		logger.Info.Printf("%v: This fastSync task complete!", methodName)
 		// update syncTask document
-		block, _ := c.Block(&latestBlockHeight)
+		block, _ := client.Block(&latestBlockHeight)
 		syncTaskDoc.Height = block.Block.Height
 		syncTaskDoc.Time = block.Block.Time
 		err := store.Update(syncTaskDoc)
@@ -244,7 +261,13 @@ func syncBlock(start, end, threadNum int64,
 		methodName, threadNum, start, end)
 
 	client := helper.GetClient()
-	defer client.Release()
+
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error.Println(err)
+		}
+		client.Release()
+	}()
 
 	for b := start; b <= end; b++ {
 		block, err := client.Client.Block(&b)
