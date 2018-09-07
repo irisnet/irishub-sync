@@ -4,149 +4,78 @@
 package helper
 
 import (
-	"errors"
-	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/robfig/cron"
-
+	"encoding/hex"
+	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
-)
-
-var (
-	pool = ClientPool{}
+	"strings"
 )
 
 type Client struct {
-	Client client.Client
-	used   bool
-	id     int64
+	client.Client
+	Id string
 }
 
-type ClientPool struct {
-	clients        []Client
-	available      int64
-	used           int64
-	maxConnection  int64
-	initConnection int64
-}
-
-func (pool ClientPool) ping() {
-	go func() {
-		task := cron.New()
-		task.AddFunc("0/5 * * * * *", func() {
-			var clients []Client
-			iterator := pool.iterator()
-			for iterator.HasNext() {
-				c := iterator.Next().(Client)
-				if !c.heartbeat() {
-					logger.Error.Printf("client node[%d] is stop", c.id)
-					iterator.Remove()
-				} else {
-					clients = append(clients, c)
-				}
-			}
-			pool.clients = clients
-			logger.Info.Printf("current available client :%d\n", len(clients))
-		})
-		task.Start()
-	}()
-}
-
-func (pool ClientPool) iterator() Iterator {
-	var d []interface{}
-	for _, data := range pool.clients {
-		d = append(d, data)
+func newClient(addr string) *Client {
+	return &Client{
+		Client: client.NewHTTP(addr, "/websocket"),
+		Id:     generateId(addr),
 	}
-	return &ArrayIterator{
-		data: &d,
-	}
-}
-
-// init clientPool
-// while init a client, available which is a var of clientPool should +1
-func InitClientPool() {
-	pool.maxConnection = int64(conf.MaxConnectionNum)
-	initConnectionNum := int64(conf.InitConnectionNum)
-	pool.initConnection = initConnectionNum
-
-	pool.clients = make([]Client, initConnectionNum)
-	for i := int64(0); i < initConnectionNum; i++ {
-		createConnection(i)
-	}
-	pool.ping()
 }
 
 // get client from pool
 // while get a client from pool, available should -1, used should +1
-func GetClient() Client {
-	c, err := getClient()
-	if err != nil {
-		logger.Error.Fatalln(err.Error())
-	}
-	return c
+func GetClient() *Client {
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error.Println(err)
+		}
+	}()
+	c, _ := pool.BorrowObject(ctx)
+	logger.Info.Printf("current available connection:%d", pool.GetNumIdle())
+	logger.Info.Printf("current used connection:%d", pool.GetNumActive())
+	return c.(*Client)
 }
 
 // release client
-func (c Client) Release() {
-	c.used = false
-	pool.clients[c.id] = c
-	pool.available++
-	pool.used--
+func (c *Client) Release() {
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error.Println(err)
+		}
+	}()
+
+	err := pool.ReturnObject(ctx, c)
+	if err != nil {
+		logger.Error.Println(err.Error())
+	}
 }
 
-func (c Client) heartbeat() bool {
-	logger.Info.Printf("client node[%d] heartbeat", c.id)
-	if !c.used {
-		http := c.Client.(*client.HTTP)
-		if _, err := http.Health(); err != nil {
-			return false
-		}
-	}
-	return true
+func (c *Client) HeartBeat() error {
+	http := c.Client.(*client.HTTP)
+	_, err := http.Health()
+	return err
 }
 
-func createConnection(id int64) Client {
-	tmClient := Client{
-		Client: client.NewHTTP(conf.BlockChainMonitorUrl, "/websocket"),
-		used:   false,
-		id:     id,
-	}
-
-	if id == int64(len(pool.clients)) {
-		newSlice := make([]Client, pool.maxConnection)
-		for i, v := range pool.clients {
-			newSlice[i] = v
+func (c *Client) GetNodeAddress() []string {
+	http := c.Client.(*client.HTTP)
+	netInfo, err := http.NetInfo()
+	var addrs []string
+	if err == nil {
+		peers := netInfo.Peers
+		for _, peer := range peers {
+			addr := peer.ListenAddr
+			ip := strings.Split(addr, ":")[0]
+			port := strings.Split(peer.Other[5], ":")[2]
+			endpoint := fmt.Sprintf("%s%s:%s", "tcp://", ip, port)
+			addrs = append(addrs, endpoint)
 		}
-		pool.clients = newSlice
 	}
-	pool.clients[id] = tmClient
-	pool.available++
-	return tmClient
+	fmt.Printf("#######################%v##################\n", addrs)
+	return addrs
 }
 
-func getClient() (Client, error) {
-	if pool.available == 0 {
-		maxConnNum := int64(conf.MaxConnectionNum)
-		if pool.used < maxConnNum {
-			var tmClient Client
-			length := len(pool.clients)
-			for i := int64(length); i < maxConnNum; i++ {
-				tmClient = createConnection(i)
-			}
-			return tmClient, nil
-		} else {
-			logger.Error.Fatalln("client pool has no available connection")
-		}
-	}
-
-	for _, tmClient := range pool.clients {
-		if !tmClient.used {
-			tmClient.used = true
-			pool.clients[tmClient.id] = tmClient
-			pool.available--
-			pool.used++
-			return tmClient, nil
-		}
-	}
-	return Client{}, errors.New("pool is empty")
+func generateId(address string) string {
+	id := []byte("factory/" + address)
+	return hex.EncodeToString(id)
 }

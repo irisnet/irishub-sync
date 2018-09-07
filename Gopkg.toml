@@ -62,6 +62,10 @@
   branch = "v2"
   name = "github.com/stretchr/testify"
 
+[[override]]
+  version = "v2.0.0"
+  name = "github.com/jolestar/go-commons-pool"
+
 [prune]
   go-tests = true
   unused-packages = true

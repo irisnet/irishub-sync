@@ -34,7 +34,7 @@ func TestClient_Release(t *testing.T) {
 	type fields struct {
 		Client client.Client
 		used   bool
-		id     int64
+		id     int
 	}
 	tests := []struct {
 		name   string
