@@ -9,7 +9,7 @@ import (
 )
 
 func TestQueryAccountBalance(t *testing.T) {
-	InitClientPool()
+	//InitClientPool()
 
 	type args struct {
 		address string

@@ -62,9 +62,13 @@
   branch = "v2"
   name = "github.com/stretchr/testify"
 
-[[override]]
+[[constraint]]
   version = "v2.0.0"
   name = "github.com/jolestar/go-commons-pool"
+
+[[constraint]]
+  version = "v1.2.2"
+  name = "github.com/hashicorp/consul"
 
 [prune]
   go-tests = true

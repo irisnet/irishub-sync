@@ -16,7 +16,7 @@ func main() {
 
 	defer func() {
 		logger.Info.Println("#########################System Exit##########################")
-		engine.Stop()
+		engine.StopServer()
 		helper.ClosePool()
 		store.Stop()
 		if err := recover(); err != nil {
@@ -31,7 +31,7 @@ func main() {
 	store.Start()
 	//#########################开启同步服务##########################
 	logger.Info.Println("#########################开启同步服务##########################")
-	engine.Start()
+	engine.StartServer()
 	//阻塞直至有信号传入
 	<-c
 }

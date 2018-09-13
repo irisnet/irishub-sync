@@ -7,6 +7,8 @@ db.createCollection("sync_task");
 db.createCollection("tx_common");
 db.createCollection("validator_up_time");
 db.createCollection("tx_gas");
+db.createCollection("proposal");
+db.createCollection("tx_msg");
 
 // create index
 db.account.createIndex({"address": 1}, {"unique": true});

@@ -6,9 +6,8 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub-sync/util/helper"
-
 	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/util/helper"
 	"github.com/robfig/cron"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
@@ -30,48 +29,60 @@ var (
 
 func init() {
 	engine = &SyncEngine{
-		cron: cron.New(),
+		Cron:  cron.New(),
+		tasks: []Task{},
 	}
 }
 
 type SyncEngine struct {
-	cron *cron.Cron
+	*cron.Cron
+	tasks []Task
 }
 
-func (engine *SyncEngine) AddTask(spec string, cmd func()) {
-	myCron := engine.cron
-	myCron.AddFunc(spec, cmd)
+func (engine *SyncEngine) AddTask(task Task) {
+	engine.tasks = append(engine.tasks, task)
+	engine.AddFunc(task.Spec, task.GetCmd())
 }
 
-func (engine *SyncEngine) Start() {
-	engine.AddTask(conf.CronWatchBlock, func() {
+func (engine *SyncEngine) StartServer() {
+	watchBlockTask := NewTask(conf.CronWatchBlock, "watch_block_lock_key_lock", func() {
 		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
 		watchBlock()
 		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
-	})
-	engine.AddTask(conf.CronCalculateUpTime, func() {
+	}, true)
+	engine.AddTask(watchBlockTask)
+
+	calculateAndSaveValidatorUpTimeTask := NewTask(conf.CronCalculateUpTime, "calculate_and_save_validator_uptime_lock", func() {
 		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
 		handler.CalculateAndSaveValidatorUpTime()
 		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
-	})
-	engine.AddTask(conf.CronCalculateTxGas, func() {
+	}, true)
+	engine.AddTask(calculateAndSaveValidatorUpTimeTask)
+
+	calculateTxGasAndGasPriceTask := NewTask(conf.CronCalculateTxGas, "calculate_tx_gas_and_gas_price_lock", func() {
 		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
 		handler.CalculateTxGasAndGasPrice()
 		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
-	})
-	engine.AddTask(conf.SyncProposalStatus, func() {
+	}, true)
+	engine.AddTask(calculateTxGasAndGasPriceTask)
+
+	syncProposalStatusTask := NewTask(conf.SyncProposalStatus, "sync_proposal_status_lock", func() {
 		logger.Info.Printf("========================task's trigger [%s] begin===================", "SyncProposalStatus")
 		handler.SyncProposalStatus()
 		logger.Info.Printf("========================task's trigger [%s] end===================", "SyncProposalStatus")
-	})
-	start()
-	// start cron scheduler
-	engine.cron.Start()
+	}, true)
+	engine.AddTask(syncProposalStatusTask)
+
+	engine.replayBlock()
+	engine.Start()
 }
 
-func (engine *SyncEngine) Stop() {
+func (engine *SyncEngine) StopServer() {
 	logger.Info.Printf("release resource :%s", "SyncEngine")
-	engine.cron.Stop()
+	engine.Stop()
+	for _, task := range engine.tasks {
+		task.Stop()
+	}
 }
 
 func GetSyncEngine() *SyncEngine {
@@ -79,7 +90,7 @@ func GetSyncEngine() *SyncEngine {
 }
 
 // start sync server
-func start() {
+func (engine *SyncEngine) replayBlock() {
 	var (
 		status *ctypes.ResultStatus
 		err    error

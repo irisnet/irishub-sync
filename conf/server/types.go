@@ -15,7 +15,7 @@ var (
 
 	InitConnectionNum   = 100              // fast init num of tendermint client pool
 	MaxConnectionNum    = 1000             // max size of tendermint client pool
-	CronWatchBlock      = "0-59 * * * * *" // every seconds
+	CronWatchBlock      = "0/10 * * * * *" // every seconds
 	CronCalculateUpTime = "0 */1 * * * *"  // every minute
 	CronCalculateTxGas  = "0 */5 * * * *"  // every five minute
 	SyncProposalStatus  = "0 */1 * * * *"  // every minute
