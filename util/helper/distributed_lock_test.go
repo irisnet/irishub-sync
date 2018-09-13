@@ -10,7 +10,7 @@ import (
 
 func TestLockAndUnLock(t *testing.T) {
 	wc := sync.WaitGroup{}
-	wc.Add(5)
+	wc.Add(10)
 	runner := func(flag int) {
 		lock := NewLock("lock-key", 500*time.Millisecond)
 		if lock.Lock() {
@@ -28,5 +28,10 @@ func TestLockAndUnLock(t *testing.T) {
 	go runner(3)
 	go runner(4)
 	go runner(5)
+	go runner(6)
+	go runner(7)
+	go runner(8)
+	go runner(9)
+	go runner(10)
 	wc.Wait()
 }

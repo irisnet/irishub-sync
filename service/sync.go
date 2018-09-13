@@ -5,11 +5,13 @@ import (
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/service/handler"
+	"github.com/irisnet/irishub-sync/service/task"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"github.com/robfig/cron"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	"time"
 
 	"fmt"
 	"github.com/irisnet/irishub-sync/util/constant"
@@ -30,48 +32,30 @@ var (
 func init() {
 	engine = &SyncEngine{
 		Cron:  cron.New(),
-		tasks: []Task{},
+		tasks: []task.Task{},
 	}
 }
 
 type SyncEngine struct {
 	*cron.Cron
-	tasks []Task
+	tasks []task.Task
 }
 
-func (engine *SyncEngine) AddTask(task Task) {
+func (engine *SyncEngine) AddTask(task task.Task) {
 	engine.tasks = append(engine.tasks, task)
-	engine.AddFunc(task.Spec, task.GetCmd())
+	engine.AddFunc(task.GetCron(), task.GetCommand())
 }
 
 func (engine *SyncEngine) StartServer() {
-	watchBlockTask := NewTask(conf.CronWatchBlock, "watch_block_lock_key_lock", func() {
+	watchBlockTask := task.NewLockTaskFromEnv(conf.CronWatchBlock, "watch_block_lock_key_lock", func() {
 		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
 		watchBlock()
 		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
-	}, true)
+	})
 	engine.AddTask(watchBlockTask)
-
-	calculateAndSaveValidatorUpTimeTask := NewTask(conf.CronCalculateUpTime, "calculate_and_save_validator_uptime_lock", func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
-		handler.CalculateAndSaveValidatorUpTime()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
-	}, true)
-	engine.AddTask(calculateAndSaveValidatorUpTimeTask)
-
-	calculateTxGasAndGasPriceTask := NewTask(conf.CronCalculateTxGas, "calculate_tx_gas_and_gas_price_lock", func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
-		handler.CalculateTxGasAndGasPrice()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
-	}, true)
-	engine.AddTask(calculateTxGasAndGasPriceTask)
-
-	syncProposalStatusTask := NewTask(conf.SyncProposalStatus, "sync_proposal_status_lock", func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "SyncProposalStatus")
-		handler.SyncProposalStatus()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "SyncProposalStatus")
-	}, true)
-	engine.AddTask(syncProposalStatusTask)
+	engine.AddTask(task.MakeCalculateAndSaveValidatorUpTimeTask())
+	engine.AddTask(task.MakeCalculateTxGasAndGasPriceTask())
+	engine.AddTask(task.MakeSyncProposalStatusTask())
 
 	engine.replayBlock()
 	engine.Start()
@@ -80,8 +64,8 @@ func (engine *SyncEngine) StartServer() {
 func (engine *SyncEngine) StopServer() {
 	logger.Info.Printf("release resource :%s", "SyncEngine")
 	engine.Stop()
-	for _, task := range engine.tasks {
-		task.Stop()
+	for _, t := range engine.tasks {
+		t.Release()
 	}
 }
 
@@ -202,15 +186,22 @@ func fastSync() int64 {
 
 	// define unbuffered channel
 	ch := make(chan int64)
-
+loop:
 	// define how many goroutine should be used during fast sync
 	syncTaskDoc, err := document.QuerySyncTask()
 	if err != nil {
 		syncTaskDoc = document.SyncTask{
 			Height:  0,
 			ChainID: conf.ChainId,
+			Syncing: true,
 		}
 		store.Save(syncTaskDoc)
+	} else {
+		if syncTaskDoc.Syncing {
+			logger.Info.Println("server is syncing,will try again next 10 second")
+			time.Sleep(10 * time.Second)
+			goto loop
+		}
 	}
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
@@ -253,6 +244,7 @@ end:
 		block, _ := client.Block(&latestBlockHeight)
 		syncTaskDoc.Height = block.Block.Height
 		syncTaskDoc.Time = block.Block.Time
+		syncTaskDoc.Syncing = false
 		err := store.Update(syncTaskDoc)
 		if err != nil {
 			logger.Error.Printf("%v: Update syncTask fail, err is %v",
@@ -281,13 +273,13 @@ func syncBlock(start, end, threadNum int64,
 	}()
 
 	for b := start; b <= end; b++ {
-		block, err := client.Client.Block(&b)
+		block, err := client.Block(&b)
 		if err != nil {
 			logger.Error.Printf("%v: Invalid block height %d and err is %v, try again\n",
 				methodName, b, err.Error())
 			// try again
 			client2 := helper.GetClient()
-			block, err = client2.Client.Block(&b)
+			block, err = client2.Block(&b)
 			if err != nil {
 				ch <- threadNum
 				logger.Error.Fatalf("%v: Invalid block height %d and err is %v\n",
@@ -313,7 +305,7 @@ func syncBlock(start, end, threadNum int64,
 
 		// get validatorSet at given height
 		var validators []*types.Validator
-		res, err := client.Client.Validators(&b)
+		res, err := client.Validators(&b)
 		if err != nil {
 			logger.Error.Printf("%v: Can't get validatorSet at %v\n", methodName, b)
 		} else {
@@ -321,6 +313,7 @@ func syncBlock(start, end, threadNum int64,
 		}
 
 		// save block info
+		logger.Info.Printf("save block,height:[%d]", block.Block.Height)
 		handler.SaveBlock(block.BlockMeta, block.Block, validators)
 
 		// compare and update validators during watch block

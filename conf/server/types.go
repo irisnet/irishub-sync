@@ -13,15 +13,17 @@ var (
 	ChainId              = "rainbow-dev"
 	Token                = "iris"
 
-	InitConnectionNum   = 100              // fast init num of tendermint client pool
-	MaxConnectionNum    = 1000             // max size of tendermint client pool
-	CronWatchBlock      = "0/10 * * * * *" // every seconds
-	CronCalculateUpTime = "0 */1 * * * *"  // every minute
-	CronCalculateTxGas  = "0 */5 * * * *"  // every five minute
-	SyncProposalStatus  = "0 */1 * * * *"  // every minute
+	InitConnectionNum   = 100             // fast init num of tendermint client pool
+	MaxConnectionNum    = 1000            // max size of tendermint client pool
+	CronWatchBlock      = "0/1 * * * * *" // every 10 seconds
+	CronCalculateUpTime = "0 */1 * * * *" // every minute
+	CronCalculateTxGas  = "0 */5 * * * *" // every five minute
+	SyncProposalStatus  = "0 */1 * * * *" // every minute
 
 	SyncMaxGoroutine     = 60   // max go routine in server
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
+	ConsulAddr           = "127.0.0.1:8500"
+	SyncWithDLock        = false
 )
 
 // get value of env var
@@ -70,4 +72,23 @@ func init() {
 	}
 	logger.Info.Printf("The value of env var %v is %v\n",
 		constant.EnvNameSerSyncBlockNum, SyncBlockNumFastSync)
+
+	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
+	if found {
+		ConsulAddr = consulAddr
+	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameConsulAddr, ConsulAddr)
+
+	withDLock, found := os.LookupEnv(constant.EnvNameSyncWithDLock)
+	if found {
+		flag, err := strconv.ParseBool(withDLock)
+		if err != nil {
+			logger.Error.Fatalf("Convert str to bool failed, env var is %v\n",
+				constant.EnvNameSyncWithDLock)
+		}
+		SyncWithDLock = flag
+	}
+	logger.Info.Printf("The value of env var %v is %v\n",
+		constant.EnvNameSyncWithDLock, SyncWithDLock)
 }

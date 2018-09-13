@@ -27,6 +27,8 @@ const (
 	EnvNameSerNetworkToken   = "SER_BC_TOKEN"
 	EnvNameSerMaxGoRoutine   = "SER_MAX_GOROUTINE"
 	EnvNameSerSyncBlockNum   = "SER_SYNC_BLOCK_NUM"
+	EnvNameConsulAddr        = "CONSUL_ADDR"
+	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
 
 	// define store name
 	StoreNameStake      = "stake"
