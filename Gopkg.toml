@@ -34,8 +34,8 @@
   version = "=v0.23.0-iris1"
 
 [[override]]
-   name = "github.com/tendermint/go-amino"
-   version = "=0.10.1"
+  name = "github.com/tendermint/go-amino"
+  version = "=0.10.1"
 
 [[override]]
   name = "github.com/tendermint/iavl"

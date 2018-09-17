@@ -4,22 +4,17 @@ package helper
 
 import (
 	"encoding/hex"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/wire"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/types"
 	"strings"
 )
 
-func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.CommonTx {
+func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	var (
-		authTx     auth.StdTx
+		authTx     itypes.StdTx
 		methodName = "ParseTx"
 		docTx      document.CommonTx
 		gasPrice   float64
@@ -100,7 +95,7 @@ func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.Com
 			Website:  msg.Website,
 			Details:  msg.Details,
 		}
-		pubKey, err := sdk.Bech32ifyValPub(msg.PubKey)
+		pubKey, err := itypes.Bech32ifyValPub(msg.PubKey)
 		if err != nil {
 			logger.Error.Printf("%v: Can't get pubKey, txHash is %v\n",
 				methodName, txHash)
@@ -211,8 +206,8 @@ func BuildHex(bytes []byte) string {
 }
 
 // get tx status and log by query txHash
-func QueryTxResult(txHash []byte) (string, abci.ResponseDeliverTx, error) {
-	var resDeliverTx abci.ResponseDeliverTx
+func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
+	var resDeliverTx itypes.ResponseDeliverTx
 	status := constant.TxStatusSuccess
 
 	client := GetClient()

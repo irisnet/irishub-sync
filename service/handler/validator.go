@@ -1,15 +1,12 @@
 package handler
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/stake"
-	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/tendermint/tendermint/types"
 )
 
 // compare validatorSet stored in tendermint and validatorSet stored in db
@@ -27,7 +24,7 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 		candidateModel document.Candidate
 		candidates     []document.Candidate
 
-		kvs []sdk.KVPair
+		kvs []types.KVPair
 	)
 
 	// get validatorSets from tendermint
@@ -57,7 +54,7 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 
 		// store latest validator data
 		// get latest validators through query sdk store
-		keys := stake.ValidatorsKey
+		keys := types.ValidatorsKey
 		resRaw, err := helper.Query(keys, constant.StoreNameStake, "subspace")
 
 		if err != nil {
@@ -67,11 +64,11 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 		codec.Cdc.MustUnmarshalBinary(resRaw, &kvs)
 		for _, v := range kvs {
 			var (
-				validator stake.Validator
+				validator types.StakeValidator
 			)
 
 			addr := v.Key[1:]
-			validator, err2 := staketypes.UnmarshalValidator(codec.Cdc, addr, v.Value)
+			validator, err2 := types.UnmarshalValidator(codec.Cdc, addr, v.Value)
 
 			if err2 != nil {
 				logger.Error.Printf("%v: err is %v\n", methodName, err2)
@@ -124,7 +121,7 @@ func sliceContains(s []string, e string) bool {
 	return false
 }
 
-func BuildValidatorDocument(v stake.Validator) document.Candidate {
+func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 	description := document.ValDescription{
 		Moniker:  v.Description.Moniker,
 		Identity: v.Description.Identity,
@@ -134,7 +131,7 @@ func BuildValidatorDocument(v stake.Validator) document.Candidate {
 
 	floatTokens, _ := v.Tokens.Float64()
 	floatDelegatorShares, _ := v.DelegatorShares.Float64()
-	pubKey, err := sdk.Bech32ifyValPub(v.PubKey)
+	pubKey, err := types.Bech32ifyValPub(v.PubKey)
 	if err != nil {
 		logger.Error.Printf("Can't get validator pubKey, validator is %v:\n", v)
 	}

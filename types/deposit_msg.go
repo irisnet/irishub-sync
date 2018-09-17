@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
@@ -13,7 +12,7 @@ type Deposit struct {
 	Amount     store.Coins `json:"amount"`      // Coins to add to the proposal's deposit
 }
 
-func NewDeposit(deposit gov.MsgDeposit) Deposit {
+func NewDeposit(deposit MsgDeposit) Deposit {
 	return Deposit{
 		ProposalID: deposit.ProposalID,
 		Depositer:  deposit.Depositer.String(),

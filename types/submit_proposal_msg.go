@@ -23,7 +23,7 @@ type Param struct {
 	Op    string `bson:"op"`
 }
 
-func NewSubmitProposal(msg gov.MsgSubmitProposal) SubmitProposal {
+func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 	var params []Param
 	for _, param := range msg.Params {
 		p := Param{

@@ -12,11 +12,11 @@ import (
 
 func main() {
 	c := make(chan os.Signal)
-	engine := service.GetSyncEngine()
+	engine := service.New()
 
 	defer func() {
 		logger.Info.Println("#########################System Exit##########################")
-		engine.StopServer()
+		engine.Stop()
 		helper.ClosePool()
 		store.Stop()
 		if err := recover(); err != nil {
@@ -31,7 +31,7 @@ func main() {
 	store.Start()
 	//#########################开启同步服务##########################
 	logger.Info.Println("#########################开启同步服务##########################")
-	engine.StartServer()
+	engine.Start()
 	//阻塞直至有信号传入
 	<-c
 }
