@@ -2,7 +2,6 @@ package document
 
 import (
 	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub-sync/util/constant"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -10,6 +9,8 @@ import (
 
 const (
 	CollectionNmCommonTx = "tx_common"
+	TxStatusSuccess      = "success"
+	TxStatusFail         = "fail"
 )
 
 type CommonTx struct {
@@ -71,7 +72,7 @@ func (d CommonTx) CalculateTxGasAndGasPrice(txType string, limit int) (
 	[]CommonTx, error) {
 	query := bson.M{
 		"type":   txType,
-		"status": constant.TxStatusSuccess,
+		"status": TxStatusSuccess,
 	}
 	fields := bson.M{}
 	sort := []string{"-height"}

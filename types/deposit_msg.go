@@ -28,3 +28,8 @@ func (s Deposit) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
 }
+
+func UnmarshalDeposit(str string) (deposit Deposit) {
+	json.Unmarshal([]byte(str), &deposit)
+	return
+}

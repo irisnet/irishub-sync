@@ -13,9 +13,6 @@ const (
 	TxTypeDeposit                = "Deposit"
 	TxTypeVote                   = "Vote"
 
-	TxStatusSuccess = "success"
-	TxStatusFail    = "fail"
-
 	EnvNameDbHost     = "DB_HOST"
 	EnvNameDbPort     = "DB_PORT"
 	EnvNameDbUser     = "DB_USER"

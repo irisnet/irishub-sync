@@ -52,6 +52,11 @@ func (s SubmitProposal) String() string {
 	return string(str)
 }
 
+func UnmarshalSubmitProposal(str string) (submitProposal SubmitProposal) {
+	json.Unmarshal([]byte(str), &submitProposal)
+	return
+}
+
 func OpString(op gov.Op) string {
 	switch op {
 	case gov.Update:

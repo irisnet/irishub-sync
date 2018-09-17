@@ -208,7 +208,7 @@ func BuildHex(bytes []byte) string {
 // get tx status and log by query txHash
 func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 	var resDeliverTx itypes.ResponseDeliverTx
-	status := constant.TxStatusSuccess
+	status := document.TxStatusSuccess
 
 	client := GetClient()
 	defer client.Release()
@@ -219,7 +219,7 @@ func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 	}
 	result := res.TxResult
 	if result.Code != 0 {
-		status = constant.TxStatusFail
+		status = document.TxStatusFail
 	}
 
 	return status, result, nil

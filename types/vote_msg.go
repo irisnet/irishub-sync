@@ -27,3 +27,8 @@ func (s Vote) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
 }
+
+func UnmarshalVote(str string) (vote Vote) {
+	json.Unmarshal([]byte(str), &vote)
+	return
+}
