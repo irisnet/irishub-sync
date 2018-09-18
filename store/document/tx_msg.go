@@ -6,6 +6,7 @@ const CollectionNmTxMsg = "tx_msg"
 
 type TxMsg struct {
 	Hash    string `bson:"hash"`
+	Type    string `bson:"type"`
 	Content string `bson:"content"`
 }
 

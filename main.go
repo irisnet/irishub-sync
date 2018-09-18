@@ -12,7 +12,7 @@ import (
 
 func main() {
 	c := make(chan os.Signal)
-	engine := service.GetSyncEngine()
+	engine := service.New()
 
 	defer func() {
 		logger.Info.Println("#########################System Exit##########################")

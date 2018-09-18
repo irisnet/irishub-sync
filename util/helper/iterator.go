@@ -7,7 +7,7 @@ type Iterator interface {
 	Get() []interface{}
 }
 
-func NewIntIterator(array *[]int) Iterator {
+func newIntIterator(array *[]int) Iterator {
 	var d []interface{}
 	for _, data := range *array {
 		d = append(d, data)
@@ -15,6 +15,27 @@ func NewIntIterator(array *[]int) Iterator {
 	return &ArrayIterator{
 		data: &d,
 	}
+}
+
+func newStringIterator(array *[]string) Iterator {
+	var d []interface{}
+	for _, data := range *array {
+		d = append(d, data)
+	}
+	return &ArrayIterator{
+		data: &d,
+	}
+}
+
+func GetIterator(array interface{}) Iterator {
+	switch array.(type) {
+	case *[]int:
+		return newIntIterator(array.(*[]int))
+	case *[]string:
+		return newStringIterator(array.(*[]string))
+
+	}
+	return nil
 }
 
 type ArrayIterator struct {

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
@@ -40,6 +39,7 @@ func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
 		if msg != nil {
 			txMsg := document.TxMsg{
 				Hash:    docTx.TxHash,
+				Type:    msg.Type(),
 				Content: msg.String(),
 			}
 			store.Save(txMsg)
@@ -216,8 +216,8 @@ func buildUnbondingDelegation(delAddress, valAddress string) (
 		return res, nil
 	}
 
-	initBalance := types.BuildCoins(sdk.Coins{ud.InitialBalance})
-	balance := types.BuildCoins(sdk.Coins{ud.Balance})
+	initBalance := types.BuildCoins(types.SdkCoins{ud.InitialBalance})
+	balance := types.BuildCoins(types.SdkCoins{ud.Balance})
 	res = document.UnbondingDelegation{
 		CreationHeight: ud.CreationHeight,
 		MinTime:        ud.MinTime,

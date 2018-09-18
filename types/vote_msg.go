@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -12,7 +11,7 @@ type Vote struct {
 	Option     string `json:"option"`
 }
 
-func NewVote(v gov.MsgVote) Vote {
+func NewVote(v MsgVote) Vote {
 	return Vote{
 		ProposalID: v.ProposalID,
 		Voter:      v.Voter.String(),
@@ -27,4 +26,9 @@ func (s Vote) Type() string {
 func (s Vote) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
+}
+
+func UnmarshalVote(str string) (vote Vote) {
+	json.Unmarshal([]byte(str), &vote)
+	return
 }

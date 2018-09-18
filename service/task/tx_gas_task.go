@@ -1,12 +1,13 @@
-package handler
+package task
 
 import (
+	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
-func CalculateTxGasAndGasPrice() {
+func calculateTxGasAndGasPrice() {
 	var (
 		methodName    = "CalculateTxGasAndGasPrice"
 		intervalTxNum = constant.IntervalTxNumCalculateTxGas
@@ -112,4 +113,12 @@ func buildTxGas(txs []document.CommonTx) document.TxGas {
 	}
 
 	return txGas
+}
+
+func MakeCalculateTxGasAndGasPriceTask() Task {
+	return NewLockTaskFromEnv(conf.CronCalculateTxGas, "calculate_tx_gas_and_gas_price_lock", func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
+		calculateTxGasAndGasPrice()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
+	})
 }

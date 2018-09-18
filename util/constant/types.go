@@ -13,9 +13,6 @@ const (
 	TxTypeDeposit                = "Deposit"
 	TxTypeVote                   = "Vote"
 
-	TxStatusSuccess = "success"
-	TxStatusFail    = "fail"
-
 	EnvNameDbHost     = "DB_HOST"
 	EnvNameDbPort     = "DB_PORT"
 	EnvNameDbUser     = "DB_USER"
@@ -27,6 +24,8 @@ const (
 	EnvNameSerNetworkToken   = "SER_BC_TOKEN"
 	EnvNameSerMaxGoRoutine   = "SER_MAX_GOROUTINE"
 	EnvNameSerSyncBlockNum   = "SER_SYNC_BLOCK_NUM"
+	EnvNameConsulAddr        = "CONSUL_ADDR"
+	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
 
 	// define store name
 	StoreNameStake      = "stake"

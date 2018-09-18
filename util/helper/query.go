@@ -1,31 +1,24 @@
 package helper
 
 import (
-	"github.com/cosmos/cosmos-sdk/wire"
-	"github.com/cosmos/cosmos-sdk/x/stake"
-	"github.com/cosmos/cosmos-sdk/x/stake/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/irisnet/irishub-sync/module/codec"
-
 	"fmt"
+	"github.com/irisnet/irishub-sync/module/codec"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/pkg/errors"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
 // get validator
-func GetValidator(valAddr string) (stake.Validator, error) {
+func GetValidator(valAddr string) (types.StakeValidator, error) {
 	var (
-		validatorAddr sdk.AccAddress
+		validatorAddr types.AccAddress
 		err           error
-		res           stake.Validator
+		res           types.StakeValidator
 	)
 
-	validatorAddr, err = sdk.AccAddressFromBech32(valAddr)
+	validatorAddr, err = types.AccAddressFromBech32(valAddr)
 
-	resRaw, err := Query(stake.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath)
+	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath)
 	if err != nil || resRaw == nil {
 		return res, err
 	}
@@ -36,28 +29,28 @@ func GetValidator(valAddr string) (stake.Validator, error) {
 }
 
 // get delegation
-func GetDelegation(delAddr, valAddr string) (stake.Delegation, error) {
+func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
 	var (
-		delegatorAddr sdk.AccAddress
-		validatorAddr sdk.AccAddress
+		delegatorAddr types.AccAddress
+		validatorAddr types.AccAddress
 		err           error
 
-		res stake.Delegation
+		res types.Delegation
 	)
 
-	delegatorAddr, err = sdk.AccAddressFromBech32(delAddr)
+	delegatorAddr, err = types.AccAddressFromBech32(delAddr)
 
 	if err != nil {
 		return res, err
 	}
 
-	validatorAddr, err = sdk.AccAddressFromBech32(valAddr)
+	validatorAddr, err = types.AccAddressFromBech32(valAddr)
 
 	if err != nil {
 		return res, err
 	}
 	cdc := codec.Cdc
-	key := stake.GetDelegationKey(delegatorAddr, validatorAddr)
+	key := types.GetDelegationKey(delegatorAddr, validatorAddr)
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
@@ -75,29 +68,29 @@ func GetDelegation(delAddr, valAddr string) (stake.Delegation, error) {
 }
 
 // get unbonding delegation
-func GetUnbondingDelegation(delAddr, valAddr string) (stake.UnbondingDelegation, error) {
+func GetUnbondingDelegation(delAddr, valAddr string) (types.UnbondingDelegation, error) {
 	var (
-		delegatorAddr sdk.AccAddress
-		validatorAddr sdk.AccAddress
+		delegatorAddr types.AccAddress
+		validatorAddr types.AccAddress
 		err           error
 
-		res stake.UnbondingDelegation
+		res types.UnbondingDelegation
 	)
 
-	delegatorAddr, err = sdk.AccAddressFromBech32(delAddr)
+	delegatorAddr, err = types.AccAddressFromBech32(delAddr)
 
 	if err != nil {
 		return res, err
 	}
 
-	validatorAddr, err = sdk.AccAddressFromBech32(valAddr)
+	validatorAddr, err = types.AccAddressFromBech32(valAddr)
 
 	if err != nil {
 		return res, err
 	}
 
 	cdc := codec.Cdc
-	key := stake.GetUBDKey(delegatorAddr, validatorAddr)
+	key := types.GetUBDKey(delegatorAddr, validatorAddr)
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
@@ -111,7 +104,7 @@ func GetUnbondingDelegation(delAddr, valAddr string) (stake.UnbondingDelegation,
 }
 
 // Query from Tendermint with the provided storename and path
-func Query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err error) {
+func Query(key types.HexBytes, storeName string, endPath string) (res []byte, err error) {
 	path := fmt.Sprintf("/store/%s/%s", storeName, endPath)
 	client := GetClient()
 	defer client.Release()
@@ -121,7 +114,7 @@ func Query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err 
 		return res, err
 	}
 
-	opts := rpcclient.ABCIQueryOptions{
+	opts := types.ABCIQueryOptions{
 		Height:  0,
 		Trusted: true,
 	}
@@ -136,7 +129,7 @@ func Query(key cmn.HexBytes, storeName string, endPath string) (res []byte, err 
 	return resp.Value, nil
 }
 
-func QuerySubspace(cdc *wire.Codec, subspace []byte, storeName string) (res []sdk.KVPair, err error) {
+func QuerySubspace(cdc *types.Codec, subspace []byte, storeName string) (res []types.KVPair, err error) {
 	resRaw, err := Query(subspace, storeName, "subspace")
 	if err != nil {
 		return res, err

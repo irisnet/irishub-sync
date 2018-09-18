@@ -34,8 +34,8 @@
   version = "=v0.23.0-iris1"
 
 [[override]]
-   name = "github.com/tendermint/go-amino"
-   version = "=0.10.1"
+  name = "github.com/tendermint/go-amino"
+  version = "=0.10.1"
 
 [[override]]
   name = "github.com/tendermint/iavl"
@@ -62,9 +62,13 @@
   branch = "v2"
   name = "github.com/stretchr/testify"
 
-[[override]]
+[[constraint]]
   version = "v2.0.0"
   name = "github.com/jolestar/go-commons-pool"
+
+[[constraint]]
+  version = "v1.2.2"
+  name = "github.com/hashicorp/consul"
 
 [prune]
   go-tests = true

@@ -23,7 +23,7 @@ type Param struct {
 	Op    string `bson:"op"`
 }
 
-func NewSubmitProposal(msg gov.MsgSubmitProposal) SubmitProposal {
+func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 	var params []Param
 	for _, param := range msg.Params {
 		p := Param{
@@ -50,6 +50,11 @@ func (s SubmitProposal) Type() string {
 func (s SubmitProposal) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
+}
+
+func UnmarshalSubmitProposal(str string) (submitProposal SubmitProposal) {
+	json.Unmarshal([]byte(str), &submitProposal)
+	return
 }
 
 func OpString(op gov.Op) string {
