@@ -58,11 +58,7 @@ func (watcher *BlockWatcher) FastSync() {
 		status, err = client.Status()
 		if err != nil {
 			logger.Error.Printf("TmClient err and try again, %v\n", err.Error())
-			client := helper.GetClient()
-			status, err = client.Status()
-			if err != nil {
-				logger.Error.Fatalf("TmClient err and exit, %v\n", err.Error())
-			}
+			panic(err)
 		}
 		latestHeight := status.SyncInfo.LatestBlockHeight
 		if syncLatestHeight >= latestHeight-60 {
@@ -86,7 +82,6 @@ func (watcher *BlockWatcher) watchBlock() {
 		if err := recover(); err != nil {
 			logger.Error.Println(err)
 		}
-		client.Release()
 	}()
 	status, err := client.Status()
 	if err != nil {
@@ -130,7 +125,7 @@ func (watcher *BlockWatcher) watchBlock() {
 		logger.Info.Printf("%v: wait, synced height is %v, latest height is %v\n",
 			methodName, syncTask.Height, latestBlockHeight)
 	}
-
+	client.Release()
 }
 
 // fast sync data from blockChain

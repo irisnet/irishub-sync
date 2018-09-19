@@ -76,6 +76,6 @@ func (c *Client) GetNodeAddress() []string {
 }
 
 func generateId(address string) string {
-	id := []byte("factory/" + address)
+	id := []byte(address)
 	return hex.EncodeToString(id)
 }
