@@ -138,7 +138,7 @@ func (f *PoolFactory) GetEndPoint() EndPoint {
 
 func (f *PoolFactory) StartCrawlPeers() {
 	go func() {
-		f.cron.AddFunc("0/5 * * * * *", func() {
+		f.cron.AddFunc("0 0/1 * * * *", func() {
 			logger.Info.Printf("PoolFactory StartCrawlPeers peers %v ", f.peersMap)
 			client := GetClient()
 			logger.Info.Printf("PoolFactory peers %v ", client)
