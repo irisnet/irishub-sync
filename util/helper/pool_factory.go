@@ -6,6 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 	gcp "github.com/jolestar/go-commons-pool"
 	"github.com/robfig/cron"
+	"math/rand"
 )
 
 var (
@@ -71,8 +72,9 @@ func (f *PoolFactory) MakeObject(ctx context.Context) (*gcp.PooledObject, error)
 }
 
 func (f *PoolFactory) DestroyObject(ctx context.Context, object *gcp.PooledObject) error {
-	c := object.Object.(*Client)
-	return c.HeartBeat()
+	//c := object.Object.(*Client)
+	//return c.Stop()
+	return nil
 }
 
 func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObject) bool {
@@ -118,40 +120,47 @@ func (f *PoolFactory) PassivateObject(ctx context.Context, object *gcp.PooledObj
 
 func (f *PoolFactory) GetEndPoint() EndPoint {
 	logger.Info.Printf("PoolFactory pullEndPoint peers %v ", f.peersMap)
-	var key string
-	for key = range f.peersMap {
+	var keys []string
+	var selectedKey string
+	for key := range f.peersMap {
 		endPoint := f.peersMap[key]
 		if endPoint.Available {
-			return endPoint
+			keys = append(keys, key)
 		}
+		selectedKey = key
 	}
-	return f.peersMap[key]
+	if len(keys) > 0 {
+		index := rand.Intn(len(keys))
+		selectedKey = keys[index]
+	}
+	return f.peersMap[selectedKey]
 }
 
 func (f *PoolFactory) StartCrawlPeers() {
 	go func() {
 		f.cron.AddFunc("0 0/1 * * * *", func() {
+			logger.Info.Printf("PoolFactory StartCrawlPeers peers %v ", f.peersMap)
+			client := GetClient()
+			logger.Info.Printf("PoolFactory peers %v ", client)
+
 			defer func() {
+				client.Release()
 				if err := recover(); err != nil {
 					logger.Error.Printf("PoolFactory StartCrawlPeers error: %v ", err)
 				}
 			}()
-			logger.Info.Printf("PoolFactory StartCrawlPeers peers %v ", f.peersMap)
-			c, err := pool.BorrowObject(ctx)
-			if err == nil {
-				logger.Info.Printf("PoolFactory peers %v ########", c)
-				http := c.(*Client)
-				addrs := http.GetNodeAddress()
-				for _, addr := range addrs {
-					key := generateId(addr)
-					if _, ok := f.peersMap[key]; !ok {
-						f.peersMap[key] = EndPoint{
-							Address:   addr,
-							Available: true,
-						}
+
+			addrs := client.GetNodeAddress()
+			for _, addr := range addrs {
+				key := generateId(addr)
+				if _, ok := f.peersMap[key]; !ok {
+					f.peersMap[key] = EndPoint{
+						Address:   addr,
+						Available: true,
 					}
 				}
 			}
+
 			//检测节点是否上线
 			for key := range f.peersMap {
 				endPoint := f.peersMap[key]
@@ -160,7 +169,6 @@ func (f *PoolFactory) StartCrawlPeers() {
 					if node.HeartBeat() == nil {
 						endPoint.Available = true
 						f.peersMap[key] = endPoint
-						node.Stop()
 					}
 				}
 			}
