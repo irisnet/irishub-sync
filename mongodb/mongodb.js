@@ -1,3 +1,13 @@
+//create database and user
+// use sync-iris
+// db.createUser(
+//     {
+//         user:"iris",
+//         pwd:"irispassword",
+//         roles:[{role:"root",db:"admin"}]
+//     }
+// )
+
 // create collections
 db.createCollection("account");
 db.createCollection("block");

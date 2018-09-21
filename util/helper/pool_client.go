@@ -31,7 +31,11 @@ func GetClient() *Client {
 			logger.Error.Println(err)
 		}
 	}()
-	c, _ := pool.BorrowObject(ctx)
+	c, err := pool.BorrowObject(ctx)
+	if err != nil {
+		logger.Error.Println("GetClient failed,err:", err)
+		return nil
+	}
 	logger.Info.Printf("current available connection:%d", pool.GetNumIdle())
 	logger.Info.Printf("current used connection:%d", pool.GetNumActive())
 	return c.(*Client)
@@ -39,16 +43,12 @@ func GetClient() *Client {
 
 // release client
 func (c *Client) Release() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error.Println(err)
-		}
-	}()
-
 	err := pool.ReturnObject(ctx, c)
 	if err != nil {
+		logger.Info.Println("debug=======================Release err=======================debug")
 		logger.Error.Println(err.Error())
 	}
+	logger.Info.Println("debug=======================Release return=======================debug")
 }
 
 func (c *Client) HeartBeat() error {

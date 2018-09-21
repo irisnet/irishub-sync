@@ -67,18 +67,22 @@ func ClosePool() {
 
 func (f *PoolFactory) MakeObject(ctx context.Context) (*gcp.PooledObject, error) {
 	endpoint := f.GetEndPoint()
-	logger.Info.Printf("PoolFactory MakeObject select peer[%v]  \n", endpoint)
+	logger.Info.Printf("PoolFactory MakeObject peer[%v]  \n", endpoint)
 	return gcp.NewPooledObject(newClient(endpoint.Address)), nil
 }
 
 func (f *PoolFactory) DestroyObject(ctx context.Context, object *gcp.PooledObject) error {
-	//c := object.Object.(*Client)
-	//return c.Stop()
+	logger.Info.Printf("PoolFactory DestroyObject peer[%v] \n", object.Object)
+	c := object.Object.(*Client)
+	if c.IsRunning() {
+		c.Stop()
+	}
 	return nil
 }
 
 func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObject) bool {
 	// do validate
+	logger.Info.Printf("PoolFactory ValidateObject peer[%v] \n", object.Object)
 	c := object.Object.(*Client)
 	if c.HeartBeat() != nil {
 		if endPoint, ok := f.peersMap[c.Id]; ok {
@@ -91,31 +95,13 @@ func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObje
 }
 
 func (f *PoolFactory) ActivateObject(ctx context.Context, object *gcp.PooledObject) error {
-	// do activate
-	c := object.Object.(*Client)
-	err := c.HeartBeat()
-	if err != nil {
-		if endPoint, ok := f.peersMap[c.Id]; ok {
-			logger.Info.Printf("PoolFactory ActivateObject peer[%s] is unavailable \n", endPoint.Address)
-			endPoint.Available = false
-			f.peersMap[c.Id] = endPoint
-		}
-	}
-	return err
+	logger.Info.Printf("PoolFactory ActivateObject peer[%v] \n", object.Object)
+	return nil
 }
 
 func (f *PoolFactory) PassivateObject(ctx context.Context, object *gcp.PooledObject) error {
-	// do passivate
-	c := object.Object.(*Client)
-	err := c.HeartBeat()
-	if err != nil {
-		if endPoint, ok := f.peersMap[c.Id]; ok {
-			logger.Info.Printf("PoolFactory peer[%s] is unavailable \n", endPoint.Address)
-			endPoint.Available = false
-			f.peersMap[c.Id] = endPoint
-		}
-	}
-	return err
+	logger.Info.Printf("PoolFactory PassivateObject peer[%v] \n", object.Object)
+	return nil
 }
 
 func (f *PoolFactory) GetEndPoint() EndPoint {
