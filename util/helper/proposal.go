@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
@@ -10,7 +11,7 @@ import (
 func GetProposal(proposalID int64) (proposal document.Proposal, err error) {
 	res, err := Query(types.KeyProposal(proposalID), "gov", constant.StoreDefaultEndPath)
 	if len(res) == 0 || err != nil {
-		return proposal, err
+		return proposal, errors.New("no data")
 	}
 	var propo types.Proposal
 	codec.Cdc.MustUnmarshalBinary(res, &propo)

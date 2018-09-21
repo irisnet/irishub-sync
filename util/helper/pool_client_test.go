@@ -4,6 +4,7 @@
 package helper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/irisnet/irishub-sync/module/logger"
@@ -17,4 +18,23 @@ func TestInitClientPool(t *testing.T) {
 	}
 	b[3] = 4
 	logger.Info.Println(b)
+}
+
+func TestGetClient(t *testing.T) {
+	client := GetClient()
+	fmt.Println("====1======")
+	defer func() {
+		fmt.Println("====3======")
+		if err := recover(); err != nil {
+			logger.Info.Println("debug=======================recover=======================debug")
+			logger.Error.Println(err)
+		}
+	}()
+	_, err := client.Status()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("====4======")
+
 }
