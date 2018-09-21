@@ -142,6 +142,7 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 	}
 
 	mutex.Lock()
+	defer mutex.Unlock()
 	logger.Info.Printf("%v get lock\n", methodName)
 
 	// update or delete validator
@@ -166,8 +167,6 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 				methodName, delegator.Address, delegator.ValidatorAddr)
 		}
 	}
-
-	mutex.Unlock()
 	logger.Info.Printf("%v release lock\n", methodName)
 }
 

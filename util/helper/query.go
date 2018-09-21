@@ -109,16 +109,11 @@ func Query(key types.HexBytes, storeName string, endPath string) (res []byte, er
 	client := GetClient()
 	defer client.Release()
 
-	rpcClient := client.Client
-	if err != nil {
-		return res, err
-	}
-
 	opts := types.ABCIQueryOptions{
 		Height:  0,
 		Trusted: true,
 	}
-	result, err := rpcClient.ABCIQueryWithOptions(path, key, opts)
+	result, err := client.ABCIQueryWithOptions(path, key, opts)
 	if err != nil {
 		return res, err
 	}

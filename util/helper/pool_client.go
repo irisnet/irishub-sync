@@ -26,12 +26,16 @@ func newClient(addr string) *Client {
 // get client from pool
 // while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error.Println(err)
-		}
-	}()
-	c, _ := pool.BorrowObject(ctx)
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		logger.Error.Println(err)
+	//	}
+	//}()
+	c, err := pool.BorrowObject(ctx)
+	if err != nil {
+		logger.Error.Println("GetClient failed,err:", err)
+		return nil
+	}
 	logger.Info.Printf("current available connection:%d", pool.GetNumIdle())
 	logger.Info.Printf("current used connection:%d", pool.GetNumActive())
 	return c.(*Client)
@@ -39,16 +43,12 @@ func GetClient() *Client {
 
 // release client
 func (c *Client) Release() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error.Println(err)
-		}
-	}()
-
 	err := pool.ReturnObject(ctx, c)
 	if err != nil {
+		logger.Info.Println("debug=======================Release err=======================debug")
 		logger.Error.Println(err.Error())
 	}
+	logger.Info.Println("debug=======================Release return=======================debug")
 }
 
 func (c *Client) HeartBeat() error {
@@ -76,6 +76,6 @@ func (c *Client) GetNodeAddress() []string {
 }
 
 func generateId(address string) string {
-	id := []byte("factory/" + address)
+	id := []byte(address)
 	return hex.EncodeToString(id)
 }

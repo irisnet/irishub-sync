@@ -14,7 +14,11 @@ func syncProposalStatus() {
 	if proposals, err := document.QueryByStatus(status); err == nil {
 		for _, proposal := range proposals {
 			propo, err := helper.GetProposal(proposal.ProposalId)
-			if err == nil && propo.Status != proposal.Status {
+			if err != nil {
+				store.Delete(proposal)
+				return
+			}
+			if propo.Status != proposal.Status {
 				proposal.Status = propo.Status
 				store.SaveOrUpdate(proposal)
 			}
