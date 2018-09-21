@@ -20,14 +20,32 @@ var (
 	// how many block each goroutine need to sync when do fast sync
 	syncBlockNumFastSync = int64(conf.SyncBlockNumFastSync)
 	// limit max goroutine
-	limitChan              = make(chan int64, conf.SyncMaxGoroutine)
-	mutex, mutexWatchBlock sync.Mutex
-	methodName             string
+	limitChan  = make(chan int64, conf.SyncMaxGoroutine)
+	mutex      sync.Mutex
+	methodName string
 
-	watcher = &BlockWatcher{}
+	watcher = &BlockWatcher{
+		locker:  new(sync.Mutex),
+		HasTask: false,
+	}
 )
 
-type BlockWatcher struct{}
+type BlockWatcher struct {
+	locker  *sync.Mutex
+	HasTask bool
+}
+
+func (watcher *BlockWatcher) Lock() {
+	watcher.locker.Lock()
+	watcher.HasTask = true
+	watcher.locker.Unlock()
+}
+
+func (watcher *BlockWatcher) UnLock() {
+	watcher.locker.Lock()
+	watcher.HasTask = false
+	watcher.locker.Unlock()
+}
 
 func NewWatcher() *BlockWatcher {
 	return watcher
@@ -35,6 +53,10 @@ func NewWatcher() *BlockWatcher {
 
 func MakeSyncBlockTask() Task {
 	return NewLockTaskFromEnv(conf.CronWatchBlock, "watch_block_lock_key_lock", func() {
+		if watcher.HasTask {
+			logger.Info.Printf("========================task's trigger [%s] hashTask===================", "watchBlock")
+			return
+		}
 		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
 		watcher.watchBlock()
 		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
@@ -74,22 +96,27 @@ func (watcher *BlockWatcher) FastSync() {
 
 func (watcher *BlockWatcher) watchBlock() {
 	methodName = constant.SyncTypeWatch
-
+	watcher.Lock()
 	client := helper.GetClient()
-	mutexWatchBlock.Lock()
+
 	defer func() {
-		mutexWatchBlock.Unlock()
-		if err := recover(); err != nil {
-			logger.Error.Println(err)
-		}
+		logger.Info.Println("debug=======================5 watchBlock defer=======================debug")
+		client.Release()
+		logger.Info.Println("debug=======================6 watchBlock defer client.Release()=======================debug")
+		watcher.UnLock()
+		logger.Info.Println("debug=======================7 watchBlock defer watcher.UnLock()=======================debug")
 	}()
+
+	logger.Info.Println("debug=======================1=======================debug")
+
 	status, err := client.Status()
 	if err != nil {
-		fmt.Println(err)
+		logger.Error.Println(err)
 		return
 	}
-
+	logger.Info.Println("debug=======================2=======================debug")
 	syncTask, _ := document.QuerySyncTask()
+	logger.Info.Println("debug=======================3=======================debug")
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	// note: interval two block, to avoid get can't delegation at latest block
@@ -125,7 +152,7 @@ func (watcher *BlockWatcher) watchBlock() {
 		logger.Info.Printf("%v: wait, synced height is %v, latest height is %v\n",
 			methodName, syncTask.Height, latestBlockHeight)
 	}
-	client.Release()
+	logger.Info.Println("debug=======================4=======================debug")
 }
 
 // fast sync data from blockChain

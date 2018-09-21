@@ -26,11 +26,11 @@ func newClient(addr string) *Client {
 // get client from pool
 // while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error.Println(err)
-		}
-	}()
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		logger.Error.Println(err)
+	//	}
+	//}()
 	c, err := pool.BorrowObject(ctx)
 	if err != nil {
 		logger.Error.Println("GetClient failed,err:", err)
