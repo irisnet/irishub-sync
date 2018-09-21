@@ -1,50 +1,40 @@
+// This package is used for Query balance of account
+
 package helper
 
 import (
 	"testing"
 
-	"github.com/irisnet/iris-sync-server/module/logger"
+	"github.com/irisnet/irishub-sync/module/logger"
 )
 
-func setUp()  {
-	InitClientPool()
-}
-
 func TestQueryAccountBalance(t *testing.T) {
-	setUp()
+	InitClientPool()
 
 	type args struct {
 		address string
-		delay   bool
 	}
 	tests := []struct {
 		name string
 		args args
 	}{
 		{
-			name:"the balance of address is not empty",
-			args: struct {
-				address string
-				delay   bool
-			}{
-				address: "ADBC4AAB3A089BDC8A8155AB97E64CD2CF4A0E9F",
-				delay: false},
+			name: "test balance not nil",
+			args: args{
+				address: "faa1r0ljqhd7vwrpwh8h8fa5luh89nljrnkqcdgfr0",
+			},
 		},
-		{
-			name:"the balance of address is empty",
-			args: struct {
-				address string
-				delay   bool
-			}{
-				address: "ADBC4AAB3A089BDC8A8155AB97E64CD2CF4A0E9E",
-				delay: false},
-		},
+		//{
+		//	name: "test balance is nil",
+		//	args: args{
+		//		address: "faa1utem9ysq9gkpkhnrrtznmrxyy238kwd0gkcz60",
+		//	},
+		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			account := QueryAccountBalance(tt.args.address, tt.args.delay)
-			logger.Info.Printf("the balance of %s is %+v\n", tt.args.address, account)
+			got := QueryAccountBalance(tt.args.address)
+			logger.Info.Println(ToJson(got))
 		})
-
 	}
 }

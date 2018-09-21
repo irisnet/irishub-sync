@@ -1,98 +1,45 @@
+// This package is used for Query balance of account
+
 package helper
 
 import (
-	"fmt"
-	"time"
+	"github.com/irisnet/irishub-sync/module/codec"
+	"github.com/irisnet/irishub-sync/store"
 
-	"github.com/irisnet/iris-sync-server/module/logger"
-
-	wire "github.com/tendermint/go-wire"
-	"github.com/cosmos/cosmos-sdk/modules/coin"
-	"github.com/cosmos/cosmos-sdk/stack"
-	"github.com/cosmos/cosmos-sdk/client/commands"
-	"github.com/cosmos/cosmos-sdk/client/commands/query"
-	"github.com/tendermint/go-wire/data"
-	"github.com/tendermint/iavl"
-	"github.com/cosmos/cosmos-sdk/client"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/util/constant"
 )
 
-var delay = false
-
-func setDelay(d bool) {
-	delay = d
-}
-
-func QueryAccountBalance(address string, delay bool) *coin.Account {
-	account := new(coin.Account)
-	actor, err := commands.ParseActor(address)
+// query account balance from sdk store
+func QueryAccountBalance(address string) store.Coins {
+	addr, err := sdk.AccAddressFromBech32(address)
 	if err != nil {
-		return account
+		logger.Error.Printf("get addr from hex failed, %+v\n", err)
+		return nil
 	}
 
-	actor = coin.ChainAddr(actor)
-	key := stack.PrefixedKey(coin.NameCoin, actor.Bytes())
-	if delay {
-		time.Sleep(1 * time.Second)
-	}
-	_, err2 := GetParsed(key, account, query.GetHeight(), false)
-	if err2 != nil {
-		logger.Info.Printf("account bytes are empty for address: %q\n", address)
-	}
-	return account
-}
+	res, err := Query(auth.AddressStoreKey(addr), "acc",
+		constant.StoreDefaultEndPath)
 
-
-// argument (so pass in a pointer to the appropriate struct)
-func GetParsed(key []byte, data interface{}, height int64, prove bool) (int64, error) {
-	bs, h, err := Get(key, height, prove)
 	if err != nil {
-		return 0, err
+		logger.Error.Printf("Query balance from tendermint failed, %+v\n", err)
+		return nil
 	}
-	err = wire.ReadBinaryBytes(bs, data)
+
+	// balance is empty
+	if len(res) <= 0 {
+		return nil
+	}
+
+	decoder := authcmd.GetAccountDecoder(codec.Cdc)
+	account, err := decoder(res)
 	if err != nil {
-		return 0, err
+		logger.Error.Printf("decode account failed, %+v\n", err)
+		return nil
 	}
-	return h, nil
+
+	return BuildCoins(account.GetCoins())
 }
-
-// Get queries the given key and returns the value stored there and the
-// height we checked at.
-//
-// If prove is true (and why shouldn't it be?),
-// the data is fully verified before returning.  If prove is false,
-// we just repeat whatever any (potentially malicious) node gives us.
-// Only use that if you are running the full node yourself,
-// and it is localhost or you have a secure connection (not HTTP)
-func Get(key []byte, height int64, prove bool) (data.Bytes, int64, error) {
-	if height < 0 {
-		return nil, 0, fmt.Errorf("Height cannot be negative\n")
-	}
-
-	if !prove {
-		tmClient := GetClient()
-		defer tmClient.Release()
-		resp, err := tmClient.Client.ABCIQueryWithOptions("/key", key,
-			rpcclient.ABCIQueryOptions{Trusted: true, Height: int64(height)})
-		if resp == nil {
-			return nil, height, err
-		}
-		return data.Bytes(resp.Response.Value), resp.Response.Height, err
-	}
-	val, h, _, err := GetWithProof(key, height)
-	return val, h, err
-}
-
-// GetWithProof returns the values stored under a given key at the named
-// height as in Get.  Additionally, it will return a validated merkle
-// proof for the key-value pair if it exists, and all checks pass.
-func GetWithProof(key []byte, height int64) (data.Bytes, int64, iavl.KeyProof, error) {
-	tmClient := GetClient()
-	defer tmClient.Release()
-	cert, err := commands.GetCertifier()
-	if err != nil {
-		return nil, 0, nil, err
-	}
-	return client.GetWithProof(key, height, tmClient.Client, cert)
-}
-

@@ -1,15 +1,15 @@
 package main
 
 import (
+	"github.com/irisnet/irishub-sync/service"
 	"sync"
-	syncTask "github.com/irisnet/iris-sync-server/sync"
 )
 
 func main() {
 	var wg sync.WaitGroup
 	wg.Add(2)
-	
-	syncTask.Start()
-	
+
+	service.Start()
+
 	wg.Wait()
 }

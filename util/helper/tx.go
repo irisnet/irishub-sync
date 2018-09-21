@@ -1,106 +1,292 @@
+// package for parse tx struct from binary data
+
 package helper
 
 import (
 	"encoding/hex"
-	"fmt"
-	"strings"
-
-	"github.com/irisnet/iris-sync-server/module/logger"
-	"github.com/irisnet/iris-sync-server/util/constant"
-
-	sdk "github.com/cosmos/cosmos-sdk"
-	"github.com/tendermint/go-wire/data"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/wire"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/stake"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/util/constant"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/types"
-
-	// 需要将 cosmos-sdk module 中的 txInner 注册到内存
-	// 中，才能解析 tx 结构
-	_ "github.com/cosmos/cosmos-sdk/modules/auth"
-	_ "github.com/cosmos/cosmos-sdk/modules/base"
-	"github.com/cosmos/cosmos-sdk/modules/coin"
-	"github.com/cosmos/cosmos-sdk/modules/nonce"
-	"github.com/irisnet/iris-sync-server/module/stake"
-	"github.com/irisnet/iris-sync-server/model/store/document"
+	"strings"
 )
 
-// parse tx struct from binary data
-func ParseTx(txByte types.Tx) (string, interface{}) {
-	txb, err := sdk.LoadTx(txByte)
-	if err != nil {
-		logger.Error.Println(err)
-	}
-	txl, ok := txb.Unwrap().(sdk.TxLayer)
+type (
+	msgTransfer               = bank.MsgSend
+	msgStakeCreate            = stake.MsgCreateValidator
+	msgStakeEdit              = stake.MsgEditValidator
+	msgStakeDelegate          = stake.MsgDelegate
+	msgStakeBeginUnbonding    = stake.MsgBeginUnbonding
+	msgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
+)
 
+func ParseTx(cdc *wire.Codec, txBytes types.Tx, block *types.Block) document.CommonTx {
 	var (
-		txi       sdk.Tx
-		coinTx    document.CoinTx
-		stakeTx   document.StakeTx
-		StakeTxDeclareCandidacy document.StakeTxDeclareCandidacy
-		nonceAddr data.Bytes
+		authTx     auth.StdTx
+		methodName = "ParseTx"
+		docTx      document.CommonTx
+		gasPrice   float64
+		actualFee  store.ActualFee
 	)
 
-	for ok {
-		txi = txl.Next()
+	err := cdc.UnmarshalBinary(txBytes, &authTx)
+	if err != nil {
+		logger.Error.Println(err)
+		return docTx
+	}
 
-		switch txi.Unwrap().(type) {
+	height := block.Height
+	time := block.Time
+	txHash := BuildHex(txBytes.Hash())
+	fee := buildFee(authTx.Fee)
+	memo := authTx.Memo
 
-		case coin.SendTx:
-			ctx, _ := txi.Unwrap().(coin.SendTx)
-			coinTx.From = fmt.Sprintf("%s", ctx.Inputs[0].Address.Address)
-			coinTx.To = fmt.Sprintf("%s", ctx.Outputs[0].Address.Address)
-			coinTx.Amount = ctx.Inputs[0].Coins
-			coinTx.TxHash = strings.ToUpper(hex.EncodeToString(txByte.Hash()))
-			return constant.TxTypeCoin, coinTx
-		case nonce.Tx:
-			ctx, _ := txi.Unwrap().(nonce.Tx)
-			nonceAddr = ctx.Signers[0].Address
-			fmt.Println(nonceAddr)
-			break
-		case stake.TxUnbond, stake.TxDelegate, stake.TxDeclareCandidacy:
-			kind, _ := txi.GetKind()
-			stakeTx.From = fmt.Sprintf("%s", nonceAddr)
-			stakeTx.Type = strings.Replace(kind, constant.TxTypeStake + "/", "", -1)
-			stakeTx.TxHash = strings.ToUpper(hex.EncodeToString(txByte.Hash()))
+	// get tx status, gasUsed, gasPrice and actualFee from tx result
+	status, result, err := getTxResult(txBytes.Hash())
+	if err != nil {
+		logger.Error.Printf("%v: can't get txResult, err is %v\n", methodName, err)
+	}
+	log := result.Log
+	gasUsed := result.GasUsed
+	if len(fee.Amount) > 0 {
+		gasPrice = fee.Amount[0].Amount / float64(fee.Gas)
+		actualFee = store.ActualFee{
+			Denom:  fee.Amount[0].Denom,
+			Amount: float64(gasUsed) * gasPrice,
+		}
+	} else {
+		gasPrice = 0
+		actualFee = store.ActualFee{}
+	}
 
-			switch kind {
-			case stake.TypeTxDeclareCandidacy:
-				ctx, _ := txi.Unwrap().(stake.TxDeclareCandidacy)
-				stakeTx.Amount.Denom = ctx.BondUpdate.Bond.Denom
-				stakeTx.Amount.Amount = ctx.BondUpdate.Bond.Amount
-				stakeTx.PubKey = fmt.Sprintf("%s", ctx.PubKey.KeyString())
+	msgs := authTx.GetMsgs()
+	if len(msgs) <= 0 {
+		logger.Warning.Printf("%v: can't get msgs\n", methodName)
+		return docTx
+	}
+	msg := msgs[0]
 
-				description := document.Description{
-					Moniker: ctx.Description.Moniker,
-					Identity: ctx.Description.Identity,
-					Website: ctx.Description.Website,
-					Details: ctx.Description.Details,
-				}
+	switch msg.(type) {
+	case msgTransfer:
+		msg := msg.(msgTransfer)
+		docTx = document.CommonTx{
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
+		}
+		docTx.From = msg.Inputs[0].Address.String()
+		docTx.To = msg.Outputs[0].Address.String()
+		docTx.Amount = BuildCoins(msg.Inputs[0].Coins)
+		docTx.Type = constant.TxTypeTransfer
+		return docTx
+	case msgStakeCreate:
+		msg := msg.(msgStakeCreate)
+		docTx = document.CommonTx{
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
+		}
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.To = ""
+		docTx.Amount = []store.Coin{buildCoin(msg.Delegation)}
+		docTx.Type = constant.TxTypeStakeCreateValidator
 
-				StakeTxDeclareCandidacy.StakeTx = stakeTx
-				StakeTxDeclareCandidacy.Description = description
-
-				return kind, StakeTxDeclareCandidacy
-			case stake.TypeTxEditCandidacy:
-				// TODO：record edit candidacy tx if necessary
-				//ctx, _ := txi.Unwrap().(stake.TxEditCandidacy)
-				break
-			case stake.TypeTxDelegate:
-				ctx, _ := txi.Unwrap().(stake.TxDelegate)
-				stakeTx.Amount.Denom = ctx.Bond.Denom
-				stakeTx.Amount.Amount = ctx.Bond.Amount
-				stakeTx.PubKey = fmt.Sprintf("%s", ctx.PubKey.KeyString())
-				break
-			case stake.TypeTxUnbond:
-				ctx, _ := txi.Unwrap().(stake.TxUnbond)
-				stakeTx.Amount.Amount = int64(ctx.Shares)
-				stakeTx.PubKey = fmt.Sprintf("%s", ctx.PubKey.KeyString())
-				break
-			}
-			return kind, stakeTx
-		default:
-			// logger.Info.Printf("unsupported tx type, %+v\n", txi.Unwrap())
+		// struct of createValidator
+		valDes := document.ValDescription{
+			Moniker:  msg.Moniker,
+			Identity: msg.Identity,
+			Website:  msg.Website,
+			Details:  msg.Details,
+		}
+		pubKey, err := sdk.Bech32ifyValPub(msg.PubKey)
+		if err != nil {
+			logger.Error.Printf("%v: Can't get pubKey, txHash is %v\n",
+				methodName, txHash)
+			pubKey = ""
+		}
+		docTx.StakeCreateValidator = document.StakeCreateValidator{
+			PubKey:      pubKey,
+			Description: valDes,
 		}
 
-		txl, ok = txi.Unwrap().(sdk.TxLayer)
+		return docTx
+	case msgStakeEdit:
+		msg := msg.(msgStakeEdit)
+		docTx = document.CommonTx{
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
+		}
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.To = ""
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeStakeEditValidator
+
+		// struct of editValidator
+		valDes := document.ValDescription{
+			Moniker:  msg.Moniker,
+			Identity: msg.Identity,
+			Website:  msg.Website,
+			Details:  msg.Details,
+		}
+		docTx.StakeEditValidator = document.StakeEditValidator{
+			Description: valDes,
+		}
+
+		return docTx
+	case msgStakeDelegate:
+		msg := msg.(msgStakeDelegate)
+		docTx = document.CommonTx{
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
+		}
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+		docTx.Amount = []store.Coin{buildCoin(msg.Delegation)}
+		docTx.Type = constant.TxTypeStakeDelegate
+
+		return docTx
+	case msgStakeBeginUnbonding:
+		msg := msg.(msgStakeBeginUnbonding)
+		shares, _ := msg.SharesAmount.Float64()
+
+		docTx = document.CommonTx{
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
+		}
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+
+		coin := store.Coin{
+			Amount: shares,
+		}
+		docTx.Amount = []store.Coin{coin}
+		docTx.Type = constant.TxTypeStakeBeginUnbonding
+		return docTx
+	case msgStakeCompleteUnbonding:
+		msg := msg.(msgStakeCompleteUnbonding)
+
+		docTx := document.CommonTx{
+			Height:    height,
+			Time:      time,
+			TxHash:    txHash,
+			Fee:       fee,
+			Memo:      memo,
+			Status:    status,
+			Log:       log,
+			GasUsed:   gasUsed,
+			GasPrice:  gasPrice,
+			ActualFee: actualFee,
+		}
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+		docTx.Amount = nil
+		docTx.Type = constant.TxTypeStakeCompleteUnbonding
+		return docTx
+	default:
+		logger.Info.Println("unknown msg type")
 	}
-	return "", nil
+
+	return docTx
+}
+
+func BuildCoins(coins sdktypes.Coins) store.Coins {
+	var (
+		localCoins store.Coins
+	)
+
+	if len(coins) > 0 {
+		for _, coin := range coins {
+			localCoins = append(localCoins, buildCoin(coin))
+		}
+	}
+
+	return localCoins
+}
+
+func buildCoin(coin sdktypes.Coin) store.Coin {
+	amount, err := ParseStrToFloat(coin.Amount.String())
+	if err != nil {
+		logger.Error.Printf("Can't parse str to float, err is %v\n", err)
+	}
+	return store.Coin{
+		Denom:  coin.Denom,
+		Amount: amount,
+	}
+}
+
+func buildFee(fee auth.StdFee) store.Fee {
+	return store.Fee{
+		Amount: BuildCoins(fee.Amount),
+		Gas:    fee.Gas,
+	}
+}
+
+func BuildHex(bytes []byte) string {
+	return strings.ToUpper(hex.EncodeToString(bytes))
+}
+
+// get tx status and log by query txHash
+func getTxResult(txHash []byte) (string, abci.ResponseDeliverTx, error) {
+	var resDeliverTx abci.ResponseDeliverTx
+	status := constant.TxStatusSuccess
+
+	client := GetClient()
+	defer client.Release()
+
+	res, err := client.Client.Tx(txHash, false)
+	if err != nil {
+		return "unknown", resDeliverTx, err
+	}
+	result := res.TxResult
+	if result.Code != 0 {
+		status = constant.TxStatusFail
+	}
+
+	return status, result, nil
 }
