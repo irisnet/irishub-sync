@@ -31,20 +31,35 @@ var (
 )
 
 type BlockWatcher struct {
-	locker  *sync.Mutex
-	HasTask bool
+	locker    *sync.Mutex
+	HasTask   bool
+	StartTime time.Time
 }
 
 func (watcher *BlockWatcher) Lock() {
 	watcher.locker.Lock()
 	watcher.HasTask = true
-	watcher.locker.Unlock()
+	watcher.StartTime = time.Now()
 }
 
 func (watcher *BlockWatcher) UnLock() {
-	watcher.locker.Lock()
 	watcher.HasTask = false
 	watcher.locker.Unlock()
+}
+
+func (watcher *BlockWatcher) CanDo() bool {
+	if !watcher.HasTask {
+		return true
+	}
+	logger.Info.Printf("========================task's trigger [%s] hashTask===================", "watchBlock")
+	sub := time.Now().Sub(watcher.StartTime).Seconds()
+	if sub < 10 {
+		logger.Info.Printf("========================task's trigger [%s] skip Task===================", "watchBlock")
+		return false
+	}
+	logger.Info.Printf("xxxxxxxxxxxxxxxxxxxxxxxxx task's trigger [%s] hashTask,reset HasTask flag xxxxxxxxxxxxxxxxxxxxxxxxx", "watchBlock")
+	watcher.UnLock()
+	return true
 }
 
 func NewWatcher() *BlockWatcher {
@@ -53,13 +68,11 @@ func NewWatcher() *BlockWatcher {
 
 func MakeSyncBlockTask() Task {
 	return NewLockTaskFromEnv(conf.CronWatchBlock, "watch_block_lock_key_lock", func() {
-		if watcher.HasTask {
-			logger.Info.Printf("========================task's trigger [%s] hashTask===================", "watchBlock")
-			return
+		if watcher.CanDo() {
+			logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
+			watcher.watchBlock()
+			logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
 		}
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
-		watcher.watchBlock()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
 	})
 }
 
