@@ -5,6 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"time"
 )
 
 // calculate and save validator upTime
@@ -38,6 +39,7 @@ func calculateAndSaveValidatorUpTime() {
 			valUpTime := document.ValidatorUpTime{
 				ValAddress: v.Address,
 				UpTime:     float64(v.PreCommitsNum) / float64(intervalBlock) * 100,
+				CreateTime: time.Now(),
 			}
 			valUpTimes = append(valUpTimes, valUpTime)
 		}

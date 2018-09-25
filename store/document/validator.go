@@ -5,6 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 const (
@@ -22,6 +23,7 @@ type Candidate struct {
 	VotingPower     float64        `bson:"voting_power"` // Voting power if pubKey is a considered a validator
 	Description     ValDescription `bson:"description"`  // Description terms for the candidate
 	BondHeight      int64          `bson:"bond_height"`
+	CreateTime      time.Time      `bson:"create_time"`
 }
 
 func (d Candidate) Name() string {

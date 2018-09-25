@@ -5,13 +5,15 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 const CollectionName = "validator_up_time"
 
 type ValidatorUpTime struct {
-	ValAddress string  `bson:"val_address"`
-	UpTime     float64 `bson:"up_time"`
+	ValAddress string    `bson:"val_address"`
+	UpTime     float64   `bson:"up_time"`
+	CreateTime time.Time `bson:"create_time"`
 }
 
 func (d ValidatorUpTime) Name() string {
