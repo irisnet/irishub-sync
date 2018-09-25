@@ -18,7 +18,8 @@ func handleProposal(docTx document.CommonTx) {
 	case constant.TxTypeDeposit:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
 			propo, _ := helper.GetProposal(docTx.ProposalId)
-			propo.SubmitTime = proposal.SubmitTime
+			proposal.TotalDeposit = propo.TotalDeposit
+			proposal.Status = propo.Status
 			store.SaveOrUpdate(propo)
 		}
 	case constant.TxTypeVote:
@@ -30,7 +31,18 @@ func handleProposal(docTx document.CommonTx) {
 				Option: voteMsg.Option,
 				Time:   docTx.Time,
 			}
-			proposal.Votes = append(proposal.Votes, vote)
+			var i int
+			var hasVote = false
+			for i = range proposal.Votes {
+				if proposal.Votes[i].Voter == vote.Voter {
+					hasVote = true
+				}
+			}
+			if hasVote {
+				proposal.Votes[i] = vote
+			} else {
+				proposal.Votes = append(proposal.Votes, vote)
+			}
 			store.SaveOrUpdate(proposal)
 		}
 	}
