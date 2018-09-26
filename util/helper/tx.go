@@ -10,7 +10,6 @@ import (
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strings"
-	"time"
 )
 
 func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
@@ -28,8 +27,11 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		return docTx
 	}
 
+	height := block.Height
+	time := block.Time
 	txHash := BuildHex(txBytes.Hash())
 	fee := itypes.BuildFee(authTx.Fee)
+	memo := authTx.Memo
 
 	// get tx status, gasUsed, gasPrice and actualFee from tx result
 	status, result, err := QueryTxResult(txBytes.Hash())
@@ -57,17 +59,16 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	msg := msgs[0]
 
 	docTx = document.CommonTx{
-		Height:     block.Height,
-		Time:       block.Time,
-		TxHash:     txHash,
-		Fee:        fee,
-		Memo:       authTx.Memo,
-		Status:     status,
-		Log:        log,
-		GasUsed:    gasUsed,
-		GasPrice:   gasPrice,
-		ActualFee:  actualFee,
-		CreateTime: time.Now(),
+		Height:    height,
+		Time:      time,
+		TxHash:    txHash,
+		Fee:       fee,
+		Memo:      memo,
+		Status:    status,
+		Log:       log,
+		GasUsed:   gasUsed,
+		GasPrice:  gasPrice,
+		ActualFee: actualFee,
 	}
 
 	switch msg.(type) {

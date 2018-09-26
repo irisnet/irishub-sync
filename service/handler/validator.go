@@ -7,7 +7,6 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"time"
 )
 
 // compare validatorSet stored in tendermint and validatorSet stored in db
@@ -146,7 +145,6 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 		DelegatorShares: floatDelegatorShares,
 		Description:     description,
 		BondHeight:      v.BondHeight,
-		CreateTime:      time.Now(),
 	}
 
 	doc.VotingPower = doc.Tokens

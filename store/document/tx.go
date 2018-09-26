@@ -31,7 +31,6 @@ type CommonTx struct {
 
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
-	CreateTime           time.Time            `bson:"create_time"`
 	Msg                  store.Msg            `bson:"-"`
 	ProposalId           int64                `bson:"-"`
 }
