@@ -20,7 +20,7 @@ func handleProposal(docTx document.CommonTx) {
 			propo, _ := helper.GetProposal(docTx.ProposalId)
 			proposal.TotalDeposit = propo.TotalDeposit
 			proposal.Status = propo.Status
-			store.SaveOrUpdate(propo)
+			store.SaveOrUpdate(proposal)
 		}
 	case constant.TxTypeVote:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
