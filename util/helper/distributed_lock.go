@@ -42,7 +42,7 @@ func (l *DLock) Lock() bool {
 loop:
 	{
 		if work, _, err := l.KV().Acquire(p, nil); err != nil || !work {
-			logger.Info.Printf("acquire lock[%s] fail,try again after %d", l.lockKey, l.tryDelay)
+			logger.Info("acquire lock fail", logger.String("lockKey", l.lockKey), logger.Duration("tryDelay", l.tryDelay))
 			time.Sleep(l.tryDelay)
 			goto loop
 		}

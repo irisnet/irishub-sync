@@ -22,17 +22,16 @@ type tempDelegation struct {
 // save Tx document into collection
 func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
 	var (
-		methodName = "SaveTx: "
+		methodName = "SaveTx"
 	)
-	logger.Info.Printf("Start %v\n", methodName)
+	logger.Debug("Start", logger.String("method", methodName))
 
 	// save common docTx document
 	saveCommonTx := func(commonTx document.CommonTx) {
 		//save tx
 		err := store.Save(commonTx)
 		if err != nil {
-			logger.Error.Printf("%v Save commonTx failed. doc is %+v, err is %v",
-				methodName, commonTx, err.Error())
+			logger.Error("Save commonTx failed", logger.Any("Tx", commonTx), logger.String("err", err.Error()))
 		}
 		//save tx_msg
 		msg := commonTx.Msg
@@ -49,7 +48,7 @@ func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
 
 	saveCommonTx(docTx)
 	saveValidatorAndDelegator(docTx, mutex)
-	logger.Info.Printf("End %v\n", methodName)
+	logger.Debug("End", logger.String("method", methodName))
 }
 
 // save or update validator or delegator info
@@ -63,10 +62,10 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 		delegator  document.Delegator
 	)
 
+	logger.Debug("Start", logger.String("method", methodName))
 	txType := GetTxType(docTx)
 	if txType == "" {
-		logger.Error.Printf("%v get docTx type failed, docTx is %v\n",
-			methodName, docTx)
+		logger.Error("Tx invalid", logger.Any("Tx", docTx))
 		return
 	}
 
@@ -92,7 +91,7 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 	validator, err := helper.GetValidator(valAddress)
 
 	if err != nil {
-		logger.Error.Printf("%v: get validator failed by valAddr %v\n", methodName, valAddress)
+		logger.Error("validator not existed", logger.String("validator", valAddress))
 		return
 	}
 
@@ -111,16 +110,14 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 		// get delegation
 		delegation, err := buildDelegation(delAddress, valAddress)
 		if err != nil {
-			logger.Error.Printf("%v: get delegation failed by valAddr %v and delAddr %v\n",
-				methodName, valAddress, delAddress)
+			logger.Error("get delegation failed by valAddr  and delAddr", logger.String("valAddress", valAddress), logger.String("delAddress", delAddress))
 			return
 		}
 
 		// get unbondingDelegation
 		ud, err := buildUnbondingDelegation(delAddress, valAddress)
 		if err != nil {
-			logger.Error.Printf("%v: get unbonding delegation failed by valAddr %v and delAddr %v\n",
-				methodName, valAddress, delAddress)
+			logger.Error("get unbonding delegation failed by valAddr  and delAddr", logger.String("valAddress", valAddress), logger.String("delAddress", delAddress))
 			return
 		}
 
@@ -143,15 +140,15 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 
 	mutex.Lock()
 	defer mutex.Unlock()
-	logger.Info.Printf("%v get lock\n", methodName)
+	logger.Info("mutex.Lock()")
 
 	// update or delete validator
 	if candidate.PubKey == "" {
 		store.Delete(candidate)
-		logger.Info.Printf("%v delete candidate, addr is %v\n", methodName, candidate.Address)
+		logger.Info("delete candidate", logger.String("Address", candidate.Address))
 	} else {
 		store.SaveOrUpdate(candidate)
-		logger.Info.Printf("%v saveOrUpdate candidate, addr is %v\n", methodName, candidate.Address)
+		logger.Info("saveOrUpdate candidate", logger.String("Address", candidate.Address))
 	}
 
 	// update or delete delegator
@@ -159,15 +156,14 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 		if delegator.BondedHeight < 0 &&
 			delegator.UnbondingDelegation.CreationHeight < 0 {
 			store.Delete(delegator)
-			logger.Info.Printf("%v delete delegator, delVar is %v, valAddr is %v\n",
-				methodName, delegator.Address, delegator.ValidatorAddr)
+			logger.Info("delete delegator", logger.String("Address", delegator.Address), logger.String("ValidatorAddr", delegator.ValidatorAddr))
 		} else {
 			store.SaveOrUpdate(delegator)
-			logger.Info.Printf("%v saveOrUpdate delegator, delVar is %v, valAddr is %v\n",
-				methodName, delegator.Address, delegator.ValidatorAddr)
+			logger.Info("saveOrUpdate delegator", logger.String("Address", delegator.Address), logger.String("ValidatorAddr", delegator.ValidatorAddr))
 		}
 	}
-	logger.Info.Printf("%v release lock\n", methodName)
+	logger.Debug("End", logger.String("method", methodName))
+	logger.Info("release lock")
 }
 
 func buildDelegation(delAddress, valAddress string) (tempDelegation, error) {

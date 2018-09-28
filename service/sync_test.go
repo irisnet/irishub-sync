@@ -22,11 +22,10 @@ func TestStart(t *testing.T) {
 	for i := 1; i <= goroutineNum; i++ {
 		limitChan <- i
 		go func(goroutineNum int, ch chan int) {
-			logger.Info.Println("release limitChan")
+			logger.Info("release limitChan")
 			<-limitChan
 			defer func() {
-				logger.Info.Printf("%v goroutine send data to channel\n",
-					goroutineNum)
+				logger.Info("%v goroutine send data to channel")
 				ch <- goroutineNum
 			}()
 
@@ -37,9 +36,9 @@ func TestStart(t *testing.T) {
 		select {
 		case <-unBufferChan:
 			activeGoroutineNum = activeGoroutineNum - 1
-			logger.Info.Printf("active goroutine num is %v", activeGoroutineNum)
+			logger.Info("active goroutine num is %v")
 			if activeGoroutineNum == 0 {
-				logger.Info.Println("All goroutine complete")
+				logger.Info("All goroutine complete")
 				break
 			}
 		}
@@ -53,10 +52,10 @@ func Test_startCron(t *testing.T) {
 
 	c := cron.New()
 	c.AddFunc(conf.CronCalculateUpTime, func() {
-		logger.Info.Println("every one minute execute code")
+		logger.Info("every one minute execute code")
 	})
 	c.AddFunc(conf.CronCalculateTxGas, func() {
-		logger.Info.Println("every five minute execute code")
+		logger.Info("every five minute execute code")
 	})
 	go c.Start()
 

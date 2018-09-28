@@ -10,9 +10,7 @@ func GetTxType(docTx document.CommonTx) string {
 	if docTx.TxHash == "" {
 		return ""
 	}
-	txType := docTx.Type
-
-	return txType
+	return docTx.Type
 }
 
 type Action = func(tx document.CommonTx, mutex sync.Mutex)

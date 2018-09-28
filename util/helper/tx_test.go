@@ -24,7 +24,7 @@ func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 	block, err := client.Client.Block(&blockHeight)
 
 	if err != nil {
-		logger.Error.Panic(err)
+		logger.Panic(err.Error())
 	}
 
 	if block.BlockMeta.Header.NumTxs > 0 {
@@ -99,7 +99,7 @@ func TestParseTx(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res := ParseTx(codec.Cdc, tt.args.txByte, tt.args.block)
-			logger.Info.Printf("Tx is %v\n", ToJson(res))
+			logger.Info(ToJson(res))
 		})
 	}
 }

@@ -34,7 +34,7 @@ func TestQueryAccountBalance(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := QueryAccountBalance(tt.args.address)
-			logger.Info.Println(ToJson(got))
+			logger.Info(ToJson(got))
 		})
 	}
 }

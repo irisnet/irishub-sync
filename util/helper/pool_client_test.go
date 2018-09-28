@@ -17,7 +17,6 @@ func TestInitClientPool(t *testing.T) {
 		b[index] = value
 	}
 	b[3] = 4
-	logger.Info.Println(b)
 }
 
 func TestGetClient(t *testing.T) {
@@ -26,8 +25,7 @@ func TestGetClient(t *testing.T) {
 	defer func() {
 		fmt.Println("====3======")
 		if err := recover(); err != nil {
-			logger.Info.Println("debug=======================recover=======================debug")
-			logger.Error.Println(err)
+			logger.Debug("debug=======================recover=======================debug")
 		}
 	}()
 	_, err := client.Status()

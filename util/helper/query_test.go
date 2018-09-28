@@ -25,9 +25,9 @@ func TestGetValidator(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			res, err := GetValidator(tt.args.valAddr)
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
-			logger.Info.Println(ToJson(res))
+			logger.Info(ToJson(res))
 		})
 	}
 }
@@ -53,9 +53,9 @@ func TestGetDelegation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			res, err := GetDelegation(tt.args.delAddr, tt.args.valAddr)
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
-			logger.Info.Println(ToJson(res))
+			logger.Info(ToJson(res))
 		})
 	}
 }
@@ -81,9 +81,9 @@ func TestGetUnbondingDelegation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			res, err := GetUnbondingDelegation(tt.args.delAddr, tt.args.valAddr)
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
-			logger.Info.Println(ToJson(res))
+			logger.Info(ToJson(res))
 		})
 	}
 }
