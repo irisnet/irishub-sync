@@ -10,7 +10,7 @@ import (
 func ToJson(v interface{}) string {
 	data, err := json.Marshal(v)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Error(err.Error())
 	}
 	return string(data)
 }

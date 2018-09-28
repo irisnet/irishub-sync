@@ -41,7 +41,7 @@ func (d TxGas) RemoveAll() error {
 	query := bson.M{}
 	remove := func(c *mgo.Collection) error {
 		changeInfo, err := c.RemoveAll(query)
-		logger.Info.Printf("remove all tx gas data, %+v", changeInfo)
+		logger.Info("remove all tx gas data", logger.Any("changeInfo", changeInfo))
 		return err
 	}
 	return store.ExecCollection(d.Name(), remove)

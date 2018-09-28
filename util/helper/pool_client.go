@@ -33,11 +33,11 @@ func GetClient() *Client {
 	//}()
 	c, err := pool.BorrowObject(ctx)
 	if err != nil {
-		logger.Error.Println("GetClient failed,err:", err)
+		logger.Error("GetClient failed", logger.String("err", err.Error()))
 		return nil
 	}
-	logger.Info.Printf("current available connection:%d", pool.GetNumIdle())
-	logger.Info.Printf("current used connection:%d", pool.GetNumActive())
+	logger.Info("current available connection", logger.Int("err", pool.GetNumIdle()))
+	logger.Info("current used connection", logger.Int("err", pool.GetNumActive()))
 	return c.(*Client)
 }
 
@@ -45,10 +45,10 @@ func GetClient() *Client {
 func (c *Client) Release() {
 	err := pool.ReturnObject(ctx, c)
 	if err != nil {
-		logger.Info.Println("debug=======================Release err=======================debug")
-		logger.Error.Println(err.Error())
+		logger.Debug("debug=======================Release err=======================debug")
+		logger.Error(err.Error())
 	}
-	logger.Info.Println("debug=======================Release return=======================debug")
+	logger.Debug("debug=======================Release return=======================debug")
 }
 
 func (c *Client) HeartBeat() error {

@@ -35,7 +35,7 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 	// get unRevoke validatorSets from db
 	dbVals, err := candidateModel.GetUnRevokeValidators()
 	if err != nil {
-		logger.Error.Printf("%v: err is %v\n", methodName, err)
+		logger.Error("GetUnRevokeValidators err", logger.String("method", methodName), logger.String("err", err.Error()))
 	}
 	for _, v := range dbVals {
 		dbValidatorSet = append(dbValidatorSet, v.PubKeyAddr)
@@ -43,13 +43,12 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 
 	// tmValidatorSet not equal storeValidatorSet
 	if !compareSlice(tmValidatorSet, dbValidatorSet) {
-		logger.Info.Printf("%v: vlidatorSet changes, tmValSet is %v, dbValSet is %v\n",
-			methodName, tmValidatorSet, dbValidatorSet)
+		logger.Info("vlidatorSet changes, tmValSet is %v, dbValSet is %v\n", logger.Any("tmValSet", tmValidatorSet), logger.Any("dbValSet", dbValidatorSet))
 
 		// remove all data which stored in db
 		err := candidateModel.RemoveCandidates()
 		if err != nil {
-			logger.Error.Printf("%v: err is %v\n", methodName, err)
+			logger.Error("RemoveCandidates err ", logger.String("method", methodName), logger.String("err", err.Error()))
 		}
 
 		// store latest validator data
@@ -58,7 +57,7 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 		resRaw, err := helper.Query(keys, constant.StoreNameStake, "subspace")
 
 		if err != nil {
-			logger.Error.Printf("%v: err is %v\n", methodName, err)
+			logger.Error("helper.Query err ", logger.String("method", methodName), logger.String("err", err.Error()))
 		}
 
 		codec.Cdc.MustUnmarshalBinary(resRaw, &kvs)
@@ -71,7 +70,7 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 			validator, err2 := types.UnmarshalValidator(codec.Cdc, addr, v.Value)
 
 			if err2 != nil {
-				logger.Error.Printf("%v: err is %v\n", methodName, err2)
+				logger.Error("types.UnmarshalValidator", logger.String("method", methodName), logger.String("err", err2.Error()))
 			}
 
 			// build validator document struct by stake.validator
@@ -82,10 +81,10 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 		// store latest validators into db
 		err3 := candidateModel.SaveAll(candidates)
 		if err3 != nil {
-			logger.Error.Printf("%v: err is %v\n", methodName, err3)
+			logger.Error("SaveAll", logger.String("method", methodName), logger.String("err", err3.Error()))
 		}
 	} else {
-		logger.Info.Printf("%v: validatorSet not change\n", methodName)
+		logger.Info("validatorSet not change")
 	}
 }
 
@@ -133,7 +132,7 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 	floatDelegatorShares, _ := v.DelegatorShares.Float64()
 	pubKey, err := types.Bech32ifyValPub(v.PubKey)
 	if err != nil {
-		logger.Error.Printf("Can't get validator pubKey, validator is %v:\n", v)
+		logger.Error("Can't get validator pubKey", logger.String("pubKey", pubKey), logger.String("err", err.Error()))
 	}
 	doc := document.Candidate{
 		Address:         v.Owner.String(),

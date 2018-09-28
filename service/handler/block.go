@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
+	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"github.com/tendermint/tendermint/types"
-	"github.com/irisnet/irishub-sync/module/codec"
-	"encoding/json"
 )
 
 func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) {
@@ -114,6 +114,6 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 
 	err := store.Save(docBlock)
 	if err != nil {
-		logger.Error.Printf("%v: err is %v", methodName, err)
+		logger.Error("SaveBlock error", logger.String("methodName", methodName), logger.String("err", err.Error()))
 	}
 }

@@ -35,9 +35,7 @@ func init() {
 	config.TestOnCreate = true
 	config.TestWhileIdle = true
 
-	logger.Info.Printf("MaxTotal %d ", config.MaxTotal)
-	logger.Info.Printf("MaxIdle %d ", config.MaxIdle)
-	logger.Info.Printf("MinIdle %d ", config.MinIdle)
+	logger.Info("PoolConfig", logger.Int("config.MaxTotal", config.MaxTotal), logger.Int("config.MaxIdle", config.MaxIdle))
 	pool = &NodePool{
 		gcp.NewObjectPool(ctx, &factory, config),
 	}
@@ -60,19 +58,19 @@ type PoolFactory struct {
 }
 
 func ClosePool() {
-	logger.Info.Printf("release resource :%s", "nodePool")
+	logger.Info("release resource nodePool")
 	pool.Close(ctx)
 	factory.cron.Stop()
 }
 
 func (f *PoolFactory) MakeObject(ctx context.Context) (*gcp.PooledObject, error) {
 	endpoint := f.GetEndPoint()
-	logger.Info.Printf("PoolFactory MakeObject peer[%v]  \n", endpoint)
+	logger.Info("PoolFactory MakeObject peer", logger.Any("endpoint", endpoint))
 	return gcp.NewPooledObject(newClient(endpoint.Address)), nil
 }
 
 func (f *PoolFactory) DestroyObject(ctx context.Context, object *gcp.PooledObject) error {
-	logger.Info.Printf("PoolFactory DestroyObject peer[%v] \n", object.Object)
+	logger.Info("PoolFactory DestroyObject peer", logger.Any("peer", object.Object))
 	c := object.Object.(*Client)
 	if c.IsRunning() {
 		c.Stop()
@@ -82,7 +80,7 @@ func (f *PoolFactory) DestroyObject(ctx context.Context, object *gcp.PooledObjec
 
 func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObject) bool {
 	// do validate
-	logger.Info.Printf("PoolFactory ValidateObject peer[%v] \n", object.Object)
+	logger.Info("PoolFactory ValidateObject peer", logger.Any("peer", object.Object))
 	c := object.Object.(*Client)
 	if c.HeartBeat() != nil {
 		if endPoint, ok := f.peersMap[c.Id]; ok {
@@ -95,17 +93,17 @@ func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObje
 }
 
 func (f *PoolFactory) ActivateObject(ctx context.Context, object *gcp.PooledObject) error {
-	logger.Info.Printf("PoolFactory ActivateObject peer[%v] \n", object.Object)
+	logger.Info("PoolFactory ActivateObject peer", logger.Any("peer", object.Object))
 	return nil
 }
 
 func (f *PoolFactory) PassivateObject(ctx context.Context, object *gcp.PooledObject) error {
-	logger.Info.Printf("PoolFactory PassivateObject peer[%v] \n", object.Object)
+	logger.Info("PoolFactory PassivateObject peer", logger.Any("peer", object.Object))
 	return nil
 }
 
 func (f *PoolFactory) GetEndPoint() EndPoint {
-	logger.Info.Printf("PoolFactory pullEndPoint peers %v ", f.peersMap)
+	logger.Info("PoolFactory pullEndPoint peer", logger.Any("peers", f.peersMap))
 	var keys []string
 	var selectedKey string
 	for key := range f.peersMap {
@@ -125,14 +123,13 @@ func (f *PoolFactory) GetEndPoint() EndPoint {
 func (f *PoolFactory) StartCrawlPeers() {
 	go func() {
 		f.cron.AddFunc("0 0/1 * * * *", func() {
-			logger.Info.Printf("PoolFactory StartCrawlPeers peers %v ", f.peersMap)
+			logger.Info("PoolFactory StartCrawlPeers peer", logger.Any("peers", f.peersMap))
 			client := GetClient()
-			logger.Info.Printf("PoolFactory peers %v ", client)
 
 			defer func() {
 				client.Release()
 				if err := recover(); err != nil {
-					logger.Error.Printf("PoolFactory StartCrawlPeers error: %v ", err)
+					logger.Info("PoolFactory StartCrawlPeers error", logger.Any("err", err))
 				}
 			}()
 

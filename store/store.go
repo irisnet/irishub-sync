@@ -41,12 +41,12 @@ func Start() {
 	session, err = mgo.DialWithInfo(dialInfo)
 	session.SetMode(mgo.Monotonic, true)
 	if err != nil {
-		logger.Error.Panicln(err)
+		logger.Error(err.Error())
 	}
 }
 
 func Stop() {
-	logger.Info.Printf("release resource :%s", "mongoDb")
+	logger.Info("release resource :mongoDb")
 	session.Close()
 }
 
@@ -96,7 +96,7 @@ func SaveOrUpdate(h Docs) error {
 	save := func(c *mgo.Collection) error {
 		n, err := c.Find(h.PkKvPair()).Count()
 		if err != nil {
-			logger.Error.Printf("Count:%d err:%+v\n", n, err)
+			logger.Error("Store Find error", logger.String("err", err.Error()))
 		}
 
 		if n >= 1 {

@@ -40,10 +40,10 @@ func TestBlock_CountValidatorPreCommits(t *testing.T) {
 			d := Block{}
 			res, err := d.CalculateValidatorPreCommit(tt.args.startBlock, tt.args.endBlock)
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
 			strRes, _ := json.Marshal(res)
-			logger.Info.Println(string(strRes))
+			logger.Info(string(strRes))
 		})
 	}
 }

@@ -22,11 +22,11 @@ func TestCandidate_GetUnRevokeValidators(t *testing.T) {
 			res, err := d.GetUnRevokeValidators()
 
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
 
 			strRes, _ := json.Marshal(res)
-			logger.Info.Println(string(strRes))
+			logger.Info(string(strRes))
 		})
 	}
 }
@@ -44,7 +44,7 @@ func TestCandidate_RemoveCandidates(t *testing.T) {
 			d := Candidate{}
 			err := d.RemoveCandidates()
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
 		})
 	}
@@ -100,7 +100,7 @@ func TestCandidate_SaveAll(t *testing.T) {
 			d := Candidate{}
 			err := d.SaveAll(tt.args.candidates)
 			if err != nil {
-				logger.Error.Fatalln(err)
+				logger.Error(err.Error())
 			}
 		})
 	}

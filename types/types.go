@@ -88,7 +88,7 @@ func BuildCoins(coins types.Coins) store.Coins {
 func BuildCoin(coin types.Coin) store.Coin {
 	amount, err := strconv.ParseFloat(coin.Amount.String(), 64)
 	if err != nil {
-		logger.Error.Printf("Can't parse str to float, err is %v\n", err)
+		logger.Error("Can't parse str to float, err is %v\n", logger.String("err", err.Error()))
 	}
 	return store.Coin{
 		Denom:  coin.Denom,

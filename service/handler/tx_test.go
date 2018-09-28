@@ -39,7 +39,7 @@ func buildDocData(blockHeight int64) document.CommonTx {
 	block, err := client.Client.Block(&blockHeight)
 
 	if err != nil {
-		logger.Error.Panic(err)
+		logger.Panic(err.Error())
 	}
 
 	if block.BlockMeta.Header.NumTxs > 0 {

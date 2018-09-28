@@ -18,7 +18,7 @@ func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
 		height     int64
 		methodName = "SaveAccount: "
 	)
-	logger.Info.Printf("Start %v\n", methodName)
+	logger.Debug("Start", logger.String("method", methodName))
 
 	// save account
 	fun := func(address string, updateTime time.Time, height int64) {
@@ -31,15 +31,13 @@ func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
 		err := store.Save(account)
 
 		if err != nil && err.Error() != "Record exists" {
-			logger.Error.Printf("%v Record exists, account is %v, err is %s\n",
-				methodName, account.Address, err.Error())
+			logger.Error("account Record exists", logger.String("address", account.Address))
 		}
 	}
 
 	txType := GetTxType(docTx)
-	if txType == "" {
-		logger.Error.Printf("%v get docTx type failed, docTx is %v\n",
-			methodName, docTx)
+	if len(txType) == 0 {
+		logger.Error("Tx is valid", logger.Any("Tx", docTx))
 		return
 	}
 
@@ -61,7 +59,7 @@ func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
 		break
 	}
 
-	logger.Info.Printf("End %v\n", methodName)
+	logger.Debug("End", logger.String("method", methodName))
 }
 
 // update account balance
@@ -69,28 +67,25 @@ func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
 	var (
 		methodName = "UpdateBalance: "
 	)
-	logger.Info.Printf("Start %v\n", methodName)
+	logger.Debug("Start", logger.String("method", methodName))
 
 	fun := func(address string) {
 		account, err := document.QueryAccount(address)
 		if err != nil {
-			logger.Error.Printf("%v updateAccountBalance failed, account is %v and err is %v",
-				methodName, account, err.Error())
+			logger.Error("QueryAccount failed", logger.String("address", address), logger.String("err", err.Error()))
 			return
 		}
 
 		// query balance of account
 		account.Amount = helper.QueryAccountBalance(address)
 		if err := store.Update(account); err != nil {
-			logger.Error.Printf("%v account:[%q] balance update failed,%s\n",
-				methodName, account.Address, err)
+			logger.Error("updateAccountBalance failed", logger.String("address", account.Address), logger.String("err", err.Error()))
 		}
 	}
 
 	txType := GetTxType(docTx)
 	if txType == "" {
-		logger.Error.Printf("%v get docTx type failed, docTx is %v\n",
-			methodName, docTx)
+		logger.Error("Tx is valid", logger.Any("Tx", docTx))
 		return
 	}
 
@@ -105,5 +100,5 @@ func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
 		break
 	}
 
-	logger.Info.Printf("End %v\n", methodName)
+	logger.Debug("End", logger.String("method", methodName))
 }

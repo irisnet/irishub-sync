@@ -27,6 +27,12 @@ const (
 	EnvNameConsulAddr        = "CONSUL_ADDR"
 	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
 
+	EnvLogFilename    = "LOG_FILE_Name"
+	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
+	EnvLogFileMaxAge  = "LOG_FILE_MAX_AGE"
+	EnvLogCompress    = "LOG_COMPRESS"
+	EnableAtomicLevel = "ENABLE_ATOMIC_LEVEL"
+
 	// define store name
 	StoreNameStake      = "stake"
 	StoreDefaultEndPath = "key"
