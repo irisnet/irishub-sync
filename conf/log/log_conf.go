@@ -17,7 +17,7 @@ type Config struct {
 var (
 	Conf = Config{
 		Filename:          os.ExpandEnv("$HOME/.sync_server.log"),
-		MaxSize:           1,
+		MaxSize:           1024,
 		MaxAge:            7,
 		Compress:          true,
 		EnableAtomicLevel: true,
