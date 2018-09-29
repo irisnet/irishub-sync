@@ -27,7 +27,7 @@ const (
 	EnvNameConsulAddr        = "CONSUL_ADDR"
 	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
 
-	EnvLogFilename    = "LOG_FILE_Name"
+	EnvLogFileName    = "LOG_FILE_NAME"
 	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
 	EnvLogFileMaxAge  = "LOG_FILE_MAX_AGE"
 	EnvLogCompress    = "LOG_COMPRESS"

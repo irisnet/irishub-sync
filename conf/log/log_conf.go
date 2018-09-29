@@ -16,8 +16,8 @@ type Config struct {
 
 var (
 	Conf = Config{
-		Filename:          os.ExpandEnv("$HOME/.sync_server.log"),
-		MaxSize:           1024,
+		Filename:          os.ExpandEnv("$HOME/sync_server.log"),
+		MaxSize:           200,
 		MaxAge:            7,
 		Compress:          true,
 		EnableAtomicLevel: true,
@@ -25,7 +25,7 @@ var (
 )
 
 func init() {
-	fileName, found := os.LookupEnv(constant.EnvLogFilename)
+	fileName, found := os.LookupEnv(constant.EnvLogFileName)
 	if found {
 		Conf.Filename = fileName
 	}
