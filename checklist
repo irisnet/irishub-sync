@@ -1,0 +1,18 @@
+#0.5.0
+## db变更
+    1：新增proposal表，存储提议信息
+    2：新增tx_msg表，存储交易详情信息
+    执行脚本(按顺序执行)：
+        db.createCollection("proposal");
+        db.createCollection("tx_msg");
+
+        db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
+        db.tx_msg.createIndex({"hash": 1}, {"unique": true});
+
+## 环境变量变更
+    1：新增
+       LOG_FILE_NAME        ：日志文件（路径+文件名）
+       LOG_FILE_MAX_SIZE    ：日志文件最大size(按M计算)
+       LOG_FILE_MAX_AGE     ：日志文件最大保留时间(按天计算)
+       LOG_COMPRESS         ：是否压缩日志文件
+       ENABLE_ATOMIC_LEVEL  ：是否支持动态调整日志级别
