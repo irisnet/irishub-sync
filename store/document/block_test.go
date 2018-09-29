@@ -10,7 +10,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// setup
-	store.InitWithAuth()
+	store.Start()
 
 	code := m.Run()
 

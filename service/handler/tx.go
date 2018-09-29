@@ -1,10 +1,10 @@
 package handler
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"sync"
@@ -28,17 +28,27 @@ func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
 
 	// save common docTx document
 	saveCommonTx := func(commonTx document.CommonTx) {
+		//save tx
 		err := store.Save(commonTx)
 		if err != nil {
 			logger.Error.Printf("%v Save commonTx failed. doc is %+v, err is %v",
 				methodName, commonTx, err.Error())
 		}
+		//save tx_msg
+		msg := commonTx.Msg
+		if msg != nil {
+			txMsg := document.TxMsg{
+				Hash:    docTx.TxHash,
+				Type:    msg.Type(),
+				Content: msg.String(),
+			}
+			store.Save(txMsg)
+		}
+		handleProposal(commonTx)
 	}
 
 	saveCommonTx(docTx)
-
 	saveValidatorAndDelegator(docTx, mutex)
-
 	logger.Info.Printf("End %v\n", methodName)
 }
 
@@ -132,6 +142,7 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 	}
 
 	mutex.Lock()
+	defer mutex.Unlock()
 	logger.Info.Printf("%v get lock\n", methodName)
 
 	// update or delete validator
@@ -156,8 +167,6 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 				methodName, delegator.Address, delegator.ValidatorAddr)
 		}
 	}
-
-	mutex.Unlock()
 	logger.Info.Printf("%v release lock\n", methodName)
 }
 
@@ -206,8 +215,8 @@ func buildUnbondingDelegation(delAddress, valAddress string) (
 		return res, nil
 	}
 
-	initBalance := helper.BuildCoins(sdk.Coins{ud.InitialBalance})
-	balance := helper.BuildCoins(sdk.Coins{ud.Balance})
+	initBalance := types.BuildCoins(types.SdkCoins{ud.InitialBalance})
+	balance := types.BuildCoins(types.SdkCoins{ud.Balance})
 	res = document.UnbondingDelegation{
 		CreationHeight: ud.CreationHeight,
 		MinTime:        ud.MinTime,

@@ -15,10 +15,12 @@ func GetTxType(docTx document.CommonTx) string {
 	return txType
 }
 
-func Handle(docTx document.CommonTx, mutex sync.Mutex, funChains []func(tx document.CommonTx, mutex sync.Mutex)) {
-	for _, fun := range funChains {
+type Action = func(tx document.CommonTx, mutex sync.Mutex)
+
+func Handle(docTx document.CommonTx, mutex sync.Mutex, actions []Action) {
+	for _, action := range actions {
 		if docTx.TxHash != "" {
-			fun(docTx, mutex)
+			action(docTx, mutex)
 		}
 	}
 }

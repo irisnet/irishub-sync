@@ -25,3 +25,8 @@ type ActualFee struct {
 	Denom  string  `json:"denom"`
 	Amount float64 `json:"amount"`
 }
+
+type Msg interface {
+	Type() string
+	String() string
+}

@@ -9,9 +9,9 @@ const (
 	TxTypeStakeDelegate          = "Delegate"
 	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
 	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
-
-	TxStatusSuccess = "success"
-	TxStatusFail    = "fail"
+	TxTypeSubmitProposal         = "SubmitProposal"
+	TxTypeDeposit                = "Deposit"
+	TxTypeVote                   = "Vote"
 
 	EnvNameDbHost     = "DB_HOST"
 	EnvNameDbPort     = "DB_PORT"
@@ -24,6 +24,8 @@ const (
 	EnvNameSerNetworkToken   = "SER_BC_TOKEN"
 	EnvNameSerMaxGoRoutine   = "SER_MAX_GOROUTINE"
 	EnvNameSerSyncBlockNum   = "SER_SYNC_BLOCK_NUM"
+	EnvNameConsulAddr        = "CONSUL_ADDR"
+	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
 
 	// define store name
 	StoreNameStake      = "stake"
@@ -36,4 +38,9 @@ const (
 	// define interval block num and tx num
 	IntervalBlockNumCalculateValidatorUpTime = int64(100)
 	IntervalTxNumCalculateTxGas              = 100
+
+	StatusDepositPeriod = "DepositPeriod"
+	StatusVotingPeriod  = "VotingPeriod"
+	StatusPassed        = "Passed"
+	StatusRejected      = "Rejected"
 )

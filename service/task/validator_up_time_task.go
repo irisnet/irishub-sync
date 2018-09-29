@@ -1,6 +1,7 @@
-package handler
+package task
 
 import (
+	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
@@ -10,7 +11,7 @@ import (
 // latest x blocks, calculate how much precommit which validator had execute(n).
 // so upTime is n / x
 // note: this method is not goroutine safety, it should be execute during watch block.
-func CalculateAndSaveValidatorUpTime() {
+func calculateAndSaveValidatorUpTime() {
 	var (
 		methodName    = "AnalyzeValidatorUpTime"
 		intervalBlock = constant.IntervalBlockNumCalculateValidatorUpTime
@@ -59,4 +60,12 @@ func CalculateAndSaveValidatorUpTime() {
 	}
 
 	logger.Info.Printf("%v: End\n", methodName)
+}
+
+func MakeCalculateAndSaveValidatorUpTimeTask() Task {
+	return NewLockTaskFromEnv(conf.CronCalculateUpTime, "calculate_and_save_validator_uptime_lock", func() {
+		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
+		calculateAndSaveValidatorUpTime()
+		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
+	})
 }

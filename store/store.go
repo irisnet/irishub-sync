@@ -23,7 +23,7 @@ func RegisterDocs(d Docs) {
 	docs = append(docs, d)
 }
 
-func InitWithAuth() {
+func Start() {
 	addr := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
 	addrs := []string{addr}
 
@@ -43,6 +43,11 @@ func InitWithAuth() {
 	if err != nil {
 		logger.Error.Panicln(err)
 	}
+}
+
+func Stop() {
+	logger.Info.Printf("release resource :%s", "mongoDb")
+	session.Close()
 }
 
 func getSession() *mgo.Session {

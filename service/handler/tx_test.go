@@ -23,8 +23,7 @@ const (
 
 func TestMain(m *testing.M) {
 	// setup
-	helper.InitClientPool()
-	store.InitWithAuth()
+	store.Start()
 
 	code := m.Run()
 
