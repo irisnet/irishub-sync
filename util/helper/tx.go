@@ -156,6 +156,26 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.Amount = nil
 		docTx.Type = constant.TxTypeStakeCompleteUnbonding
 		return docTx
+	case itypes.MsgBeginRedelegate:
+		msg := msg.(itypes.MsgBeginRedelegate)
+
+		shares, _ := msg.SharesAmount.Float64()
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorDstAddr.String()
+		coin := store.Coin{
+			Amount: shares,
+		}
+		docTx.Amount = []store.Coin{coin}
+		docTx.Type = constant.TxTypeBeginRedelegate
+		docTx.Msg = itypes.NewBeginRedelegate(msg)
+	case itypes.MsgCompleteRedelegate:
+		msg := msg.(itypes.MsgCompleteRedelegate)
+
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorDstAddr.String()
+		docTx.Type = constant.TxTypeCompleteRedelegate
+		docTx.Msg = itypes.NewCompleteRedelegate(msg)
+
 	case itypes.MsgSubmitProposal:
 		msg := msg.(itypes.MsgSubmitProposal)
 

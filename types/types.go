@@ -25,6 +25,8 @@ type (
 	MsgStakeDelegate          = stake.MsgDelegate
 	MsgStakeBeginUnbonding    = stake.MsgBeginUnbonding
 	MsgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
+	MsgBeginRedelegate        = stake.MsgBeginRedelegate
+	MsgCompleteRedelegate     = stake.MsgCompleteRedelegate
 	StakeValidator            = stake.Validator
 	Delegation                = stake.Delegation
 	UnbondingDelegation       = stake.UnbondingDelegation
