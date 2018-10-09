@@ -8,6 +8,8 @@ const (
 	TxTypeStakeEditValidator     = "EditValidator"
 	TxTypeStakeDelegate          = "Delegate"
 	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
+	TxTypeBeginRedelegate        = "BeginRedelegate"
+	TxTypeCompleteRedelegate     = "CompleteRedelegate"
 	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
 	TxTypeSubmitProposal         = "SubmitProposal"
 	TxTypeDeposit                = "Deposit"

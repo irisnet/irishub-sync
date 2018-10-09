@@ -16,8 +16,8 @@ type Config struct {
 
 var (
 	Conf = Config{
-		Filename:          os.ExpandEnv("$HOME/sync_server.log"),
-		MaxSize:           200,
+		Filename:          os.ExpandEnv("$HOME/irishub-sync/sync_server.log"),
+		MaxSize:           20,
 		MaxAge:            7,
 		Compress:          true,
 		EnableAtomicLevel: true,
