@@ -8,10 +8,9 @@ import (
 	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/types"
 	"sync"
 	"time"
 )
@@ -79,7 +78,7 @@ func MakeSyncBlockTask() Task {
 // start watcher
 func (watcher *BlockWatcher) FastSync() {
 	var (
-		status *ctypes.ResultStatus
+		status *types.ResultStatus
 		err    error
 		i      = 1
 	)
@@ -112,6 +111,9 @@ func (watcher *BlockWatcher) watchBlock() {
 	client := helper.GetClient()
 
 	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("task watchBlock execute error", logger.Any("err", err))
+		}
 		logger.Debug("debug=======================5 watchBlock defer=======================debug")
 		client.Release()
 		logger.Debug("debug=======================6 watchBlock defer client.Release()=======================debug")
@@ -157,7 +159,7 @@ func (watcher *BlockWatcher) watchBlock() {
 			}
 		}
 	} else {
-		logger.Info("synced status", logger.String("method", methodName), logger.Int64("syncHeight", syncTask.Height), logger.Int64("latestBlockHeight", latestBlockHeight))
+		logger.Info("system's speed of syncing is fast than blockchain,must be interval two block", logger.Int64("syncHeight", syncTask.Height), logger.Int64("latestHeight", latestBlockHeight))
 	}
 	logger.Debug("debug=======================4=======================debug")
 }
@@ -226,7 +228,7 @@ loop:
 		select {
 		case threadNo := <-ch:
 			activeGoroutineNum = activeGoroutineNum - 1
-			logger.Info("ThreadNo is over and active thread num is %d\n", logger.Int64("threadNo", threadNo), logger.Int64("activeGoroutineNum", activeGoroutineNum))
+			logger.Info("Thread is over", logger.Int64("threadNo", threadNo), logger.Int64("activeGoroutineNum", activeGoroutineNum))
 			if activeGoroutineNum == 0 {
 				goto end
 			}
@@ -268,13 +270,13 @@ func syncBlock(start, end, threadNum int64,
 	for b := start; b <= end; b++ {
 		block, err := client.Block(&b)
 		if err != nil {
-			logger.Error("Invalid block height", logger.Int64("height", b), logger.String("err", err.Error()))
+			logger.Error("acquire block error", logger.Int64("height", b), logger.String("err", err.Error()))
 			// try again
 			client2 := helper.GetClient()
 			block, err = client2.Block(&b)
 			if err != nil {
 				ch <- threadNum
-				logger.Fatal("Invalid block height", logger.Int64("height", b), logger.String("err", err.Error()))
+				logger.Error("acquire block error", logger.Int64("height", b), logger.String("err", err.Error()))
 			}
 		}
 		if block.BlockMeta.Header.NumTxs > 0 {
@@ -286,7 +288,7 @@ func syncBlock(start, end, threadNum int64,
 					logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))
 					continue
 				}
-				logger.Info("find tx", logger.Int64("threadNo", threadNum), logger.String("hash", txHash))
+				logger.Info("found tx", logger.Int64("threadNo", threadNum), logger.String("hash", txHash))
 				handler.Handle(docTx, mutex, funcChain)
 			}
 		}

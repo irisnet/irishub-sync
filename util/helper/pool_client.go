@@ -7,18 +7,18 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/irisnet/irishub-sync/types"
 	"strings"
 )
 
 type Client struct {
-	client.Client
+	types.Client
 	Id string
 }
 
 func newClient(addr string) *Client {
 	return &Client{
-		Client: client.NewHTTP(addr, "/websocket"),
+		Client: types.NewHTTP(addr, "/websocket"),
 		Id:     generateId(addr),
 	}
 }
@@ -26,18 +26,13 @@ func newClient(addr string) *Client {
 // get client from pool
 // while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		logger.Error.Println(err)
-	//	}
-	//}()
 	c, err := pool.BorrowObject(ctx)
 	if err != nil {
 		logger.Error("GetClient failed", logger.String("err", err.Error()))
 		return nil
 	}
-	logger.Info("current available connection", logger.Int("err", pool.GetNumIdle()))
-	logger.Info("current used connection", logger.Int("err", pool.GetNumActive()))
+	logger.Debug("current available connection", logger.Int("Num", pool.GetNumIdle()))
+	logger.Debug("current used connection", logger.Int("Num", pool.GetNumActive()))
 	return c.(*Client)
 }
 
@@ -52,13 +47,13 @@ func (c *Client) Release() {
 }
 
 func (c *Client) HeartBeat() error {
-	http := c.Client.(*client.HTTP)
+	http := c.Client.(*types.HTTP)
 	_, err := http.Health()
 	return err
 }
 
 func (c *Client) GetNodeAddress() []string {
-	http := c.Client.(*client.HTTP)
+	http := c.Client.(*types.HTTP)
 	netInfo, err := http.NetInfo()
 	var addrs []string
 	if err == nil {
@@ -71,7 +66,7 @@ func (c *Client) GetNodeAddress() []string {
 			addrs = append(addrs, endpoint)
 		}
 	}
-	fmt.Printf("#######################%v##################\n", addrs)
+	logger.Debug("found new node ", logger.Any("address", addrs))
 	return addrs
 }
 

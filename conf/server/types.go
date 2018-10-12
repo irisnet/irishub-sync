@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = "tcp://192.168.150.7:26657"
+	BlockChainMonitorUrl = "tcp://127.0.0.1:26657"
 	ChainId              = "rainbow-dev"
 	Token                = "iris"
 
