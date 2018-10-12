@@ -78,7 +78,7 @@ func Save(h Docs) error {
 			errMsg := fmt.Sprintf("Record exists")
 			return errors.New(errMsg)
 		}
-		// logger.Info.Printf("insert %s  %+v\n", h.Name(), h)
+		logger.Info("Save document", logger.String("table", h.Name()), logger.Any("content", h))
 		return c.Insert(h)
 	}
 	return ExecCollection(h.Name(), save)
@@ -102,7 +102,7 @@ func SaveOrUpdate(h Docs) error {
 		if n >= 1 {
 			return Update(h)
 		}
-		// logger.Trace.Printf("insert %s  %+v\n", h.Name(), h)
+		logger.Info("Save document", logger.String("table", h.Name()), logger.Any("content", h))
 		return c.Insert(h)
 	}
 
@@ -112,7 +112,7 @@ func SaveOrUpdate(h Docs) error {
 func Update(h Docs) error {
 	update := func(c *mgo.Collection) error {
 		key := h.PkKvPair()
-		// logger.Trace.Printf("update %s set %+v where %+v\n", h.Name(), h, key)
+		logger.Info("update document", logger.String("table", h.Name()), logger.Any("conditions", h.PkKvPair()))
 		return c.Update(key, h)
 	}
 	return ExecCollection(h.Name(), update)
@@ -121,14 +121,16 @@ func Update(h Docs) error {
 func Delete(h Docs) error {
 	remove := func(c *mgo.Collection) error {
 		key := h.PkKvPair()
+		logger.Info("delete document", logger.String("table", h.Name()), logger.Any("conditions", h.PkKvPair()))
 		return c.Remove(key)
 	}
 	return ExecCollection(h.Name(), remove)
 }
 
 func Query(collectionName string, query bson.M, sort string, fields bson.M, skip int, limit int) (results []interface{}, err error) {
-	exop := func(c *mgo.Collection) error {
+	callback := func(c *mgo.Collection) error {
+		logger.Info("query document", logger.String("table", collectionName), logger.Any("conditions", query))
 		return c.Find(query).Sort(sort).Select(fields).Skip(skip).Limit(limit).All(&results)
 	}
-	return results, ExecCollection(collectionName, exop)
+	return results, ExecCollection(collectionName, callback)
 }

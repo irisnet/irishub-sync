@@ -6,14 +6,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub/modules/gov"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tm "github.com/tendermint/tendermint/types"
 	"strconv"
 )
@@ -46,10 +47,14 @@ type (
 	Validator  = tm.Validator
 	Tx         = tm.Tx
 	Block      = tm.Block
+	BlockMeta  = tm.BlockMeta
 	HexBytes   = cmn.HexBytes
 
 	Codec            = wire.Codec
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
+	Client           = rpcclient.Client
+	HTTP             = rpcclient.HTTP
+	ResultStatus     = ctypes.ResultStatus
 )
 
 var (
@@ -71,6 +76,8 @@ var (
 
 	KeyProposal      = gov.KeyProposal
 	KeyVotesSubspace = gov.KeyVotesSubspace
+
+	NewHTTP = rpcclient.NewHTTP
 )
 
 func BuildCoins(coins types.Coins) store.Coins {

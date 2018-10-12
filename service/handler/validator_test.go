@@ -2,8 +2,8 @@ package handler
 
 import (
 	"fmt"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/tendermint/tendermint/types"
 	"testing"
 )
 

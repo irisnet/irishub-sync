@@ -6,8 +6,8 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/tendermint/tendermint/types"
 )
 
 func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) {

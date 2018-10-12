@@ -215,7 +215,7 @@ func buildUnbondingDelegation(delAddress, valAddress string) (
 	balance := types.BuildCoins(types.SdkCoins{ud.Balance})
 	res = document.UnbondingDelegation{
 		CreationHeight: ud.CreationHeight,
-		MinTime:        ud.MinTime,
+		MinTime:        ud.MinTime.Unix(),
 		InitialBalance: initBalance,
 		Balance:        balance,
 	}

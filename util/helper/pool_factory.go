@@ -65,12 +65,12 @@ func ClosePool() {
 
 func (f *PoolFactory) MakeObject(ctx context.Context) (*gcp.PooledObject, error) {
 	endpoint := f.GetEndPoint()
-	logger.Info("PoolFactory MakeObject peer", logger.Any("endpoint", endpoint))
+	logger.Debug("PoolFactory MakeObject peer", logger.Any("endpoint", endpoint))
 	return gcp.NewPooledObject(newClient(endpoint.Address)), nil
 }
 
 func (f *PoolFactory) DestroyObject(ctx context.Context, object *gcp.PooledObject) error {
-	logger.Info("PoolFactory DestroyObject peer", logger.Any("peer", object.Object))
+	logger.Debug("PoolFactory DestroyObject peer", logger.Any("peer", object.Object))
 	c := object.Object.(*Client)
 	if c.IsRunning() {
 		c.Stop()
@@ -80,7 +80,7 @@ func (f *PoolFactory) DestroyObject(ctx context.Context, object *gcp.PooledObjec
 
 func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObject) bool {
 	// do validate
-	logger.Info("PoolFactory ValidateObject peer", logger.Any("peer", object.Object))
+	logger.Debug("PoolFactory ValidateObject peer", logger.Any("peer", object.Object))
 	c := object.Object.(*Client)
 	if c.HeartBeat() != nil {
 		if endPoint, ok := f.peersMap[c.Id]; ok {
@@ -93,12 +93,12 @@ func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObje
 }
 
 func (f *PoolFactory) ActivateObject(ctx context.Context, object *gcp.PooledObject) error {
-	logger.Info("PoolFactory ActivateObject peer", logger.Any("peer", object.Object))
+	logger.Debug("PoolFactory ActivateObject peer", logger.Any("peer", object.Object))
 	return nil
 }
 
 func (f *PoolFactory) PassivateObject(ctx context.Context, object *gcp.PooledObject) error {
-	logger.Info("PoolFactory PassivateObject peer", logger.Any("peer", object.Object))
+	logger.Debug("PoolFactory PassivateObject peer", logger.Any("peer", object.Object))
 	return nil
 }
 
