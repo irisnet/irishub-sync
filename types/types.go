@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/irisnet/irishub-sync/module/logger"
@@ -28,6 +29,7 @@ type (
 	MsgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
 	MsgBeginRedelegate        = stake.MsgBeginRedelegate
 	MsgCompleteRedelegate     = stake.MsgCompleteRedelegate
+	MsgUnrevoke               = slashing.MsgUnrevoke
 	StakeValidator            = stake.Validator
 	Delegation                = stake.Delegation
 	UnbondingDelegation       = stake.UnbondingDelegation
