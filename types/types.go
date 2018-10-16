@@ -60,10 +60,11 @@ type (
 )
 
 var (
-	ValidatorsKey          = stake.ValidatorsKey
-	GetValidatorKey        = stake.GetValidatorKey
-	GetDelegationKey       = stake.GetDelegationKey
-	GetUBDKey              = stake.GetUBDKey
+	ValidatorsKey    = stake.ValidatorsKey
+	GetValidatorKey  = stake.GetValidatorKey
+	GetDelegationKey = stake.GetDelegationKey
+	GetUBDKey        = stake.GetUBDKey
+
 	UnmarshalValidator     = staketypes.UnmarshalValidator
 	MustUnmarshalValidator = staketypes.MustUnmarshalValidator
 	UnmarshalDelegation    = staketypes.UnmarshalDelegation
@@ -72,6 +73,7 @@ var (
 	Bech32ifyValPub      = types.Bech32ifyValPub
 	RegisterWire         = types.RegisterWire
 	AccAddressFromBech32 = types.AccAddressFromBech32
+	BondStatusToString   = types.BondStatusToString
 
 	AddressStoreKey   = auth.AddressStoreKey
 	GetAccountDecoder = authcmd.GetAccountDecoder
