@@ -19,8 +19,7 @@ func calculateAndSaveValidatorUpTime() {
 		model         document.ValidatorUpTime
 		valUpTimes    []document.ValidatorUpTime
 	)
-	logger.Info.Printf("%v: Start\n", methodName)
-
+	logger.Info("Start", logger.String("method", methodName))
 	// query synced latest height
 	syncTask, _ := document.QuerySyncTask()
 	latestHeight := syncTask.Height
@@ -29,7 +28,7 @@ func calculateAndSaveValidatorUpTime() {
 	res, err := blockModel.CalculateValidatorPreCommit(latestHeight-intervalBlock, latestHeight)
 
 	if err != nil {
-		logger.Error.Printf("%v: Query fail, err is %v\n", methodName, err)
+		logger.Error("blockModel.CalculateValidatorPreCommit fail", logger.String("err", err.Error()))
 		return
 	}
 
@@ -45,27 +44,25 @@ func calculateAndSaveValidatorUpTime() {
 		// remove all data
 		err := model.RemoveAll()
 		if err != nil {
-			logger.Error.Printf("%v: Remove all data fail, err is %v\n",
-				methodName, err)
+			logger.Error("RemoveAll fail", logger.String("err", err.Error()))
 			return
 		}
 
 		// save latest data
 		err2 := model.SaveAll(valUpTimes)
 		if err2 != nil {
-			logger.Error.Printf("%v: Save latest data fail, err is %v\n",
-				methodName, err2)
+			logger.Error("SaveAll fail", logger.String("err", err2.Error()))
 			return
 		}
 	}
 
-	logger.Info.Printf("%v: End\n", methodName)
+	logger.Info("End", logger.String("method", methodName))
 }
 
 func MakeCalculateAndSaveValidatorUpTimeTask() Task {
 	return NewLockTaskFromEnv(conf.CronCalculateUpTime, "calculate_and_save_validator_uptime_lock", func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateAndSaveValidatorUpTime")
+		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] begin===================")
 		calculateAndSaveValidatorUpTime()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateAndSaveValidatorUpTime")
+		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] end===================")
 	})
 }

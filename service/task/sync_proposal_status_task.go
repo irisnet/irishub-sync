@@ -28,8 +28,8 @@ func syncProposalStatus() {
 
 func MakeSyncProposalStatusTask() Task {
 	return NewLockTaskFromEnv(conf.SyncProposalStatus, "sync_proposal_status_lock", func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "SyncProposalStatus")
+		logger.Debug("========================task's trigger [SyncProposalStatus] begin===================")
 		syncProposalStatus()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "SyncProposalStatus")
+		logger.Debug("========================task's trigger [SyncProposalStatus] end===================")
 	})
 }

@@ -20,34 +20,29 @@ func init() {
 	if found {
 		Host = host
 	}
-	logger.Info.Printf("The value of env var %v is %v\n",
-		constant.EnvNameDbHost, Host)
+	logger.Info("Env Value", logger.String(constant.EnvNameDbHost, Host))
 
 	port, found := os.LookupEnv(constant.EnvNameDbPort)
 	if found {
 		Port = port
 	}
-	logger.Info.Printf("The value of env var %v is %v\n",
-		constant.EnvNameDbPort, Port)
+	logger.Info("Env Value", logger.String(constant.EnvNameDbPort, Port))
 
 	user, found := os.LookupEnv(constant.EnvNameDbUser)
 	if found {
 		User = user
 	}
-	logger.Info.Printf("The value of env var %v is %v\n",
-		constant.EnvNameDbUser, User)
+	logger.Info("Env Value", logger.String(constant.EnvNameDbUser, User))
 
 	passwd, found := os.LookupEnv(constant.EnvNameDbPassWd)
 	if found {
 		Passwd = passwd
 	}
-	logger.Info.Printf("The value of env var %v is %v\n",
-		constant.EnvNameDbPassWd, Passwd)
+	logger.Info("Env Value", logger.String(constant.EnvNameDbPassWd, Passwd))
 
 	database, found := os.LookupEnv(constant.EnvNameDbDataBase)
 	if found {
 		Database = database
 	}
-	logger.Info.Printf("The value of env var %v is %v\n",
-		constant.EnvNameDbDataBase, Database)
+	logger.Info("Env Value", logger.String(constant.EnvNameDbDataBase, Database))
 }

@@ -15,7 +15,7 @@ func calculateTxGasAndGasPrice() {
 		txGasModel    document.TxGas
 		txGases       []document.TxGas
 	)
-	logger.Info.Printf("%v: Start\n", methodName)
+	logger.Info("Start", logger.String("method", methodName))
 
 	txTypes := []string{
 		constant.TxTypeTransfer,
@@ -29,8 +29,7 @@ func calculateTxGasAndGasPrice() {
 	for _, v := range txTypes {
 		txs, err := txModel.CalculateTxGasAndGasPrice(v, intervalTxNum)
 		if err != nil {
-			logger.Error.Printf("%v: Can't calculate gas and gasPrice, err is %v\n",
-				methodName, err)
+			logger.Error("Can't calculate gas and gasPrice", logger.String("err", err.Error()))
 			continue
 		}
 		if len(txs) > 0 {
@@ -42,20 +41,18 @@ func calculateTxGasAndGasPrice() {
 	// remove all data
 	err := txGasModel.RemoveAll()
 	if err != nil {
-		logger.Error.Printf("%v: Remove all data fail, err is %v\n",
-			methodName, err)
+		logger.Error("Remove all data fail", logger.String("err", err.Error()))
 		return
 	}
 
 	// save all data
 	err2 := txGasModel.SaveAll(txGases)
 	if err2 != nil {
-		logger.Error.Printf("%v: Save latest data fail, err is %v\n",
-			methodName, err2)
+		logger.Error("Save latest data fail", logger.String("err", err2.Error()))
 		return
 	}
 
-	logger.Info.Printf("%v: End\n", methodName)
+	logger.Info("End", logger.String("method", methodName))
 }
 
 func buildTxGas(txs []document.CommonTx) document.TxGas {
@@ -117,8 +114,8 @@ func buildTxGas(txs []document.CommonTx) document.TxGas {
 
 func MakeCalculateTxGasAndGasPriceTask() Task {
 	return NewLockTaskFromEnv(conf.CronCalculateTxGas, "calculate_tx_gas_and_gas_price_lock", func() {
-		logger.Info.Printf("========================task's trigger [%s] begin===================", "CalculateTxGasAndGasPrice")
+		logger.Debug("========================task's trigger [CalculateTxGasAndGasPrice] begin===================")
 		calculateTxGasAndGasPrice()
-		logger.Info.Printf("========================task's trigger [%s] end===================", "CalculateTxGasAndGasPrice")
+		logger.Debug("========================task's trigger [CalculateTxGasAndGasPrice] end===================")
 	})
 }

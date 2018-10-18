@@ -51,13 +51,13 @@ func (watcher *BlockWatcher) CanDo() bool {
 	if !watcher.HasTask {
 		return true
 	}
-	logger.Info.Printf("========================task's trigger [%s] hashTask===================", "watchBlock")
+	logger.Debug("========================task's trigger [watchBlock] hashTask===================")
 	sub := time.Now().Sub(watcher.StartTime).Seconds()
 	if sub < 10 {
-		logger.Info.Printf("========================task's trigger [%s] skip Task===================", "watchBlock")
+		logger.Debug("========================task's trigger [watchBlock] skip Task===================")
 		return false
 	}
-	logger.Info.Printf("xxxxxxxxxxxxxxxxxxxxxxxxx task's trigger [%s] hashTask,reset HasTask flag xxxxxxxxxxxxxxxxxxxxxxxxx", "watchBlock")
+	logger.Debug("======================== task's trigger [watchBlock] hashTask,reset HasTask flag ========================")
 	watcher.UnLock()
 	return true
 }
@@ -69,9 +69,9 @@ func NewWatcher() *BlockWatcher {
 func MakeSyncBlockTask() Task {
 	return NewLockTaskFromEnv(conf.CronWatchBlock, "watch_block_lock_key_lock", func() {
 		if watcher.CanDo() {
-			logger.Info.Printf("========================task's trigger [%s] begin===================", "watchBlock")
+			logger.Debug("========================task's trigger [watchBlock] begin===================")
 			watcher.watchBlock()
-			logger.Info.Printf("========================task's trigger [%s] end===================", "watchBlock")
+			logger.Debug("========================task's trigger [watchBlock] end===================")
 		}
 	})
 }
@@ -88,19 +88,18 @@ func (watcher *BlockWatcher) FastSync() {
 
 	// fast sync
 	for {
-		logger.Info.Printf("Begin %v time fast sync task", i)
+		logger.Info("Begin fast sync task", logger.Int("time", i))
 		syncLatestHeight := watcher.fastSync()
 		status, err = client.Status()
 		if err != nil {
-			logger.Error.Printf("TmClient err and try again, %v\n", err.Error())
-			panic(err)
+			logger.Panic("TmClient err and try again, %v\n", logger.String("err", err.Error()))
 		}
 		latestHeight := status.SyncInfo.LatestBlockHeight
 		if syncLatestHeight >= latestHeight-60 {
-			logger.Info.Println("All fast sync task complete!")
+			logger.Info("All fast sync task complete!")
 			break
 		}
-		logger.Info.Printf("End %v time fast sync task", i)
+		logger.Info("End fast sync task", logger.Int("time", i))
 		i++
 	}
 }
@@ -113,31 +112,29 @@ func (watcher *BlockWatcher) watchBlock() {
 	client := helper.GetClient()
 
 	defer func() {
-		logger.Info.Println("debug=======================5 watchBlock defer=======================debug")
+		logger.Debug("debug=======================5 watchBlock defer=======================debug")
 		client.Release()
-		logger.Info.Println("debug=======================6 watchBlock defer client.Release()=======================debug")
+		logger.Debug("debug=======================6 watchBlock defer client.Release()=======================debug")
 		watcher.UnLock()
-		logger.Info.Println("debug=======================7 watchBlock defer watcher.UnLock()=======================debug")
+		logger.Debug("debug=======================7 watchBlock defer watcher.UnLock()=======================debug")
 	}()
 
-	logger.Info.Println("debug=======================1=======================debug")
+	logger.Debug("debug=======================1=======================debug")
 
 	status, err := client.Status()
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Error("TmClient err and try again, %v\n", logger.String("err", err.Error()))
 		return
 	}
-	logger.Info.Println("debug=======================2=======================debug")
+	logger.Debug("debug=======================2=======================debug")
 	syncTask, _ := document.QuerySyncTask()
-	logger.Info.Println("debug=======================3=======================debug")
+	logger.Debug("debug=======================3=======================debug")
 	latestBlockHeight := status.SyncInfo.LatestBlockHeight
 
 	// note: interval two block, to avoid get can't delegation at latest block
 	//       sdk of this version may has some problem
 	if syncTask.Height+1 <= latestBlockHeight-1 {
-		logger.Info.Printf("%v: latest height is %v\n",
-			methodName, latestBlockHeight)
-
+		logger.Info("latest height", logger.String("method", methodName), logger.Int64("latestBlockHeight", latestBlockHeight))
 		funcChain := []handler.Action{
 			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
 		}
@@ -154,18 +151,15 @@ func (watcher *BlockWatcher) watchBlock() {
 
 		select {
 		case <-ch:
-			logger.Info.Printf("%v: synced height is %v \n",
-				constant.SyncTypeWatch, syncedLatestBlockHeight)
+			logger.Info("latest height", logger.String("method", constant.SyncTypeWatch), logger.Int64("syncedLatestBlockHeight", syncedLatestBlockHeight))
 			if err := store.Update(syncTask); err != nil {
-				logger.Error.Printf("%v: Update syncTask fail, err is %v\n",
-					methodName, err.Error())
+				logger.Error("Update syncTask fail", logger.String("method", constant.SyncTypeWatch), logger.String("err", err.Error()))
 			}
 		}
 	} else {
-		logger.Info.Printf("%v: wait, synced height is %v, latest height is %v\n",
-			methodName, syncTask.Height, latestBlockHeight)
+		logger.Info("synced status", logger.String("method", methodName), logger.Int64("syncHeight", syncTask.Height), logger.Int64("latestBlockHeight", latestBlockHeight))
 	}
-	logger.Info.Println("debug=======================4=======================debug")
+	logger.Debug("debug=======================4=======================debug")
 }
 
 // fast sync data from blockChain
@@ -177,7 +171,7 @@ func (watcher *BlockWatcher) fastSync() int64 {
 
 	status, err := client.Status()
 	if err != nil {
-		logger.Error.Printf("TmClient err, %v\n", err)
+		logger.Error("TmClient err", logger.String("err", err.Error()))
 		return 0
 	}
 
@@ -201,7 +195,7 @@ loop:
 		store.Save(syncTaskDoc)
 	} else {
 		if syncTaskDoc.Syncing {
-			logger.Info.Println("server is syncing,will try again next 10 second")
+			logger.Info("server is syncing,will try again next 10 second")
 			time.Sleep(10 * time.Second)
 			goto loop
 		}
@@ -232,8 +226,7 @@ loop:
 		select {
 		case threadNo := <-ch:
 			activeGoroutineNum = activeGoroutineNum - 1
-			logger.Info.Printf("%v: ThreadNo[%d] is over and active thread num is %d\n",
-				methodName, threadNo, activeGoroutineNum)
+			logger.Info("ThreadNo is over and active thread num is %d\n", logger.Int64("threadNo", threadNo), logger.Int64("activeGoroutineNum", activeGoroutineNum))
 			if activeGoroutineNum == 0 {
 				goto end
 			}
@@ -242,7 +235,7 @@ loop:
 
 end:
 	{
-		logger.Info.Printf("%v: This fastSync task complete!", methodName)
+		logger.Info("This fastSync task complete!")
 		// update syncTask document
 		block, _ := client.Block(&latestBlockHeight)
 		syncTaskDoc.Height = block.Block.Height
@@ -250,8 +243,7 @@ end:
 		syncTaskDoc.Syncing = false
 		err := store.Update(syncTaskDoc)
 		if err != nil {
-			logger.Error.Printf("%v: Update syncTask fail, err is %v",
-				methodName, err.Error())
+			logger.Error("Update syncTask fail", logger.String("err", err.Error()))
 		}
 		return syncTaskDoc.Height
 	}
@@ -263,14 +255,12 @@ func syncBlock(start, end, threadNum int64,
 
 	methodName = fmt.Sprintf("syncBlock_%s", syncType)
 
-	logger.Info.Printf("%v: ThreadNo[%d] begin sync block from %d to %d\n",
-		methodName, threadNum, start, end)
-
+	logger.Info("begin sync block", logger.Int64("threadNo", threadNum), logger.Int64("start", start), logger.Int64("end", end))
 	client := helper.GetClient()
 
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Error.Println(err)
+			logger.Error("syncBlock err", logger.Any("err", err))
 		}
 		client.Release()
 	}()
@@ -278,15 +268,13 @@ func syncBlock(start, end, threadNum int64,
 	for b := start; b <= end; b++ {
 		block, err := client.Block(&b)
 		if err != nil {
-			logger.Error.Printf("%v: Invalid block height %d and err is %v, try again\n",
-				methodName, b, err.Error())
+			logger.Error("Invalid block height", logger.Int64("height", b), logger.String("err", err.Error()))
 			// try again
 			client2 := helper.GetClient()
 			block, err = client2.Block(&b)
 			if err != nil {
 				ch <- threadNum
-				logger.Error.Fatalf("%v: Invalid block height %d and err is %v\n",
-					methodName, b, err.Error())
+				logger.Fatal("Invalid block height", logger.Int64("height", b), logger.String("err", err.Error()))
 			}
 		}
 		if block.BlockMeta.Header.NumTxs > 0 {
@@ -295,13 +283,10 @@ func syncBlock(start, end, threadNum int64,
 				docTx := helper.ParseTx(codec.Cdc, txByte, block.Block)
 				txHash := helper.BuildHex(txByte.Hash())
 				if txHash == "" {
-					logger.Warning.Printf("%v: Tx has no hash, skip this tx."+
-						""+"tx is %v\n", methodName, helper.ToJson(docTx))
+					logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))
 					continue
 				}
-				logger.Info.Printf("%v: ====ThreadNo[%d] find tx, txHash=%s\n",
-					methodName, threadNum, txHash)
-
+				logger.Info("find tx", logger.Int64("threadNo", threadNum), logger.String("hash", txHash))
 				handler.Handle(docTx, mutex, funcChain)
 			}
 		}
@@ -310,13 +295,13 @@ func syncBlock(start, end, threadNum int64,
 		var validators []*types.Validator
 		res, err := client.Validators(&b)
 		if err != nil {
-			logger.Error.Printf("%v: Can't get validatorSet at %v\n", methodName, b)
+			logger.Error("Can't get validatorSet at height", logger.Int64("Height", b))
 		} else {
 			validators = res.Validators
 		}
 
 		// save block info
-		logger.Info.Printf("thread[%d] save block,height:[%d]", threadNum, block.Block.Height)
+		logger.Info("save block", logger.Int64("threadNo", threadNum), logger.Int64("Height", block.Block.Height))
 		handler.SaveBlock(block.BlockMeta, block.Block, validators)
 
 		// compare and update validators during watch block
@@ -325,11 +310,10 @@ func syncBlock(start, end, threadNum int64,
 		}
 	}
 
-	logger.Info.Printf("%v: ThreadNo[%d] finish sync block from %d to %d\n",
-		methodName, threadNum, start, end)
+	logger.Info("finish sync block", logger.Int64("threadNo", threadNum), logger.Int64("from", start), logger.Int64("to", end))
 
 	<-limitChan
 	ch <- threadNum
-	logger.Info.Printf("%v: Send threadNum into channel: %v\n",
-		methodName, threadNum)
+
+	logger.Info("Send threadNum into channel", logger.Int64("threadNo", threadNum))
 }

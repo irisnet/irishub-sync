@@ -64,7 +64,7 @@ func OpString(op gov.Op) string {
 	case gov.Add:
 		return "add"
 	default:
-		logger.Error.Println("unsupport op type")
+		logger.Error("unsupport op type")
 	}
 	return ""
 }

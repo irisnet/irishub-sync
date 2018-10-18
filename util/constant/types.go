@@ -8,6 +8,8 @@ const (
 	TxTypeStakeEditValidator     = "EditValidator"
 	TxTypeStakeDelegate          = "Delegate"
 	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
+	TxTypeBeginRedelegate        = "BeginRedelegate"
+	TxTypeCompleteRedelegate     = "CompleteRedelegate"
 	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
 	TxTypeSubmitProposal         = "SubmitProposal"
 	TxTypeDeposit                = "Deposit"
@@ -26,6 +28,12 @@ const (
 	EnvNameSerSyncBlockNum   = "SER_SYNC_BLOCK_NUM"
 	EnvNameConsulAddr        = "CONSUL_ADDR"
 	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
+
+	EnvLogFileName    = "LOG_FILE_NAME"
+	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
+	EnvLogFileMaxAge  = "LOG_FILE_MAX_AGE"
+	EnvLogCompress    = "LOG_COMPRESS"
+	EnableAtomicLevel = "ENABLE_ATOMIC_LEVEL"
 
 	// define store name
 	StoreNameStake      = "stake"

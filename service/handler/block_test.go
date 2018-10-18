@@ -17,12 +17,12 @@ func buildBlock(blockHeight int64) (*types.BlockMeta, *types.Block, []*types.Val
 	block, err := client.Client.Block(&blockHeight)
 
 	if err != nil {
-		logger.Error.Fatalln(err)
+		logger.Error(err.Error())
 	}
 
 	validators, err := client.Client.Validators(&blockHeight)
 	if err != nil {
-		logger.Error.Fatalln(err)
+		logger.Error(err.Error())
 	}
 
 	return block.BlockMeta, block.Block, validators.Validators

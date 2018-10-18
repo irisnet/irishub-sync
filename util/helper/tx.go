@@ -23,7 +23,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 
 	err := cdc.UnmarshalBinary(txBytes, &authTx)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Error(err.Error())
 		return docTx
 	}
 
@@ -36,7 +36,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	// get tx status, gasUsed, gasPrice and actualFee from tx result
 	status, result, err := QueryTxResult(txBytes.Hash())
 	if err != nil {
-		logger.Error.Printf("%v: can't get txResult, err is %v\n", methodName, err)
+		logger.Error("get txResult err", logger.String("method", methodName), logger.String("err", err.Error()))
 	}
 	log := result.Log
 	gasUsed := result.GasUsed
@@ -53,7 +53,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 
 	msgs := authTx.GetMsgs()
 	if len(msgs) <= 0 {
-		logger.Warning.Printf("%v: can't get msgs\n", methodName)
+		logger.Error("can't get msgs", logger.String("method", methodName))
 		return docTx
 	}
 	msg := msgs[0]
@@ -97,8 +97,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		}
 		pubKey, err := itypes.Bech32ifyValPub(msg.PubKey)
 		if err != nil {
-			logger.Error.Printf("%v: Can't get pubKey, txHash is %v\n",
-				methodName, txHash)
+			logger.Error("Can't get pubKey", logger.String("txHash", txHash))
 			pubKey = ""
 		}
 		docTx.StakeCreateValidator = document.StakeCreateValidator{
@@ -157,6 +156,26 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.Amount = nil
 		docTx.Type = constant.TxTypeStakeCompleteUnbonding
 		return docTx
+	case itypes.MsgBeginRedelegate:
+		msg := msg.(itypes.MsgBeginRedelegate)
+
+		shares, _ := msg.SharesAmount.Float64()
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorDstAddr.String()
+		coin := store.Coin{
+			Amount: shares,
+		}
+		docTx.Amount = []store.Coin{coin}
+		docTx.Type = constant.TxTypeBeginRedelegate
+		docTx.Msg = itypes.NewBeginRedelegate(msg)
+	case itypes.MsgCompleteRedelegate:
+		msg := msg.(itypes.MsgCompleteRedelegate)
+
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorDstAddr.String()
+		docTx.Type = constant.TxTypeCompleteRedelegate
+		docTx.Msg = itypes.NewCompleteRedelegate(msg)
+
 	case itypes.MsgSubmitProposal:
 		msg := msg.(itypes.MsgSubmitProposal)
 
@@ -196,7 +215,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		return docTx
 
 	default:
-		logger.Info.Println("unknown msg type")
+		logger.Warn("unknown msg type")
 	}
 
 	return docTx
