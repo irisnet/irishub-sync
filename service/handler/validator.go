@@ -144,6 +144,7 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 		DelegatorShares: floatDelegatorShares,
 		Description:     description,
 		BondHeight:      v.BondHeight,
+		Status:          types.BondStatusToString(v.Status),
 	}
 
 	doc.VotingPower = doc.Tokens

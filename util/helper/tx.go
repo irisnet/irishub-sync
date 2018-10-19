@@ -175,7 +175,10 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.To = msg.ValidatorDstAddr.String()
 		docTx.Type = constant.TxTypeCompleteRedelegate
 		docTx.Msg = itypes.NewCompleteRedelegate(msg)
-
+	case itypes.MsgUnrevoke:
+		msg := msg.(itypes.MsgUnrevoke)
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.Type = constant.TxTypeunRevoke
 	case itypes.MsgSubmitProposal:
 		msg := msg.(itypes.MsgSubmitProposal)
 

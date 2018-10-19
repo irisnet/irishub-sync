@@ -22,6 +22,7 @@ type Candidate struct {
 	VotingPower     float64        `bson:"voting_power"` // Voting power if pubKey is a considered a validator
 	Description     ValDescription `bson:"description"`  // Description terms for the candidate
 	BondHeight      int64          `bson:"bond_height"`
+	Status          string         `bson:"status"`
 }
 
 func (d Candidate) Name() string {

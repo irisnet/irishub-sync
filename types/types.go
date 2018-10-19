@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/irisnet/irishub-sync/module/logger"
@@ -28,6 +29,7 @@ type (
 	MsgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
 	MsgBeginRedelegate        = stake.MsgBeginRedelegate
 	MsgCompleteRedelegate     = stake.MsgCompleteRedelegate
+	MsgUnrevoke               = slashing.MsgUnrevoke
 	StakeValidator            = stake.Validator
 	Delegation                = stake.Delegation
 	UnbondingDelegation       = stake.UnbondingDelegation
@@ -58,10 +60,11 @@ type (
 )
 
 var (
-	ValidatorsKey          = stake.ValidatorsKey
-	GetValidatorKey        = stake.GetValidatorKey
-	GetDelegationKey       = stake.GetDelegationKey
-	GetUBDKey              = stake.GetUBDKey
+	ValidatorsKey    = stake.ValidatorsKey
+	GetValidatorKey  = stake.GetValidatorKey
+	GetDelegationKey = stake.GetDelegationKey
+	GetUBDKey        = stake.GetUBDKey
+
 	UnmarshalValidator     = staketypes.UnmarshalValidator
 	MustUnmarshalValidator = staketypes.MustUnmarshalValidator
 	UnmarshalDelegation    = staketypes.UnmarshalDelegation
@@ -70,6 +73,7 @@ var (
 	Bech32ifyValPub      = types.Bech32ifyValPub
 	RegisterWire         = types.RegisterWire
 	AccAddressFromBech32 = types.AccAddressFromBech32
+	BondStatusToString   = types.BondStatusToString
 
 	AddressStoreKey   = auth.AddressStoreKey
 	GetAccountDecoder = authcmd.GetAccountDecoder
