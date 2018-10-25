@@ -39,6 +39,7 @@ func init() {
 	pool = &NodePool{
 		gcp.NewObjectPool(ctx, &factory, config),
 	}
+	pool.PreparePool(ctx)
 	//自动搜索可用节点
 	factory.StartCrawlPeers()
 }
@@ -124,26 +125,6 @@ func (f *PoolFactory) StartCrawlPeers() {
 	go func() {
 		f.cron.AddFunc("0 0/1 * * * *", func() {
 			logger.Info("PoolFactory StartCrawlPeers peer", logger.Any("peers", f.peersMap))
-			client := GetClient()
-
-			defer func() {
-				client.Release()
-				if err := recover(); err != nil {
-					logger.Info("PoolFactory StartCrawlPeers error", logger.Any("err", err))
-				}
-			}()
-
-			addrs := client.GetNodeAddress()
-			for _, addr := range addrs {
-				key := generateId(addr)
-				if _, ok := f.peersMap[key]; !ok {
-					f.peersMap[key] = EndPoint{
-						Address:   addr,
-						Available: true,
-					}
-				}
-			}
-
 			//检测节点是否上线
 			for key := range f.peersMap {
 				endPoint := f.peersMap[key]

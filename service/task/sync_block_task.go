@@ -208,6 +208,7 @@ loop:
 		goroutineNum = 20
 		syncBlockNumFastSync = (latestBlockHeight - syncTaskDoc.Height) / goroutineNum
 	}
+
 	activeGoroutineNum := goroutineNum
 
 	for i := int64(1); i <= goroutineNum; i++ {

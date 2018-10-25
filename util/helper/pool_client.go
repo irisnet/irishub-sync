@@ -4,11 +4,10 @@
 package helper
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/tendermint/tendermint/rpc/client"
-	"strings"
+	"time"
 )
 
 type Client struct {
@@ -26,18 +25,20 @@ func newClient(addr string) *Client {
 // get client from pool
 // while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		logger.Error.Println(err)
-	//	}
-	//}()
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("GetClient err", logger.Any("err", err))
+		}
+	}()
+
 	c, err := pool.BorrowObject(ctx)
-	if err != nil {
-		logger.Error("GetClient failed", logger.String("err", err.Error()))
-		return nil
+	for err != nil {
+		logger.Error("GetClient failed,will try again after 3 seconds", logger.String("err", err.Error()))
+		time.Sleep(3 * time.Second)
+		c, err = pool.BorrowObject(ctx)
 	}
-	logger.Info("current available connection", logger.Int("err", pool.GetNumIdle()))
-	logger.Info("current used connection", logger.Int("err", pool.GetNumActive()))
+	logger.Info("current available connection", logger.Int("Num", pool.GetNumIdle()))
+	logger.Info("current used connection", logger.Int("Num", pool.GetNumActive()))
 	return c.(*Client)
 }
 
@@ -57,25 +58,6 @@ func (c *Client) HeartBeat() error {
 	return err
 }
 
-func (c *Client) GetNodeAddress() []string {
-	http := c.Client.(*client.HTTP)
-	netInfo, err := http.NetInfo()
-	var addrs []string
-	if err == nil {
-		peers := netInfo.Peers
-		for _, peer := range peers {
-			addr := peer.ListenAddr
-			ip := strings.Split(addr, ":")[0]
-			port := strings.Split(peer.Other[5], ":")[2]
-			endpoint := fmt.Sprintf("%s%s:%s", "tcp://", ip, port)
-			addrs = append(addrs, endpoint)
-		}
-	}
-	fmt.Printf("#######################%v##################\n", addrs)
-	return addrs
-}
-
 func generateId(address string) string {
-	id := []byte(address)
-	return hex.EncodeToString(id)
+	return fmt.Sprintf("peer[%s]", address)
 }
