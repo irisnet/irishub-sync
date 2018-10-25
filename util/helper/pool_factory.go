@@ -17,9 +17,12 @@ var (
 
 func init() {
 	peersMap := map[string]EndPoint{}
-	peersMap[generateId(conf.BlockChainMonitorUrl)] = EndPoint{
-		Address:   conf.BlockChainMonitorUrl,
-		Available: true,
+
+	for _, url := range conf.BlockChainMonitorUrl {
+		peersMap[generateId(url)] = EndPoint{
+			Address:   url,
+			Available: true,
+		}
 	}
 
 	factory = PoolFactory{
