@@ -12,6 +12,7 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub/modules/gov"
+	"github.com/irisnet/irishub/modules/gov/tags"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -64,6 +65,7 @@ var (
 	GetValidatorKey  = stake.GetValidatorKey
 	GetDelegationKey = stake.GetDelegationKey
 	GetUBDKey        = stake.GetUBDKey
+	TagProposalID    = tags.ProposalID
 
 	UnmarshalValidator     = staketypes.UnmarshalValidator
 	MustUnmarshalValidator = staketypes.MustUnmarshalValidator
