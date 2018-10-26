@@ -10,7 +10,7 @@ const (
 	TxTypeStakeBeginUnbonding    = "BeginUnbonding"
 	TxTypeBeginRedelegate        = "BeginRedelegate"
 	TxTypeCompleteRedelegate     = "CompleteRedelegate"
-	TxTypeunRevoke               = "unRevoke"
+	TxTypeunRevoke               = "Unrevoke"
 	TxTypeStakeCompleteUnbonding = "CompleteUnbonding"
 	TxTypeSubmitProposal         = "SubmitProposal"
 	TxTypeDeposit                = "Deposit"
