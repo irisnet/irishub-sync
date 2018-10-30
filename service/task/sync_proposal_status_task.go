@@ -19,8 +19,9 @@ func syncProposalStatus() {
 				return
 			}
 			if propo.Status != proposal.Status {
-				proposal.Status = propo.Status
-				store.SaveOrUpdate(proposal)
+				propo.SubmitTime = proposal.SubmitTime
+				propo.Votes = proposal.Votes
+				store.SaveOrUpdate(propo)
 			}
 		}
 	}
