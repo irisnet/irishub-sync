@@ -20,11 +20,11 @@ func handleProposal(docTx document.CommonTx) {
 			propo, _ := helper.GetProposal(docTx.ProposalId)
 			proposal.TotalDeposit = propo.TotalDeposit
 			proposal.Status = propo.Status
+			proposal.VotingStartBlock = propo.VotingStartBlock
 			store.SaveOrUpdate(proposal)
 		}
 	case constant.TxTypeVote:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			proposal.VotingStartBlock = docTx.Height
 			voteMsg := docTx.Msg.(types.Vote)
 			vote := document.PVote{
 				Voter:  voteMsg.Voter,
