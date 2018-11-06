@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/tendermint/tendermint/types"
 )
 
 func buildBlock(blockHeight int64) (*types.BlockMeta, *types.Block, []*types.Validator) {

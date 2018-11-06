@@ -6,18 +6,19 @@ package helper
 import (
 	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/irisnet/irishub-sync/types"
+	"strings"
 	"time"
 )
 
 type Client struct {
-	client.Client
+	types.Client
 	Id string
 }
 
 func newClient(addr string) *Client {
 	return &Client{
-		Client: client.NewHTTP(addr, "/websocket"),
+		Client: types.NewHTTP(addr, "/websocket"),
 		Id:     generateId(addr),
 	}
 }
@@ -25,11 +26,6 @@ func newClient(addr string) *Client {
 // get client from pool
 // while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error("GetClient err", logger.Any("err", err))
-		}
-	}()
 
 	c, err := pool.BorrowObject(ctx)
 	for err != nil {
@@ -37,8 +33,9 @@ func GetClient() *Client {
 		time.Sleep(3 * time.Second)
 		c, err = pool.BorrowObject(ctx)
 	}
-	logger.Info("current available connection", logger.Int("Num", pool.GetNumIdle()))
-	logger.Info("current used connection", logger.Int("Num", pool.GetNumActive()))
+
+	logger.Debug("current available connection", logger.Int("Num", pool.GetNumIdle()))
+	logger.Debug("current used connection", logger.Int("Num", pool.GetNumActive()))
 	return c.(*Client)
 }
 
@@ -53,9 +50,28 @@ func (c *Client) Release() {
 }
 
 func (c *Client) HeartBeat() error {
-	http := c.Client.(*client.HTTP)
+	http := c.Client.(*types.HTTP)
 	_, err := http.Health()
 	return err
+}
+
+
+func (c *Client) GetNodeAddress() []string {
+	http := c.Client.(*types.HTTP)
+	netInfo, err := http.NetInfo()
+	var addrs []string
+	if err == nil {
+		peers := netInfo.Peers
+		for _, peer := range peers {
+			addr := peer.ListenAddr
+			ip := strings.Split(addr, ":")[0]
+			port := strings.Split(peer.Other[5], ":")[2]
+			endpoint := fmt.Sprintf("%s%s:%s", "tcp://", ip, port)
+			addrs = append(addrs, endpoint)
+		}
+	}
+	logger.Debug("found new node ", logger.Any("address", addrs))
+	return addrs
 }
 
 func generateId(address string) string {

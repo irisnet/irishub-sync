@@ -9,6 +9,7 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"strconv"
 	"strings"
 )
 
@@ -175,7 +176,10 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.To = msg.ValidatorDstAddr.String()
 		docTx.Type = constant.TxTypeCompleteRedelegate
 		docTx.Msg = itypes.NewCompleteRedelegate(msg)
-
+	case itypes.MsgUnrevoke:
+		msg := msg.(itypes.MsgUnrevoke)
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.Type = constant.TxTypeunRevoke
 	case itypes.MsgSubmitProposal:
 		msg := msg.(itypes.MsgSubmitProposal)
 
@@ -188,10 +192,11 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		//query proposal_id
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
-			if key == "proposalId" {
-				var proposalId int64
-				cdc.MustUnmarshalBinaryBare(tag.Value, &proposalId)
-				docTx.ProposalId = proposalId
+			if key == itypes.TagProposalID {
+				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
+				if err == nil {
+					docTx.ProposalId = proposalId
+				}
 			}
 		}
 		return docTx

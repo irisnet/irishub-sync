@@ -2,8 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
@@ -14,7 +12,7 @@ type SubmitProposal struct {
 	ProposalType   string      `json:"proposalType"`   //  Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
 	Proposer       string      `json:"proposer"`       //  Address of the proposer
 	InitialDeposit store.Coins `json:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
-	Params         []Param     `json:"params"`
+	Params         Param       `json:"params"`
 }
 
 type Param struct {
@@ -24,14 +22,10 @@ type Param struct {
 }
 
 func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
-	var params []Param
-	for _, param := range msg.Params {
-		p := Param{
-			Key:   param.Key,
-			Value: param.Value,
-			Op:    OpString(param.Op),
-		}
-		params = append(params, p)
+	p := Param{
+		Key:   msg.Param.Key,
+		Value: msg.Param.Value,
+		Op:    msg.Param.Op,
 	}
 	return SubmitProposal{
 		Title:          msg.Title,
@@ -39,7 +33,7 @@ func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 		ProposalType:   msg.ProposalType.String(),
 		Proposer:       msg.Proposer.String(),
 		InitialDeposit: BuildCoins(msg.InitialDeposit),
-		Params:         params,
+		Params:         p,
 	}
 }
 
@@ -55,16 +49,4 @@ func (s SubmitProposal) String() string {
 func UnmarshalSubmitProposal(str string) (submitProposal SubmitProposal) {
 	json.Unmarshal([]byte(str), &submitProposal)
 	return
-}
-
-func OpString(op gov.Op) string {
-	switch op {
-	case gov.Update:
-		return "update"
-	case gov.Add:
-		return "add"
-	default:
-		logger.Error("unsupport op type")
-	}
-	return ""
 }

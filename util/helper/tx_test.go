@@ -5,7 +5,7 @@ package helper
 import (
 	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/tendermint/tendermint/types"
+	"github.com/irisnet/irishub-sync/types"
 	"os"
 	"testing"
 )

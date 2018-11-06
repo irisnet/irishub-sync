@@ -6,14 +6,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub/modules/gov"
+	"github.com/irisnet/irishub/modules/gov/tags"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tm "github.com/tendermint/tendermint/types"
 	"strconv"
 )
@@ -27,6 +30,7 @@ type (
 	MsgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
 	MsgBeginRedelegate        = stake.MsgBeginRedelegate
 	MsgCompleteRedelegate     = stake.MsgCompleteRedelegate
+	MsgUnrevoke               = slashing.MsgUnrevoke
 	StakeValidator            = stake.Validator
 	Delegation                = stake.Delegation
 	UnbondingDelegation       = stake.UnbondingDelegation
@@ -46,17 +50,23 @@ type (
 	Validator  = tm.Validator
 	Tx         = tm.Tx
 	Block      = tm.Block
+	BlockMeta  = tm.BlockMeta
 	HexBytes   = cmn.HexBytes
 
 	Codec            = wire.Codec
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
+	Client           = rpcclient.Client
+	HTTP             = rpcclient.HTTP
+	ResultStatus     = ctypes.ResultStatus
 )
 
 var (
-	ValidatorsKey          = stake.ValidatorsKey
-	GetValidatorKey        = stake.GetValidatorKey
-	GetDelegationKey       = stake.GetDelegationKey
-	GetUBDKey              = stake.GetUBDKey
+	ValidatorsKey    = stake.ValidatorsKey
+	GetValidatorKey  = stake.GetValidatorKey
+	GetDelegationKey = stake.GetDelegationKey
+	GetUBDKey        = stake.GetUBDKey
+	TagProposalID    = tags.ProposalID
+
 	UnmarshalValidator     = staketypes.UnmarshalValidator
 	MustUnmarshalValidator = staketypes.MustUnmarshalValidator
 	UnmarshalDelegation    = staketypes.UnmarshalDelegation
@@ -65,12 +75,15 @@ var (
 	Bech32ifyValPub      = types.Bech32ifyValPub
 	RegisterWire         = types.RegisterWire
 	AccAddressFromBech32 = types.AccAddressFromBech32
+	BondStatusToString   = types.BondStatusToString
 
 	AddressStoreKey   = auth.AddressStoreKey
 	GetAccountDecoder = authcmd.GetAccountDecoder
 
 	KeyProposal      = gov.KeyProposal
 	KeyVotesSubspace = gov.KeyVotesSubspace
+
+	NewHTTP = rpcclient.NewHTTP
 )
 
 func BuildCoins(coins types.Coins) store.Coins {

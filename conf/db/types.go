@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	Host     = "192.168.150.7"
-	Port     = "30000"
+	Host     = "127.0.0.1"
+	Port     = "27017"
 	User     = "iris"
 	Passwd   = "irispassword"
 	Database = "sync-iris"
