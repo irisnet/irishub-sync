@@ -11,6 +11,7 @@
 // create collections
 db.createCollection("account");
 db.createCollection("block");
+db.createCollection("power_change");
 db.createCollection("stake_role_candidate");
 db.createCollection("stake_role_delegator");
 db.createCollection("sync_task");
@@ -19,6 +20,8 @@ db.createCollection("validator_up_time");
 db.createCollection("tx_gas");
 db.createCollection("proposal");
 db.createCollection("tx_msg");
+db.createCollection("tx_stake");
+db.createCollection("uptime_change");
 
 // create index
 db.account.createIndex({"address": 1}, {"unique": true});
@@ -46,6 +49,9 @@ db.validator_up_time.createIndex({"val_address": 1}, {"unique": true});
 db.tx_gas.createIndex({"tx_type": 1}, {"unique": true});
 db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
 db.tx_msg.createIndex({"hash": 1}, {"unique": true});
+
+db.power_change.createIndex({height:1,address:1},{unique:true});
+db.uptime_change.createIndex({time:1,address:1},{unique:true});
 
 // drop collection
 // db.account.drop();
