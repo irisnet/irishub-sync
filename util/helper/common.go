@@ -2,6 +2,7 @@ package helper
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"strconv"
 )
@@ -17,4 +18,14 @@ func ToJson(v interface{}) string {
 
 func ParseStrToFloat(s string) (float64, error) {
 	return strconv.ParseFloat(s, 64)
+}
+
+func RoundFloat(num float64, bit int) (i float64) {
+	format := "%" + fmt.Sprintf("0.%d", bit) + "f"
+	s := fmt.Sprintf(format, num)
+	i, err := strconv.ParseFloat(s, 0)
+	if err != nil {
+		logger.Error("common.RoundFloat error", logger.String("format", format))
+	}
+	return i
 }
