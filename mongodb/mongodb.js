@@ -20,7 +20,7 @@ db.createCollection("validator_up_time");
 db.createCollection("tx_gas");
 db.createCollection("proposal");
 db.createCollection("tx_msg");
-db.createCollection("power_change");
+db.createCollection("power_change");//explorer
 db.createCollection("uptime_change");
 
 
