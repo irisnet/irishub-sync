@@ -6,7 +6,7 @@ import (
 )
 
 type Vote struct {
-	ProposalID int64  `json:"proposal_id"`
+	ProposalID uint64 `json:"proposal_id"`
 	Voter      string `json:"voter"`
 	Option     string `json:"option"`
 }

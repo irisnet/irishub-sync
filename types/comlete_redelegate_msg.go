@@ -20,10 +20,10 @@ func (s CompleteRedelegate) String() string {
 	return string(str)
 }
 
-func NewCompleteRedelegate(msg MsgCompleteRedelegate) CompleteRedelegate {
-	return CompleteRedelegate{
-		DelegatorAddr:    msg.DelegatorAddr.String(),
-		ValidatorSrcAddr: msg.ValidatorSrcAddr.String(),
-		ValidatorDstAddr: msg.ValidatorDstAddr.String(),
-	}
-}
+//func NewCompleteRedelegate(msg MsgCompleteRedelegate) CompleteRedelegate {
+//	return CompleteRedelegate{
+//		DelegatorAddr:    msg.DelegatorAddr.String(),
+//		ValidatorSrcAddr: msg.ValidatorSrcAddr.String(),
+//		ValidatorDstAddr: msg.ValidatorDstAddr.String(),
+//	}
+//}

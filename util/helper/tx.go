@@ -22,7 +22,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		actualFee  store.ActualFee
 	)
 
-	err := cdc.UnmarshalBinary(txBytes, &authTx)
+	err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &authTx)
 	if err != nil {
 		logger.Error(err.Error())
 		return docTx
@@ -139,7 +139,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	case itypes.MsgStakeBeginUnbonding:
 		msg := msg.(itypes.MsgStakeBeginUnbonding)
 
-		shares, _ := msg.SharesAmount.Float64()
+		shares := ParseFloat(msg.SharesAmount.String()) //TODO
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
 
@@ -149,18 +149,18 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeStakeBeginUnbonding
 		return docTx
-	case itypes.MsgStakeCompleteUnbonding:
-		msg := msg.(itypes.MsgStakeCompleteUnbonding)
-
-		docTx.From = msg.DelegatorAddr.String()
-		docTx.To = msg.ValidatorAddr.String()
-		docTx.Amount = nil
-		docTx.Type = constant.TxTypeStakeCompleteUnbonding
-		return docTx
+	//case itypes.MsgStakeCompleteUnbonding:
+	//	msg := msg.(itypes.MsgStakeCompleteUnbonding)
+	//
+	//	docTx.From = msg.DelegatorAddr.String()
+	//	docTx.To = msg.ValidatorAddr.String()
+	//	docTx.Amount = nil
+	//	docTx.Type = constant.TxTypeStakeCompleteUnbonding
+	//	return docTx
 	case itypes.MsgBeginRedelegate:
 		msg := msg.(itypes.MsgBeginRedelegate)
 
-		shares, _ := msg.SharesAmount.Float64()
+		shares := ParseFloat(msg.SharesAmount.String()) //TODO
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorDstAddr.String()
 		coin := store.Coin{
@@ -169,15 +169,9 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeBeginRedelegate
 		docTx.Msg = itypes.NewBeginRedelegate(msg)
-	case itypes.MsgCompleteRedelegate:
-		msg := msg.(itypes.MsgCompleteRedelegate)
-
-		docTx.From = msg.DelegatorAddr.String()
-		docTx.To = msg.ValidatorDstAddr.String()
-		docTx.Type = constant.TxTypeCompleteRedelegate
-		docTx.Msg = itypes.NewCompleteRedelegate(msg)
-	case itypes.MsgUnrevoke:
-		msg := msg.(itypes.MsgUnrevoke)
+		return docTx
+	case itypes.MsgUnjail:
+		msg := msg.(itypes.MsgUnjail)
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeunRevoke
 	case itypes.MsgSubmitProposal:
@@ -195,7 +189,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 			if key == itypes.TagProposalID {
 				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
 				if err == nil {
-					docTx.ProposalId = proposalId
+					docTx.ProposalId = uint64(proposalId) //TODO
 				}
 			}
 		}
@@ -203,7 +197,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
 
-		docTx.From = msg.Depositer.String()
+		docTx.From = msg.Depositor.String() //TODO
 		docTx.Amount = itypes.BuildCoins(msg.Amount)
 		docTx.Type = constant.TxTypeDeposit
 		docTx.Msg = itypes.NewDeposit(msg)

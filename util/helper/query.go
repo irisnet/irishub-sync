@@ -11,14 +11,14 @@ import (
 // get validator
 func GetValidator(valAddr string) (types.StakeValidator, error) {
 	var (
-		validatorAddr types.AccAddress
+		validatorAddr types.ValAddress
 		err           error
 		res           types.StakeValidator
 	)
 
-	validatorAddr, err = types.AccAddressFromBech32(valAddr)
+	validatorAddr, err = types.ValAddressFromBech32(valAddr)
 
-	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath)
+	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath) //TODO
 	if err != nil || resRaw == nil {
 		return res, err
 	}
@@ -32,7 +32,7 @@ func GetValidator(valAddr string) (types.StakeValidator, error) {
 func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
 	var (
 		delegatorAddr types.AccAddress
-		validatorAddr types.AccAddress
+		validatorAddr types.ValAddress
 		err           error
 
 		res types.Delegation
@@ -44,13 +44,13 @@ func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
 		return res, err
 	}
 
-	validatorAddr, err = types.AccAddressFromBech32(valAddr)
+	validatorAddr, err = types.ValAddressFromBech32(valAddr)
 
 	if err != nil {
 		return res, err
 	}
 	cdc := codec.Cdc
-	key := types.GetDelegationKey(delegatorAddr, validatorAddr)
+	key := types.GetDelegationKey(delegatorAddr, validatorAddr) //TODO
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
@@ -71,7 +71,7 @@ func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
 func GetUnbondingDelegation(delAddr, valAddr string) (types.UnbondingDelegation, error) {
 	var (
 		delegatorAddr types.AccAddress
-		validatorAddr types.AccAddress
+		validatorAddr types.ValAddress
 		err           error
 
 		res types.UnbondingDelegation
@@ -83,14 +83,14 @@ func GetUnbondingDelegation(delAddr, valAddr string) (types.UnbondingDelegation,
 		return res, err
 	}
 
-	validatorAddr, err = types.AccAddressFromBech32(valAddr)
+	validatorAddr, err = types.ValAddressFromBech32(valAddr)
 
 	if err != nil {
 		return res, err
 	}
 
 	cdc := codec.Cdc
-	key := types.GetUBDKey(delegatorAddr, validatorAddr)
+	key := types.GetUBDKey(delegatorAddr, validatorAddr) //TODO ValAddressFromBech32
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
@@ -110,8 +110,8 @@ func Query(key types.HexBytes, storeName string, endPath string) (res []byte, er
 	defer client.Release()
 
 	opts := types.ABCIQueryOptions{
-		Height:  0,
-		Trusted: true,
+		Height: 0,
+		Prove:  false, //不需要验证prof
 	}
 	result, err := client.ABCIQueryWithOptions(path, key, opts)
 	if err != nil {
@@ -129,6 +129,6 @@ func QuerySubspace(cdc *types.Codec, subspace []byte, storeName string) (res []t
 	if err != nil {
 		return res, err
 	}
-	cdc.MustUnmarshalBinary(resRaw, &res)
+	cdc.MustUnmarshalBinaryLengthPrefixed(resRaw, &res)
 	return
 }

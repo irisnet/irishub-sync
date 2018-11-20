@@ -20,7 +20,8 @@ func handleProposal(docTx document.CommonTx) {
 			propo, _ := helper.GetProposal(docTx.ProposalId)
 			proposal.TotalDeposit = propo.TotalDeposit
 			proposal.Status = propo.Status
-			proposal.VotingStartBlock = propo.VotingStartBlock
+			proposal.VotingStartTime = propo.VotingStartTime
+			proposal.VotingEndTime = propo.VotingEndTime
 			store.SaveOrUpdate(proposal)
 		}
 	case constant.TxTypeVote:

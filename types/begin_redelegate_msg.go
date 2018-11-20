@@ -6,10 +6,10 @@ import (
 )
 
 type BeginRedelegate struct {
-	DelegatorAddr    string  `json:"delegator_addr"`
-	ValidatorSrcAddr string  `json:"validator_src_addr"`
-	ValidatorDstAddr string  `json:"validator_dst_addr"`
-	SharesAmount     float64 `json:"shares_amount"`
+	DelegatorAddr    string `json:"delegator_addr"`
+	ValidatorSrcAddr string `json:"validator_src_addr"`
+	ValidatorDstAddr string `json:"validator_dst_addr"`
+	SharesAmount     string `json:"shares_amount"`
 }
 
 func (s BeginRedelegate) Type() string {
@@ -22,7 +22,7 @@ func (s BeginRedelegate) String() string {
 }
 
 func NewBeginRedelegate(msg MsgBeginRedelegate) BeginRedelegate {
-	shares, _ := msg.SharesAmount.Float64()
+	shares := msg.SharesAmount.String()
 	return BeginRedelegate{
 		DelegatorAddr:    msg.DelegatorAddr.String(),
 		ValidatorSrcAddr: msg.ValidatorSrcAddr.String(),

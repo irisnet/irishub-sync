@@ -10,16 +10,17 @@ import (
 const CollectionNmProposal = "proposal"
 
 type Proposal struct {
-	ProposalId       int64       `bson:"proposal_id"`
-	Title            string      `bson:"title"`
-	Type             string      `bson:"type"`
-	Description      string      `bson:"description"`
-	Status           string      `bson:"status"`
-	SubmitBlock      int64       `bson:"submit_block"`
-	SubmitTime       time.Time   `bson:"submit_time"`
-	VotingStartBlock int64       `bson:"voting_start_block"`
-	TotalDeposit     store.Coins `bson:"total_deposit"`
-	Votes            []PVote     `bson:"votes"`
+	ProposalId      uint64      `bson:"proposal_id"`
+	Title           string      `bson:"title"`
+	Type            string      `bson:"type"`
+	Description     string      `bson:"description"`
+	Status          string      `bson:"status"`
+	SubmitTime      time.Time   `bson:"submit_time"`
+	DepositEndTime  time.Time   `bson:"deposit_end_time"`
+	VotingStartTime time.Time   `bson:"voting_start_time"`
+	VotingEndTime   time.Time   `bson:"voting_end_time"`
+	TotalDeposit    store.Coins `bson:"total_deposit"`
+	Votes           []PVote     `bson:"votes"`
 }
 
 type PVote struct {
@@ -36,7 +37,7 @@ func (m Proposal) PkKvPair() map[string]interface{} {
 	return bson.M{"proposal_id": m.ProposalId}
 }
 
-func QueryProposal(proposalId int64) (Proposal, error) {
+func QueryProposal(proposalId uint64) (Proposal, error) {
 	var result Proposal
 	query := func(c *mgo.Collection) error {
 		err := c.Find(bson.M{"proposal_id": proposalId}).Sort("-submit_block").One(&result)

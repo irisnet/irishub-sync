@@ -28,7 +28,7 @@ type CommonTx struct {
 	GasUsed    int64           `bson:"gas_used"`
 	GasPrice   float64         `bson:"gas_price"`
 	ActualFee  store.ActualFee `bson:"actual_fee"`
-	ProposalId int64           `bson:"proposal_id"`
+	ProposalId uint64          `bson:"proposal_id"`
 
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`

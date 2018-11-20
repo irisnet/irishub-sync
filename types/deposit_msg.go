@@ -14,9 +14,9 @@ type Deposit struct {
 
 func NewDeposit(deposit MsgDeposit) Deposit {
 	return Deposit{
-		ProposalID: deposit.ProposalID,
-		Depositer:  deposit.Depositer.String(),
-		Amount:     BuildCoins(deposit.Amount),
+		//ProposalID: deposit.ProposalID, // TODO
+		Depositer: deposit.Depositor.String(),
+		Amount:    BuildCoins(deposit.Amount),
 	}
 }
 
