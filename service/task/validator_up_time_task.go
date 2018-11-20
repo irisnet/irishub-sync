@@ -35,9 +35,10 @@ func calculateAndSaveValidatorUpTime() {
 
 	if len(res) > 0 {
 		for _, v := range res {
+			tmp := float64(v.PreCommitsNum) / float64(intervalBlock) //注意必须是浮点数相除
 			valUpTime := document.ValidatorUpTime{
 				ValAddress: v.Address,
-				UpTime:     helper.RoundFloat(float64(v.PreCommitsNum/intervalBlock)*100, 0),
+				UpTime:     helper.RoundFloat(tmp*100, 0),
 			}
 			valUpTimes = append(valUpTimes, valUpTime)
 		}
