@@ -37,6 +37,7 @@ func handleProposal(docTx document.CommonTx) {
 			for i = range proposal.Votes {
 				if proposal.Votes[i].Voter == vote.Voter {
 					hasVote = true
+					break
 				}
 			}
 			if hasVote {
