@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
@@ -48,15 +49,19 @@ func init() {
 type (
 	MsgTransfer = bank.MsgSend
 
-	MsgStakeCreate         = stake.MsgCreateValidator
-	MsgStakeEdit           = stake.MsgEditValidator
-	MsgStakeDelegate       = stake.MsgDelegate
-	MsgStakeBeginUnbonding = stake.MsgBeginUnbonding
-	MsgBeginRedelegate     = stake.MsgBeginRedelegate
-	MsgUnjail              = slashing.MsgUnjail
-	StakeValidator         = stake.Validator
-	Delegation             = stake.Delegation
-	UnbondingDelegation    = stake.UnbondingDelegation
+	MsgStakeCreate                 = stake.MsgCreateValidator
+	MsgStakeEdit                   = stake.MsgEditValidator
+	MsgStakeDelegate               = stake.MsgDelegate
+	MsgStakeBeginUnbonding         = stake.MsgBeginUnbonding
+	MsgBeginRedelegate             = stake.MsgBeginRedelegate
+	MsgUnjail                      = slashing.MsgUnjail
+	MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
+	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
+	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
+	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll
+	StakeValidator                 = stake.Validator
+	Delegation                     = stake.Delegation
+	UnbondingDelegation            = stake.UnbondingDelegation
 
 	MsgDeposit        = gov.MsgDeposit
 	MsgSubmitProposal = gov.MsgSubmitProposal

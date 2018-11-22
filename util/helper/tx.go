@@ -66,6 +66,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		Fee:       fee,
 		Memo:      memo,
 		Status:    status,
+		Code:      result.Code,
 		Log:       log,
 		GasUsed:   gasUsed,
 		GasPrice:  gasPrice,
@@ -149,14 +150,6 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeStakeBeginUnbonding
 		return docTx
-	//case itypes.MsgStakeCompleteUnbonding:
-	//	msg := msg.(itypes.MsgStakeCompleteUnbonding)
-	//
-	//	docTx.From = msg.DelegatorAddr.String()
-	//	docTx.To = msg.ValidatorAddr.String()
-	//	docTx.Amount = nil
-	//	docTx.Type = constant.TxTypeStakeCompleteUnbonding
-	//	return docTx
 	case itypes.MsgBeginRedelegate:
 		msg := msg.(itypes.MsgBeginRedelegate)
 
@@ -172,8 +165,35 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		return docTx
 	case itypes.MsgUnjail:
 		msg := msg.(itypes.MsgUnjail)
+
 		docTx.From = msg.ValidatorAddr.String()
-		docTx.Type = constant.TxTypeunRevoke
+		docTx.Type = constant.TxTypeUnjail
+	case itypes.MsgSetWithdrawAddress:
+		msg := msg.(itypes.MsgSetWithdrawAddress)
+
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.WithdrawAddr.String()
+		docTx.Type = constant.TxTypeSetWithdrawAddress
+		docTx.Msg = itypes.NewSetWithdrawAddressMsg(msg)
+	case itypes.MsgWithdrawDelegatorReward:
+		msg := msg.(itypes.MsgWithdrawDelegatorReward)
+
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
+		docTx.Type = constant.TxTypeWithdrawDelegatorReward
+		docTx.Msg = itypes.NewWithdrawDelegatorRewardMsg(msg)
+	case itypes.MsgWithdrawDelegatorRewardsAll:
+		msg := msg.(itypes.MsgWithdrawDelegatorRewardsAll)
+
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.Type = constant.TxTypeWithdrawDelegatorRewardsAll
+		docTx.Msg = itypes.NewWithdrawDelegatorRewardsAllMsg(msg)
+	case itypes.MsgWithdrawValidatorRewardsAll:
+		msg := msg.(itypes.MsgWithdrawValidatorRewardsAll)
+
+		docTx.From = msg.ValidatorAddr.String()
+		docTx.Type = constant.TxTypeWithdrawValidatorRewardsAll
+		docTx.Msg = itypes.NewWithdrawValidatorRewardsAllMsg(msg)
 	case itypes.MsgSubmitProposal:
 		msg := msg.(itypes.MsgSubmitProposal)
 
@@ -189,7 +209,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 			if key == itypes.TagProposalID {
 				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
 				if err == nil {
-					docTx.ProposalId = uint64(proposalId) //TODO
+					docTx.ProposalId = uint64(proposalId)
 				}
 			}
 		}
@@ -197,7 +217,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
 
-		docTx.From = msg.Depositor.String() //TODO
+		docTx.From = msg.Depositor.String()
 		docTx.Amount = itypes.BuildCoins(msg.Amount)
 		docTx.Type = constant.TxTypeDeposit
 		docTx.Msg = itypes.NewDeposit(msg)

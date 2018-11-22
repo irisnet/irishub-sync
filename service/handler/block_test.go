@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/irisnet/irishub-sync/module/logger"
@@ -72,4 +73,17 @@ func TestSaveBlock(t *testing.T) {
 			SaveBlock(tt.args.meta, tt.args.block, tt.args.vals)
 		})
 	}
+}
+
+func TestForEach(t *testing.T) {
+	var i int
+	var arr = []string{"1", "2", "3"}
+	for i = range arr {
+		fmt.Println(fmt.Sprintf("a[%d] = %s", i, arr[i]))
+		if arr[i] == "2" {
+			break
+		}
+
+	}
+	fmt.Println(fmt.Sprintf("a[%d]", i))
 }

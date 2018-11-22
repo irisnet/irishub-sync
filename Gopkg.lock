@@ -49,7 +49,7 @@
   revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
-  digest = "1:f0136dc38501846b804bdf1e9fe93d25d626f60c3007c2e4cb2949c7d855f2b4"
+  digest = "1:0f7da2bef0935fbdf3c47bad0335f28ae427a628e10b9b4bed228e49fc045959"
   name = "github.com/cosmos/cosmos-sdk"
   packages = [
     "baseapp",
@@ -72,6 +72,10 @@
     "x/auth/client/cli",
     "x/auth/client/txbuilder",
     "x/bank",
+    "x/distribution",
+    "x/distribution/keeper",
+    "x/distribution/tags",
+    "x/distribution/types",
     "x/params",
     "x/params/subspace",
     "x/slashing",
@@ -227,13 +231,12 @@
   revision = "6bb64b370b90e7ef1fa532be9e591a81c3493e00"
 
 [[projects]]
-  digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
+  digest = "1:ea40c24cdbacd054a6ae9de03e62c5f252479b96c716375aace5c120d68647c8"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
     "hcl/ast",
     "hcl/parser",
-    "hcl/printer",
     "hcl/scanner",
     "hcl/strconv",
     "hcl/token",
@@ -648,7 +651,6 @@
   version = "v1.9.1"
 
 [[projects]]
-  branch = "master"
   digest = "1:6f6dc6060c4e9ba73cf28aa88f12a69a030d3d19d518ef8e931879eaa099628d"
   name = "golang.org/x/crypto"
   packages = [
@@ -805,6 +807,7 @@
     "github.com/cosmos/cosmos-sdk/x/auth",
     "github.com/cosmos/cosmos-sdk/x/auth/client/cli",
     "github.com/cosmos/cosmos-sdk/x/bank",
+    "github.com/cosmos/cosmos-sdk/x/distribution",
     "github.com/cosmos/cosmos-sdk/x/slashing",
     "github.com/cosmos/cosmos-sdk/x/stake",
     "github.com/cosmos/cosmos-sdk/x/stake/types",

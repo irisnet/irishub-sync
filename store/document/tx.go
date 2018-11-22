@@ -24,6 +24,7 @@ type CommonTx struct {
 	Fee        store.Fee       `bson:"fee"`
 	Memo       string          `bson:"memo"`
 	Status     string          `bson:"status"`
+	Code       uint32          `bson:"code"`
 	Log        string          `bson:"log"`
 	GasUsed    int64           `bson:"gas_used"`
 	GasPrice   float64         `bson:"gas_price"`
