@@ -1,11 +1,12 @@
 package types
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/wire"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
@@ -21,19 +22,46 @@ import (
 	"strconv"
 )
 
+const (
+	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	Bech32PrefixAccAddr = "faa"
+	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
+	Bech32PrefixAccPub = "fap"
+	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
+	Bech32PrefixValAddr = "fva"
+	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
+	Bech32PrefixValPub = "fvp"
+	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
+	Bech32PrefixConsAddr = "fca"
+	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
+	Bech32PrefixConsPub = "fcp"
+)
+
+// 初始化账户地址前缀
+func init() {
+	config := types.GetConfig()
+	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+	config.Seal()
+}
+
 type (
-	MsgTransfer               = bank.MsgSend
-	MsgStakeCreate            = stake.MsgCreateValidator
-	MsgStakeEdit              = stake.MsgEditValidator
-	MsgStakeDelegate          = stake.MsgDelegate
-	MsgStakeBeginUnbonding    = stake.MsgBeginUnbonding
-	MsgStakeCompleteUnbonding = stake.MsgCompleteUnbonding
-	MsgBeginRedelegate        = stake.MsgBeginRedelegate
-	MsgCompleteRedelegate     = stake.MsgCompleteRedelegate
-	MsgUnrevoke               = slashing.MsgUnrevoke
-	StakeValidator            = stake.Validator
-	Delegation                = stake.Delegation
-	UnbondingDelegation       = stake.UnbondingDelegation
+	MsgTransfer = bank.MsgSend
+
+	MsgStakeCreate                 = stake.MsgCreateValidator
+	MsgStakeEdit                   = stake.MsgEditValidator
+	MsgStakeDelegate               = stake.MsgDelegate
+	MsgStakeBeginUnbonding         = stake.MsgBeginUnbonding
+	MsgBeginRedelegate             = stake.MsgBeginRedelegate
+	MsgUnjail                      = slashing.MsgUnjail
+	MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
+	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
+	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
+	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll
+	StakeValidator                 = stake.Validator
+	Delegation                     = stake.Delegation
+	UnbondingDelegation            = stake.UnbondingDelegation
 
 	MsgDeposit        = gov.MsgDeposit
 	MsgSubmitProposal = gov.MsgSubmitProposal
@@ -47,25 +75,28 @@ type (
 	SdkCoins   = types.Coins
 	KVPair     = types.KVPair
 	AccAddress = types.AccAddress
+	ValAddress = types.ValAddress
 	Validator  = tm.Validator
 	Tx         = tm.Tx
 	Block      = tm.Block
 	BlockMeta  = tm.BlockMeta
 	HexBytes   = cmn.HexBytes
 
-	Codec            = wire.Codec
+	Codec            = codec.Codec
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
 	Client           = rpcclient.Client
 	HTTP             = rpcclient.HTTP
 	ResultStatus     = ctypes.ResultStatus
 )
 
+//
 var (
-	ValidatorsKey    = stake.ValidatorsKey
-	GetValidatorKey  = stake.GetValidatorKey
-	GetDelegationKey = stake.GetDelegationKey
-	GetUBDKey        = stake.GetUBDKey
-	TagProposalID    = tags.ProposalID
+	ValidatorsKey        = stake.ValidatorsKey
+	GetValidatorKey      = stake.GetValidatorKey
+	GetDelegationKey     = stake.GetDelegationKey
+	GetUBDKey            = stake.GetUBDKey
+	TagProposalID        = tags.ProposalID
+	ValAddressFromBech32 = types.ValAddressFromBech32
 
 	UnmarshalValidator     = staketypes.UnmarshalValidator
 	MustUnmarshalValidator = staketypes.MustUnmarshalValidator
@@ -73,7 +104,7 @@ var (
 	MustUnmarshalUBD       = staketypes.MustUnmarshalUBD
 
 	Bech32ifyValPub      = types.Bech32ifyValPub
-	RegisterWire         = types.RegisterWire
+	RegisterCodec        = types.RegisterCodec
 	AccAddressFromBech32 = types.AccAddressFromBech32
 	BondStatusToString   = types.BondStatusToString
 
@@ -86,6 +117,7 @@ var (
 	NewHTTP = rpcclient.NewHTTP
 )
 
+//
 func BuildCoins(coins types.Coins) store.Coins {
 	var (
 		localCoins store.Coins

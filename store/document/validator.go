@@ -15,7 +15,7 @@ type Candidate struct {
 	Address         string         `bson:"address"` // owner, identity key
 	PubKey          string         `bson:"pub_key"`
 	PubKeyAddr      string         `bson:"pub_key_addr"`
-	Revoked         bool           `bson:"revoked"` // has the validator been revoked from bonded status
+	Jailed          bool           `bson:"jailed"` // has the validator been revoked from bonded status
 	Tokens          float64        `bson:"tokens"`
 	OriginalTokens  string         `bson:"original_tokens"`
 	DelegatorShares float64        `bson:"delegator_shares"`

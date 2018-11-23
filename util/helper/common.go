@@ -20,6 +20,14 @@ func ParseStrToFloat(s string) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
+func ParseFloat(s string) float64 {
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		logger.Error("common.ParseFloat error", logger.String("value", s))
+	}
+	return f
+}
+
 func RoundFloat(num float64, bit int) (i float64) {
 	format := "%" + fmt.Sprintf("0.%d", bit) + "f"
 	s := fmt.Sprintf(format, num)

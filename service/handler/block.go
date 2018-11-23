@@ -78,7 +78,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 					Height:           v.Height,
 					Round:            v.Round,
 					Timestamp:        v.Timestamp,
-					Type:             v.Type,
+					Type:             byte(v.Type),
 					BlockID:          lastBlockId,
 					Signature:        sig,
 				}

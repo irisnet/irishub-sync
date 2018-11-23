@@ -1,11 +1,11 @@
 package codec
 
 import (
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/wire"
+	"github.com/cosmos/cosmos-sdk/codec"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/ibc"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
 	"github.com/irisnet/irishub/modules/gov"
@@ -13,21 +13,20 @@ import (
 )
 
 var (
-	Cdc *wire.Codec
+	Cdc *codec.Codec
 )
 
 func init() {
-	Cdc = wire.NewCodec()
+	Cdc = codec.New()
 
-	ibc.RegisterWire(Cdc)
-	bank.RegisterWire(Cdc)
-	stake.RegisterWire(Cdc)
-	slashing.RegisterWire(Cdc)
-	auth.RegisterWire(Cdc)
-	gov.RegisterWire(Cdc)
-	upgrade.RegisterWire(Cdc)
+	bank.RegisterCodec(Cdc)
+	stake.RegisterCodec(Cdc)
+	slashing.RegisterCodec(Cdc)
+	auth.RegisterCodec(Cdc)
+	gov.RegisterCodec(Cdc)
+	upgrade.RegisterCodec(Cdc)
 
-	sdktypes.RegisterWire(Cdc)
+	sdk.RegisterCodec(Cdc)
 
-	wire.RegisterCrypto(Cdc)
+	codec.RegisterCrypto(Cdc)
 }
