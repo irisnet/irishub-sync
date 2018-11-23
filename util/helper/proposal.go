@@ -23,7 +23,6 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	proposal.Description = propo.GetDescription()
 	proposal.Status = propo.GetStatus().String()
 
-	// TODO
 	proposal.SubmitTime = propo.GetSubmitTime()
 	proposal.VotingStartTime = propo.GetVotingStartTime()
 	proposal.VotingEndTime = propo.GetVotingEndTime()
