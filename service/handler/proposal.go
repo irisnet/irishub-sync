@@ -12,8 +12,7 @@ func handleProposal(docTx document.CommonTx) {
 	switch docTx.Type {
 	case constant.TxTypeSubmitProposal:
 		if proposal, err := helper.GetProposal(docTx.ProposalId); err == nil {
-			proposal.SubmitTime = docTx.Time
-			store.Save(proposal)
+			store.SaveOrUpdate(proposal)
 		}
 	case constant.TxTypeDeposit:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
