@@ -11,6 +11,7 @@ type SubmitProposal struct {
 	Description    string      `json:"description"`    //  Description of the proposal
 	Proposer       string      `json:"proposer"`       //  Address of the proposer
 	InitialDeposit store.Coins `json:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
+	ProposalType   string      `json:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
 	Params         Param       `json:"params"`
 }
 
