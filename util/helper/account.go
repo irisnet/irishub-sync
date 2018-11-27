@@ -40,3 +40,13 @@ func QueryAccountBalance(address string) store.Coins {
 
 	return types.BuildCoins(account.GetCoins())
 }
+
+func ValAddrToAccAddr(address string) (accAddr string) {
+	valAddr, err := types.ValAddressFromBech32(address)
+	if err != nil {
+		logger.Error("ValAddressFromBech32 decode account failed", logger.String("address", address))
+		return
+	}
+
+	return types.AccAddress(valAddr.Bytes()).String()
+}
