@@ -80,16 +80,16 @@ func UnmarshalVote(str string) (vote Vote) {
 }
 
 type Deposit struct {
-	ProposalID int64       `json:"proposal_id"` // ID of the proposal
+	ProposalID uint64      `json:"proposal_id"` // ID of the proposal
 	Depositer  string      `json:"depositer"`   // Address of the depositer
 	Amount     store.Coins `json:"amount"`      // Coins to add to the proposal's deposit
 }
 
 func NewDeposit(deposit MsgDeposit) Deposit {
 	return Deposit{
-		//ProposalID: deposit.ProposalID, // TODO
-		Depositer: deposit.Depositor.String(),
-		Amount:    BuildCoins(deposit.Amount),
+		ProposalID: deposit.ProposalID,
+		Depositer:  deposit.Depositor.String(),
+		Amount:     BuildCoins(deposit.Amount),
 	}
 }
 
