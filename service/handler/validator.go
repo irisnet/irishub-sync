@@ -60,7 +60,7 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 			logger.Error("helper.Query err ", logger.String("method", methodName), logger.String("err", err.Error()))
 		}
 
-		codec.Cdc.MustUnmarshalBinary(resRaw, &kvs)
+		codec.Cdc.MustUnmarshalBinaryLengthPrefixed(resRaw, &kvs) //TODO
 		for _, v := range kvs {
 			var (
 				validator types.StakeValidator
@@ -128,19 +128,19 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 		Details:  v.Description.Details,
 	}
 
-	floatTokens, _ := v.Tokens.Float64()
-	floatDelegatorShares, _ := v.DelegatorShares.Float64()
-	pubKey, err := types.Bech32ifyValPub(v.PubKey)
+	floatTokens := helper.ParseFloat(v.Tokens.String())                   //TODO
+	floatDelegatorShares := helper.ParseFloat(v.DelegatorShares.String()) //TODO
+	pubKey, err := types.Bech32ifyValPub(v.ConsPubKey)                    //TODO
 	if err != nil {
 		logger.Error("Can't get validator pubKey", logger.String("pubKey", pubKey), logger.String("err", err.Error()))
 	}
 	doc := document.Candidate{
-		Address:         v.Owner.String(),
+		Address:         v.OperatorAddr.String(),
 		PubKey:          pubKey,
-		PubKeyAddr:      v.PubKey.Address().String(),
-		Revoked:         v.Revoked,
+		PubKeyAddr:      v.ConsPubKey.Address().String(),
+		Jailed:          v.Jailed,
 		Tokens:          floatTokens,
-		OriginalTokens:  v.Tokens.RatString(),
+		OriginalTokens:  helper.RoundString(v.Tokens.String(), 0),
 		DelegatorShares: floatDelegatorShares,
 		Description:     description,
 		BondHeight:      v.BondHeight,

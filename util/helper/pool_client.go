@@ -4,11 +4,17 @@
 package helper
 
 import (
+<<<<<<< HEAD
 	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"strings"
 	"time"
+=======
+	"encoding/hex"
+	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/types"
+>>>>>>> 94b9c10c4f18d82f1b1ae1f02224824f2e71d81e
 )
 
 type Client struct {
@@ -57,19 +63,19 @@ func (c *Client) HeartBeat() error {
 
 
 func (c *Client) GetNodeAddress() []string {
-	http := c.Client.(*types.HTTP)
-	netInfo, err := http.NetInfo()
+	//http := c.Client.(*types.HTTP)
+	//netInfo, err := http.NetInfo()
 	var addrs []string
-	if err == nil {
-		peers := netInfo.Peers
-		for _, peer := range peers {
-			addr := peer.ListenAddr
-			ip := strings.Split(addr, ":")[0]
-			port := strings.Split(peer.Other[5], ":")[2]
-			endpoint := fmt.Sprintf("%s%s:%s", "tcp://", ip, port)
-			addrs = append(addrs, endpoint)
-		}
-	}
+	//if err == nil {
+	//	peers := netInfo.Peers
+	//	for _, peer := range peers {
+	//		addr := peer.NodeInfo.ListenAddr
+	//		ip := strings.Split(addr, ":")[0]
+	//		port := strings.Split(peer.NodeInfo.Other[5], ":")[2] //TODO
+	//		endpoint := fmt.Sprintf("%s%s:%s", "tcp://", ip, port)
+	//		addrs = append(addrs, endpoint)
+	//	}
+	//}
 	logger.Debug("found new node ", logger.Any("address", addrs))
 	return addrs
 }

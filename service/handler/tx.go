@@ -95,7 +95,7 @@ func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 		return
 	}
 
-	if validator.Owner == nil {
+	if validator.OperatorAddr == nil {
 		// validator not exist
 		candidate = document.Candidate{
 			Address: valAddress,
@@ -183,10 +183,10 @@ func buildDelegation(delAddress, valAddress string) (tempDelegation, error) {
 		return res, nil
 	}
 
-	floatShares, _ := d.Shares.Float64()
+	floatShares := helper.ParseFloat(d.Shares.String())
 	res = tempDelegation{
 		Shares:         floatShares,
-		OriginalShares: d.Shares.RatString(),
+		OriginalShares: d.Shares.String(),
 		Height:         d.Height,
 	}
 

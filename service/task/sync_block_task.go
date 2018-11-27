@@ -265,6 +265,8 @@ func syncBlock(start, end, threadNum int64,
 		if err := recover(); err != nil {
 			logger.Error("syncBlock err", logger.Any("err", err))
 		}
+		<-limitChan
+		ch <- threadNum
 		client.Release()
 	}()
 
@@ -314,9 +316,6 @@ func syncBlock(start, end, threadNum int64,
 	}
 
 	logger.Info("finish sync block", logger.Int64("threadNo", threadNum), logger.Int64("from", start), logger.Int64("to", end))
-
-	<-limitChan
-	ch <- threadNum
 
 	logger.Info("Send threadNum into channel", logger.Int64("threadNo", threadNum))
 }
