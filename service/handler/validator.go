@@ -140,7 +140,7 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 		PubKeyAddr:      v.ConsPubKey.Address().String(),
 		Jailed:          v.Jailed,
 		Tokens:          floatTokens,
-		OriginalTokens:  v.Tokens.String(),
+		OriginalTokens:  string(v.Tokens.Int64()),
 		DelegatorShares: floatDelegatorShares,
 		Description:     description,
 		BondHeight:      v.BondHeight,
