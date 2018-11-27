@@ -20,10 +20,14 @@ func ParseStrToFloat(s string) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
-func ParseFloat(s string) float64 {
+func ParseFloat(s string, bit ...int) float64 {
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		logger.Error("common.ParseFloat error", logger.String("value", s))
+	}
+
+	if len(bit) > 0 {
+		return RoundFloat(f, bit[0])
 	}
 	return f
 }
@@ -36,4 +40,9 @@ func RoundFloat(num float64, bit int) (i float64) {
 		logger.Error("common.RoundFloat error", logger.String("format", format))
 	}
 	return i
+}
+
+func RoundString(decimal string, bit int) (i string) {
+	f := ParseFloat(decimal, bit)
+	return strconv.FormatFloat(f, 'f', bit, 64)
 }
