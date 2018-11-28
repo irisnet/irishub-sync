@@ -85,8 +85,8 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
 
-		docTx.From = msg.ValidatorAddr.String()
-		docTx.To = ""
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.ValidatorAddr.String()
 		docTx.Amount = []store.Coin{itypes.BuildCoin(msg.Delegation)}
 		docTx.Type = constant.TxTypeStakeCreateValidator
 
@@ -140,7 +140,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	case itypes.MsgStakeBeginUnbonding:
 		msg := msg.(itypes.MsgStakeBeginUnbonding)
 
-		shares := ParseFloat(msg.SharesAmount.String()) //TODO
+		shares := ParseFloat(msg.SharesAmount.String())
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
 
@@ -153,7 +153,7 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 	case itypes.MsgBeginRedelegate:
 		msg := msg.(itypes.MsgBeginRedelegate)
 
-		shares := ParseFloat(msg.SharesAmount.String()) //TODO
+		shares := ParseFloat(msg.SharesAmount.String())
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorDstAddr.String()
 		coin := store.Coin{
