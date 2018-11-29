@@ -4,17 +4,10 @@
 package helper
 
 import (
-<<<<<<< HEAD
-	"fmt"
 	"github.com/irisnet/irishub-sync/module/logger"
 	"github.com/irisnet/irishub-sync/types"
-	"strings"
 	"time"
-=======
-	"encoding/hex"
-	"github.com/irisnet/irishub-sync/module/logger"
-	"github.com/irisnet/irishub-sync/types"
->>>>>>> 94b9c10c4f18d82f1b1ae1f02224824f2e71d81e
+	"fmt"
 )
 
 type Client struct {
