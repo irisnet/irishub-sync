@@ -7,6 +7,13 @@ import (
 
 const (
 	CollectionNmStakeRoleDelegator = "stake_role_delegator"
+
+	Delegator_Field_Addres              = "address"
+	Delegator_Field_ValidatorAddr       = "validator_addr"
+	Delegator_Field_Shares              = "shares"
+	Delegator_Field_original_shares     = "original_shares"
+	Delegator_Field_BondedHeight        = "height"
+	Delegator_Field_UnbondingDelegation = "unbonding_delegation"
 )
 
 type Delegator struct {
@@ -32,5 +39,5 @@ func (d Delegator) Name() string {
 }
 
 func (d Delegator) PkKvPair() map[string]interface{} {
-	return bson.M{"address": d.Address, "validator_addr": d.ValidatorAddr}
+	return bson.M{Delegator_Field_Addres: d.Address, Delegator_Field_ValidatorAddr: d.ValidatorAddr}
 }

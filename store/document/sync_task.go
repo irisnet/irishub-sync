@@ -9,6 +9,11 @@ import (
 
 const (
 	CollectionNmSyncTask = "sync_task"
+
+	SyncTask_Field_ChainID = "chain_id"
+	SyncTask_Field_Height  = "height"
+	SyncTask_Field_Time    = "time"
+	SyncTask_Field_Syncing = "syncing"
 )
 
 type SyncTask struct {
@@ -23,7 +28,7 @@ func (c SyncTask) Name() string {
 }
 
 func (c SyncTask) PkKvPair() map[string]interface{} {
-	return bson.M{"chain_id": c.ChainID}
+	return bson.M{SyncTask_Field_ChainID: c.ChainID}
 }
 
 func QuerySyncTask() (SyncTask, error) {
