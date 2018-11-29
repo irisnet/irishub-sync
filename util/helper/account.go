@@ -14,7 +14,7 @@ import (
 func QueryAccountBalance(address string) store.Coins {
 	addr, err := types.AccAddressFromBech32(address)
 	if err != nil {
-		logger.Error("get addr from hex failed", logger.String("err", err.Error()))
+		logger.Error("get addr from hex failed", logger.Any("err", err))
 		return nil
 	}
 
@@ -22,7 +22,7 @@ func QueryAccountBalance(address string) store.Coins {
 		constant.StoreDefaultEndPath)
 
 	if err != nil {
-		logger.Error("Query balance from tendermint failed", logger.String("err", err.Error()))
+		logger.Error("Query balance from tendermint failed", logger.Any("err", err))
 		return nil
 	}
 
@@ -34,7 +34,7 @@ func QueryAccountBalance(address string) store.Coins {
 	decoder := types.GetAccountDecoder(codec.Cdc)
 	account, err := decoder(res)
 	if err != nil {
-		logger.Error("decode account failed", logger.String("err", err.Error()))
+		logger.Error("decode account failed", logger.Any("err", err))
 		return nil
 	}
 

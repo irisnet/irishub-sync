@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"github.com/irisnet/irishub-sync/conf/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -13,9 +12,8 @@ var (
 	logger Logger
 
 	//zap method
-	Binary = zap.Binary
-	Bool   = zap.Bool
-	//ByteString = zap.ByteString
+	Binary     = zap.Binary
+	Bool       = zap.Bool
 	Complex128 = zap.Complex128
 	Complex64  = zap.Complex64
 	Float64    = zap.Float64
@@ -34,88 +32,109 @@ var (
 	Time       = zap.Time
 	Any        = zap.Any
 	Duration   = zap.Duration
-
-	Info  = logger.Info
-	Debug = logger.Debug
-	Warn  = logger.Warn
-	Error = logger.Error
-	Panic = logger.Panic
-	Fatal = logger.Fatal
-	With  = logger.With
-	Sync  = logger.Sync
 )
 
 type Logger struct {
 	*zap.Logger
 }
 
+func Info(msg string, fields ...zap.Field) {
+	defer logger.Sync()
+	logger.Info(msg, fields...)
+}
+
+func Debug(msg string, fields ...zap.Field) {
+	defer logger.Sync()
+	logger.Debug(msg, fields...)
+}
+
+func Warn(msg string, fields ...zap.Field) {
+	defer logger.Sync()
+	logger.Warn(msg, fields...)
+}
+
+func Error(msg string, fields ...zap.Field) {
+	defer logger.Sync()
+	logger.Error(msg, fields...)
+}
+
+func Panic(msg string, fields ...zap.Field) {
+	defer logger.Sync()
+	logger.Panic(msg, fields...)
+}
+
+func Fatal(msg string, fields ...zap.Field) {
+	defer logger.Sync()
+	logger.Fatal(msg, fields...)
+}
+
+func With(fields ...zap.Field) {
+	defer logger.Sync()
+	logger.With(fields...)
+}
+
+func Sync() {
+	logger.Sync()
+}
+
 func init() {
-	// 仅打印Info级别以上的日志
-	highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl >= zapcore.InfoLevel
-	})
-	// 打印所有级别的日志
-	lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl >= zapcore.DebugLevel
-	})
 
 	hook := lumberjack.Logger{
-		Filename:   log.Conf.Filename,
-		MaxSize:    log.Conf.MaxSize, // megabytes
+		Filename:   conf.Filename,
+		MaxSize:    conf.MaxSize, // megabytes
 		MaxBackups: 3,
-		MaxAge:     log.Conf.MaxAge,   //days
-		Compress:   log.Conf.Compress, // disabled by default
+		MaxAge:     conf.MaxAge,   //days
+		Compress:   conf.Compress, // disabled by default
 		LocalTime:  true,
 	}
 
 	fileWriter := zapcore.AddSync(&hook)
 
-	// High-priority output should also go to standard error, and low-priority
-	// output should also go to standard out.
 	consoleDebugging := zapcore.Lock(os.Stdout)
 
 	// Optimize the Kafka output for machine consumption and the console output
 	// for human operators.
-	consoleEncoder := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
-
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	encoder := zapcore.NewJSONEncoder(encoderConfig)
 	// Join the outputs, encoders, and level-handling functions into
 	// zapcore.Cores, then tee the four cores together.
 	level := zap.NewAtomicLevelAt(zap.InfoLevel)
 	var core zapcore.Core
-	if log.Conf.EnableAtomicLevel {
+	if conf.EnableAtomicLevel {
 		core = zapcore.NewTee(
 			// 打印在控制台
-			zapcore.NewCore(consoleEncoder, consoleDebugging, level),
+			zapcore.NewCore(encoder, consoleDebugging, level),
 			// 打印在文件中
-			zapcore.NewCore(consoleEncoder, fileWriter, level),
+			zapcore.NewCore(encoder, fileWriter, level),
 		)
 	} else {
+		// 仅打印Info级别以上的日志
+		highPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+			return lvl >= zapcore.InfoLevel
+		})
+		// 打印所有级别的日志
+		lowPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+			return lvl >= zapcore.DebugLevel
+		})
+
 		core = zapcore.NewTee(
 			// 打印在控制台
-			zapcore.NewCore(consoleEncoder, consoleDebugging, lowPriority),
+			zapcore.NewCore(encoder, consoleDebugging, lowPriority),
 			// 打印在文件中
-			zapcore.NewCore(consoleEncoder, fileWriter, highPriority),
+			zapcore.NewCore(encoder, fileWriter, highPriority),
 		)
 	}
-
 	caller := zap.AddCaller()
-	callerSkip := zap.AddCallerSkip(1)
+	callerSkipOpt := zap.AddCallerSkip(1)
 	// From a zapcore.Core, it's easy to construct a Logger.
-	zapLogger := zap.New(core, caller, callerSkip)
+	zapLogger := zap.New(core, caller, callerSkipOpt, zap.AddStacktrace(zap.ErrorLevel))
+
 	logger = Logger{
 		zapLogger,
 	}
 
-	Info = logger.Info
-	Debug = logger.Debug
-	Warn = logger.Warn
-	Error = logger.Error
-	Panic = logger.Panic
-	Fatal = logger.Fatal
-	With = logger.With
-	Sync = logger.Sync
-
-	if log.Conf.EnableAtomicLevel {
+	if conf.EnableAtomicLevel {
 		go func() {
 			// curl -X PUT -H "Content-Type:application/json" -d '{"level":"info"}' localhost:9090
 			http.ListenAndServe(":9090", &level)

@@ -173,7 +173,7 @@ func (watcher *BlockWatcher) fastSync() int64 {
 
 	status, err := client.Status()
 	if err != nil {
-		logger.Error("TmClient err", logger.String("err", err.Error()))
+		logger.Error("TmClient err", logger.Any("err", err))
 		return 0
 	}
 
