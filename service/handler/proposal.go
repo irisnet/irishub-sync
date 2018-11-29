@@ -24,6 +24,10 @@ func handleProposal(docTx document.CommonTx) {
 			store.SaveOrUpdate(proposal)
 		}
 	case constant.TxTypeVote:
+		//失败的投票不计入统计
+		if docTx.Status == document.TxStatusFail {
+			return
+		}
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
 			voteMsg := docTx.Msg.(types.Vote)
 			vote := document.PVote{

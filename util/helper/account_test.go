@@ -3,6 +3,7 @@
 package helper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/irisnet/irishub-sync/module/logger"
@@ -37,4 +38,9 @@ func TestQueryAccountBalance(t *testing.T) {
 			logger.Info(ToJson(got))
 		})
 	}
+}
+
+func TestValAddrToAccAddr(t *testing.T) {
+	valAddr := "fva1qz47703lujvyumg4k3fgl7uf9v7uruhzqqh5f8"
+	fmt.Println(ValAddrToAccAddr(valAddr))
 }
