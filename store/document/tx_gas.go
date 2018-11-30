@@ -8,7 +8,13 @@ import (
 	"github.com/irisnet/irishub-sync/module/logger"
 )
 
-const CollectionNmTxGas = "tx_gas"
+const (
+	CollectionNmTxGas = "tx_gas"
+
+	TxGas_Field_TxType   = "tx_type"
+	TxGas_Field_GasUsed  = "gas_used"
+	TxGas_Field_GasPrice = "gas_price"
+)
 
 type TxGas struct {
 	TxType   string   `bson:"tx_type"`
@@ -34,7 +40,7 @@ func (d TxGas) Name() string {
 }
 
 func (d TxGas) PkKvPair() map[string]interface{} {
-	return bson.M{"tx_type": d.TxType}
+	return bson.M{TxGas_Field_TxType: d.TxType}
 }
 
 func (d TxGas) RemoveAll() error {

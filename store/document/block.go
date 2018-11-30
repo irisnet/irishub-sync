@@ -9,6 +9,14 @@ import (
 
 const (
 	CollectionNmBlock = "block"
+
+	Block_Field_Height     = "height"
+	Block_Field_Hash       = "hash"
+	Block_Field_Time       = "time"
+	Block_Field_NumTxs     = "num_txs"
+	Block_Field_Meta       = "meta"
+	Block_Field_Block      = "block"
+	Block_Field_Validators = "validators"
 )
 
 type Block struct {
@@ -102,7 +110,7 @@ func (d Block) Name() string {
 }
 
 func (d Block) PkKvPair() map[string]interface{} {
-	return bson.M{"height": d.Height}
+	return bson.M{Block_Field_Height: d.Height}
 }
 
 type ResValidatorPreCommits struct {
@@ -116,7 +124,7 @@ func (d Block) CalculateValidatorPreCommit(startBlock, endBlock int64) ([]ResVal
 	query := []bson.M{
 		{
 			"$match": bson.M{
-				"height": bson.M{"$gt": startBlock, "$lte": endBlock},
+				Block_Field_Height: bson.M{"$gt": startBlock, "$lte": endBlock},
 			},
 		},
 		{

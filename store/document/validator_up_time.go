@@ -7,7 +7,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const CollectionName = "validator_up_time"
+const (
+	CollectionName = "validator_up_time"
+
+	ValidatorUpTime_Field_ValAddress = "val_address"
+	ValidatorUpTime_Field_UpTime     = "up_time"
+)
 
 type ValidatorUpTime struct {
 	ValAddress string  `bson:"val_address"`
@@ -19,7 +24,7 @@ func (d ValidatorUpTime) Name() string {
 }
 
 func (d ValidatorUpTime) PkKvPair() map[string]interface{} {
-	return bson.M{"val_address": d.ValAddress}
+	return bson.M{ValidatorUpTime_Field_ValAddress: d.ValAddress}
 }
 
 func (d ValidatorUpTime) RemoveAll() error {

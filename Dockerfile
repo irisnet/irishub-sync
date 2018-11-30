@@ -35,4 +35,5 @@ RUN apk add --no-cache $PACKAGES && \
 VOLUME ["$LOG_DIR"]
 
 
-CMD irishub-sync > $LOG_DIR/debug.log && tail -f $LOG_DIR/debug.log
+#CMD irishub-sync > $LOG_DIR/debug.log && tail -f $LOG_DIR/debug.log
+CMD irishub-sync

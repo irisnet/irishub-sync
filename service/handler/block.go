@@ -114,6 +114,6 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 
 	err := store.Save(docBlock)
 	if err != nil {
-		logger.Error("SaveBlock error", logger.String("methodName", methodName), logger.String("err", err.Error()))
+		logger.Error("SaveBlock error", logger.String("methodName", methodName), logger.Any("err", err))
 	}
 }

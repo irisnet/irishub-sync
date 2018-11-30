@@ -9,6 +9,11 @@ import (
 
 const (
 	CollectionNmAccount = "account"
+
+	Account_Field_Addres = "address"
+	Account_Field_Amount = "amount"
+	Account_Field_Time   = "time"
+	Account_Field_Height = "height"
 )
 
 type Account struct {
@@ -23,13 +28,13 @@ func (a Account) Name() string {
 }
 
 func (a Account) PkKvPair() map[string]interface{} {
-	return bson.M{"address": a.Address}
+	return bson.M{Account_Field_Addres: a.Address}
 }
 
 func QueryAccount(address string) (Account, error) {
 	var result Account
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"address": address}).Sort("-amount.amount").One(&result)
+		err := c.Find(bson.M{Account_Field_Addres: address}).Sort("-amount.amount").One(&result)
 		return err
 	}
 

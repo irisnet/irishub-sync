@@ -7,7 +7,21 @@ import (
 	"time"
 )
 
-const CollectionNmProposal = "proposal"
+const (
+	CollectionNmProposal = "proposal"
+
+	Proposal_Field_ProposalId      = "proposal_id"
+	Proposal_Field_Title           = "title"
+	Proposal_Field_Type            = "type"
+	Proposal_Field_Description     = "description"
+	Proposal_Field_Status          = "status"
+	Proposal_Field_SubmitTime      = "submit_time"
+	Proposal_Field_DepositEndTime  = "deposit_end_time"
+	Proposal_Field_VotingStartTime = "voting_start_time"
+	Proposal_Field_VotingEndTime   = "voting_end_time"
+	Proposal_Field_TotalDeposit    = "total_deposit"
+	Proposal_Field_Votes           = "votes"
+)
 
 type Proposal struct {
 	ProposalId      uint64      `bson:"proposal_id"`
@@ -34,13 +48,13 @@ func (m Proposal) Name() string {
 }
 
 func (m Proposal) PkKvPair() map[string]interface{} {
-	return bson.M{"proposal_id": m.ProposalId}
+	return bson.M{Proposal_Field_ProposalId: m.ProposalId}
 }
 
 func QueryProposal(proposalId uint64) (Proposal, error) {
 	var result Proposal
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"proposal_id": proposalId}).Sort("-submit_block").One(&result)
+		err := c.Find(bson.M{Proposal_Field_ProposalId: proposalId}).Sort("-submit_block").One(&result)
 		return err
 	}
 
@@ -55,7 +69,7 @@ func QueryProposal(proposalId uint64) (Proposal, error) {
 func QueryByStatus(status []string) ([]Proposal, error) {
 	var result []Proposal
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{"status": bson.M{"$in": status}}).All(&result)
+		err := c.Find(bson.M{Proposal_Field_Status: bson.M{"$in": status}}).All(&result)
 		return err
 	}
 	err := store.ExecCollection(CollectionNmProposal, query)
