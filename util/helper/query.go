@@ -2,7 +2,6 @@ package helper
 
 import (
 	"fmt"
-	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/pkg/errors"
@@ -16,6 +15,8 @@ func GetValidator(valAddr string) (types.StakeValidator, error) {
 		res           types.StakeValidator
 	)
 
+	cdc := types.GetCodec()
+
 	validatorAddr, err = types.ValAddressFromBech32(valAddr)
 
 	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath) //TODO
@@ -23,7 +24,7 @@ func GetValidator(valAddr string) (types.StakeValidator, error) {
 		return res, err
 	}
 
-	res = types.MustUnmarshalValidator(codec.Cdc, validatorAddr, resRaw)
+	res = types.MustUnmarshalValidator(cdc, validatorAddr, resRaw)
 
 	return res, err
 }
@@ -37,6 +38,7 @@ func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
 
 		res types.Delegation
 	)
+	cdc := types.GetCodec()
 
 	delegatorAddr, err = types.AccAddressFromBech32(delAddr)
 
@@ -49,7 +51,6 @@ func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
 	if err != nil {
 		return res, err
 	}
-	cdc := codec.Cdc
 	key := types.GetDelegationKey(delegatorAddr, validatorAddr) //TODO
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
@@ -77,6 +78,8 @@ func GetUnbondingDelegation(delAddr, valAddr string) (types.UnbondingDelegation,
 		res types.UnbondingDelegation
 	)
 
+	cdc := types.GetCodec()
+
 	delegatorAddr, err = types.AccAddressFromBech32(delAddr)
 
 	if err != nil {
@@ -89,7 +92,6 @@ func GetUnbondingDelegation(delAddr, valAddr string) (types.UnbondingDelegation,
 		return res, err
 	}
 
-	cdc := codec.Cdc
 	key := types.GetUBDKey(delegatorAddr, validatorAddr) //TODO ValAddressFromBech32
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)

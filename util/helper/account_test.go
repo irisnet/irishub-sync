@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 )
 
 func TestQueryAccountBalance(t *testing.T) {

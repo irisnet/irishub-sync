@@ -1,8 +1,7 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
@@ -26,6 +25,8 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 
 		kvs []types.KVPair
 	)
+
+	cdc := types.GetCodec()
 
 	// get validatorSets from tendermint
 	for _, v := range tmVals {
@@ -60,14 +61,14 @@ func CompareAndUpdateValidators(tmVals []*types.Validator) {
 			logger.Error("helper.Query err ", logger.String("method", methodName), logger.String("err", err.Error()))
 		}
 
-		codec.Cdc.MustUnmarshalBinaryLengthPrefixed(resRaw, &kvs) //TODO
+		cdc.MustUnmarshalBinaryLengthPrefixed(resRaw, &kvs) //TODO
 		for _, v := range kvs {
 			var (
 				validator types.StakeValidator
 			)
 
 			addr := v.Key[1:]
-			validator, err2 := types.UnmarshalValidator(codec.Cdc, addr, v.Value)
+			validator, err2 := types.UnmarshalValidator(cdc, addr, v.Value)
 
 			if err2 != nil {
 				logger.Error("types.UnmarshalValidator", logger.String("method", methodName), logger.String("err", err2.Error()))

@@ -4,7 +4,7 @@ package helper
 
 import (
 	"encoding/hex"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
+func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	var (
 		authTx     itypes.StdTx
 		methodName = "ParseTx"
@@ -21,6 +21,8 @@ func ParseTx(cdc *itypes.Codec, txBytes itypes.Tx, block *itypes.Block) document
 		gasPrice   float64
 		actualFee  store.ActualFee
 	)
+
+	cdc := itypes.GetCodec()
 
 	err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &authTx)
 	if err != nil {

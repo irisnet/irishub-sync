@@ -5,7 +5,7 @@ package helper
 
 import (
 	"encoding/hex"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 )
 

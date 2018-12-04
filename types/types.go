@@ -1,19 +1,20 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	"github.com/cosmos/cosmos-sdk/x/stake"
-	staketypes "github.com/cosmos/cosmos-sdk/x/stake/types"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
+	authcmd "github.com/irisnet/irishub/client/auth/cli"
+	"github.com/irisnet/irishub/codec"
+	"github.com/irisnet/irishub/modules/auth"
+	"github.com/irisnet/irishub/modules/bank"
+	"github.com/irisnet/irishub/modules/distribution"
 	"github.com/irisnet/irishub/modules/gov"
 	"github.com/irisnet/irishub/modules/gov/tags"
+	"github.com/irisnet/irishub/modules/slashing"
+	"github.com/irisnet/irishub/modules/stake"
+	staketypes "github.com/irisnet/irishub/modules/stake/types"
+	"github.com/irisnet/irishub/modules/upgrade"
+	"github.com/irisnet/irishub/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -36,15 +37,6 @@ const (
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = "fcp"
 )
-
-// 初始化账户地址前缀
-func init() {
-	config := types.GetConfig()
-	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
-	config.Seal()
-}
 
 type (
 	MsgTransfer = bank.MsgSend
@@ -89,7 +81,6 @@ type (
 	ResultStatus     = ctypes.ResultStatus
 )
 
-//
 var (
 	ValidatorsKey        = stake.ValidatorsKey
 	GetValidatorKey      = stake.GetValidatorKey
@@ -115,7 +106,36 @@ var (
 	KeyVotesSubspace = gov.KeyVotesSubspace
 
 	NewHTTP = rpcclient.NewHTTP
+
+	cdc *codec.Codec
 )
+
+// 初始化账户地址前缀
+func init() {
+	config := types.GetConfig()
+	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+	config.Seal()
+
+	cdc = codec.New()
+
+	bank.RegisterCodec(cdc)
+	stake.RegisterCodec(cdc)
+	slashing.RegisterCodec(cdc)
+	auth.RegisterCodec(cdc)
+	gov.RegisterCodec(cdc)
+	upgrade.RegisterCodec(cdc)
+	distribution.RegisterCodec(cdc)
+
+	types.RegisterCodec(cdc)
+
+	codec.RegisterCrypto(cdc)
+}
+
+func GetCodec() *codec.Codec {
+	return cdc
+}
 
 //
 func BuildCoins(coins types.Coins) store.Coins {

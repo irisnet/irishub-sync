@@ -3,8 +3,7 @@ package task
 import (
 	"fmt"
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
@@ -284,7 +283,7 @@ func syncBlock(start, end, threadNum int64,
 		if block.BlockMeta.Header.NumTxs > 0 {
 			txs := block.Block.Data.Txs
 			for _, txByte := range txs {
-				docTx := helper.ParseTx(codec.Cdc, txByte, block.Block)
+				docTx := helper.ParseTx(txByte, block.Block)
 				txHash := helper.BuildHex(txByte.Hash())
 				if txHash == "" {
 					logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
 )

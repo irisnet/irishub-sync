@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/service/task"
 	"github.com/robfig/cron"
 )

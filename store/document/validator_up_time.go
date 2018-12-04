@@ -1,7 +1,7 @@
 package document
 
 import (
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

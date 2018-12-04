@@ -3,7 +3,7 @@ package helper
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"strconv"
 )
 
