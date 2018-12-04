@@ -3,13 +3,14 @@ package server
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 var (
-	BlockChainMonitorUrl = "tcp://127.0.0.1:26657"
+	BlockChainMonitorUrl = []string{"tcp://127.0.0.1:26657"}
 	ChainId              = "rainbow-dev"
 	Token                = "iris"
 
@@ -30,10 +31,10 @@ var (
 func init() {
 	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkNodeUrl)
 	if found {
-		BlockChainMonitorUrl = nodeUrl
+		BlockChainMonitorUrl = strings.Split(nodeUrl, ",")
 	}
 
-	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl))
+	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl))
 
 	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
 	if found {
