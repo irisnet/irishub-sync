@@ -20,7 +20,7 @@ var (
 	CronCalculateUpTime      = "0 */1 * * * *" // every minute
 	CronCalculateTxGas       = "0 */5 * * * *" // every five minute
 	SyncProposalStatus       = "0 */1 * * * *" // every minute
-	CronSaveValidatorHistory = "0 * */1 * * *" // every hour
+	CronSaveValidatorHistory = "@daily"        // every day
 
 	SyncMaxGoroutine     = 60   // max go routine in server
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
