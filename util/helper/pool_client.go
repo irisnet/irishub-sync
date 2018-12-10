@@ -5,8 +5,9 @@ package helper
 
 import (
 	"encoding/hex"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
+	"time"
 )
 
 type Client struct {
@@ -22,12 +23,12 @@ func newClient(addr string) *Client {
 }
 
 // get client from pool
-// while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
 	c, err := pool.BorrowObject(ctx)
-	if err != nil {
-		logger.Error("GetClient failed", logger.String("err", err.Error()))
-		return nil
+	for err != nil {
+		logger.Error("GetClient failed,will try again after 3 seconds", logger.String("err", err.Error()))
+		time.Sleep(3 * time.Second)
+		c, err = pool.BorrowObject(ctx)
 	}
 	logger.Debug("current available connection", logger.Int("Num", pool.GetNumIdle()))
 	logger.Debug("current used connection", logger.Int("Num", pool.GetNumActive()))

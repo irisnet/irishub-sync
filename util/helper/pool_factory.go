@@ -3,7 +3,7 @@ package helper
 import (
 	"context"
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	gcp "github.com/jolestar/go-commons-pool"
 	"github.com/robfig/cron"
 	"math/rand"
@@ -17,9 +17,11 @@ var (
 
 func init() {
 	peersMap := map[string]EndPoint{}
-	peersMap[generateId(conf.BlockChainMonitorUrl)] = EndPoint{
-		Address:   conf.BlockChainMonitorUrl,
-		Available: true,
+	for _, url := range conf.BlockChainMonitorUrl {
+		peersMap[generateId(url)] = EndPoint{
+			Address:   url,
+			Available: true,
+		}
 	}
 
 	factory = PoolFactory{

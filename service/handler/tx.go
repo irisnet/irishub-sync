@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
@@ -53,6 +53,26 @@ func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
 
 // save or update validator or delegator info
 // by parse stake tx
+
+// Different transaction types correspond to different operations TODO
+//TxTypeStakeCreateValidator
+//	1:insert new validator (---> CompareAndUpdateValidators)
+//	2:insert delegator
+//
+//TxTypeStakeEditValidator
+//	1:update validator
+//
+//TxTypeStakeDelegate
+//	1:update validator (---> CompareAndUpdateValidators)
+//	2:insert delegator(or update delegator existed )
+//
+//TxTypeStakeBeginUnbonding
+//	1:update validator (---> CompareAndUpdateValidators)
+//	2:update delegator
+//
+//TxTypeBeginRedelegate
+//	1:update validator(src,dest) (---> CompareAndUpdateValidators)
+//	2:update delegator
 func saveValidatorAndDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 	var (
 		methodName = "saveValidatorAndDelegator: "

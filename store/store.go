@@ -6,7 +6,7 @@ import (
 	"time"
 
 	conf "github.com/irisnet/irishub-sync/conf/db"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 
 	"errors"
 	"fmt"

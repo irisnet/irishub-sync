@@ -6,7 +6,7 @@ import (
 
 	conf "github.com/irisnet/irishub-sync/conf/server"
 
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"sync"
 )
 

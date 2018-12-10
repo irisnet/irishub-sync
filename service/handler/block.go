@@ -2,8 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
@@ -15,6 +14,8 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 	var (
 		methodName = "SaveBlock"
 	)
+
+	cdc := types.GetCodec()
 
 	hexFunc := func(bytes []byte) string {
 		return helper.BuildHex(bytes)
@@ -70,7 +71,7 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 		for _, v := range block.LastCommit.Precommits {
 			if v != nil {
 				var sig document.Signature
-				out, _ := codec.Cdc.MarshalJSON(v.Signature)
+				out, _ := cdc.MarshalJSON(v.Signature)
 				json.Unmarshal(out, &sig)
 				preCommit := document.Vote{
 					ValidatorAddress: v.ValidatorAddress.String(),

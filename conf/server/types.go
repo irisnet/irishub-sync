@@ -3,22 +3,24 @@ package server
 import (
 	"os"
 	"strconv"
+	"strings"
 
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 var (
-	BlockChainMonitorUrl = "tcp://127.0.0.1:26657"
+	BlockChainMonitorUrl = []string{"tcp://127.0.0.1:26657"}
 	ChainId              = "rainbow-dev"
 	Token                = "iris"
 
-	InitConnectionNum   = 50              // fast init num of tendermint client pool
-	MaxConnectionNum    = 100             // max size of tendermint client pool
-	CronWatchBlock      = "*/1 * * * * *" // every 1 seconds
-	CronCalculateUpTime = "0 */1 * * * *" // every minute
-	CronCalculateTxGas  = "0 */5 * * * *" // every five minute
-	SyncProposalStatus  = "0 */1 * * * *" // every minute
+	InitConnectionNum        = 50              // fast init num of tendermint client pool
+	MaxConnectionNum         = 100             // max size of tendermint client pool
+	CronWatchBlock           = "*/1 * * * * *" // every 1 seconds
+	CronCalculateUpTime      = "0 */1 * * * *" // every minute
+	CronCalculateTxGas       = "0 */5 * * * *" // every five minute
+	SyncProposalStatus       = "0 */1 * * * *" // every minute
+	CronSaveValidatorHistory = "0 * */1 * * *" // every hour
 
 	SyncMaxGoroutine     = 60   // max go routine in server
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
@@ -30,10 +32,10 @@ var (
 func init() {
 	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkNodeUrl)
 	if found {
-		BlockChainMonitorUrl = nodeUrl
+		BlockChainMonitorUrl = strings.Split(nodeUrl, ",")
 	}
 
-	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl))
+	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl))
 
 	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
 	if found {
@@ -82,4 +84,11 @@ func init() {
 		SyncWithDLock = flag
 	}
 	logger.Info("Env Value", logger.Bool(constant.EnvNameSyncWithDLock, SyncWithDLock))
+
+	cronSaveValidatorHistory, found := os.LookupEnv(constant.EnvNameCronSaveValidatorHistory)
+	if found {
+		CronSaveValidatorHistory = cronSaveValidatorHistory
+	}
+	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, ConsulAddr))
+
 }

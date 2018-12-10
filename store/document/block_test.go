@@ -2,7 +2,7 @@ package document
 
 import (
 	"encoding/json"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"os"
 	"testing"

@@ -3,7 +3,7 @@ package helper
 import (
 	"github.com/hashicorp/consul/api"
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"log"
 	"time"
 )
