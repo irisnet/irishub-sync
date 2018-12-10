@@ -3,8 +3,10 @@ package helper
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
+	"reflect"
 	"strconv"
+	"strings"
 )
 
 // convert object to json
@@ -45,4 +47,31 @@ func RoundFloat(num float64, bit int) (i float64) {
 func RoundString(decimal string, bit int) (i string) {
 	f := ParseFloat(decimal, bit)
 	return strconv.FormatFloat(f, 'f', bit, 64)
+}
+
+func Struct2Map(obj interface{}) map[string]interface{} {
+	t := reflect.TypeOf(obj)
+	v := reflect.ValueOf(obj)
+
+	var data = make(map[string]interface{})
+	for i := 0; i < t.NumField(); i++ {
+		tag := t.Field(i).Tag
+		key := tag.Get("json")
+		if len(key) == 0 {
+			key = strings.ToLower(t.Field(i).Name)
+		}
+		data[key] = v.Field(i).Interface()
+	}
+	return data
+}
+
+func Map2Struct(srcMap map[string]interface{}, obj interface{}) {
+	bz, err := json.Marshal(srcMap)
+	if err != nil {
+		logger.Error("map convert to struct failed")
+	}
+	err = json.Unmarshal(bz, obj)
+	if err != nil {
+		logger.Error("map convert to struct failed")
+	}
 }

@@ -1,7 +1,8 @@
 package document
 
 import (
-	"github.com/irisnet/irishub-sync/module/logger"
+	"fmt"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -21,21 +22,36 @@ const (
 	Candidate_Field_Description     = "description"
 	Candidate_Field_BondHeight      = "bond_height"
 	Candidate_Field_Status          = "status"
+
+	_ Lift = iota
+	Up
+	NotChange
+	Down
 )
 
-type Candidate struct {
-	Address         string         `bson:"address"` // owner, identity key
-	PubKey          string         `bson:"pub_key"`
-	PubKeyAddr      string         `bson:"pub_key_addr"`
-	Jailed          bool           `bson:"jailed"` // has the validator been revoked from bonded status
-	Tokens          float64        `bson:"tokens"`
-	OriginalTokens  string         `bson:"original_tokens"`
-	DelegatorShares float64        `bson:"delegator_shares"`
-	VotingPower     float64        `bson:"voting_power"` // Voting power if pubKey is a considered a validator
-	Description     ValDescription `bson:"description"`  // Description terms for the candidate
-	BondHeight      int64          `bson:"bond_height"`
-	Status          string         `bson:"status"`
-}
+type (
+	Candidate struct {
+		Address         string         `bson:"address"` // owner, identity key
+		PubKey          string         `bson:"pub_key"`
+		PubKeyAddr      string         `bson:"pub_key_addr"`
+		Jailed          bool           `bson:"jailed"` // has the validator been revoked from bonded status
+		Tokens          float64        `bson:"tokens"`
+		OriginalTokens  string         `bson:"original_tokens"`
+		DelegatorShares float64        `bson:"delegator_shares"`
+		VotingPower     float64        `bson:"voting_power"` // Voting power if pubKey is a considered a validator
+		Description     ValDescription `bson:"description"`  // Description terms for the candidate
+		BondHeight      int64          `bson:"bond_height"`
+		Status          string         `bson:"status"`
+		Rank            Rank           `bson:"rank"`
+	}
+
+	Rank struct {
+		Number int  `bson:"number"`
+		Lift   Lift `bson:"lift"` // 1:up,0:not change,-1:down
+	}
+
+	Lift int
+)
 
 func (d Candidate) Name() string {
 	return CollectionNmStakeRoleCandidate
@@ -62,9 +78,10 @@ func (d Candidate) Remove(query bson.M) error {
 	return store.ExecCollection(d.Name(), remove)
 }
 
-func (d Candidate) GetUnRevokeValidators() ([]Candidate, error) {
+func (d Candidate) GetValidators() ([]Candidate, error) {
 	query := bson.M{
 		Candidate_Field_Jailed: false,
+		Candidate_Field_Status: "Bonded",
 	}
 
 	sorts := make([]string, 0)
@@ -76,6 +93,16 @@ func (d Candidate) GetUnRevokeValidators() ([]Candidate, error) {
 	}
 
 	return candidates, nil
+}
+
+func (d Candidate) QueryAll() (candidates []Candidate) {
+	sort := fmt.Sprintf("-%s", Candidate_Field_Tokens)
+	candidates, err := d.Query(nil, sort)
+
+	if err != nil {
+		logger.Error("candidate collection is empty")
+	}
+	return candidates
 }
 
 func (d Candidate) RemoveCandidates() error {
