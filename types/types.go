@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	authcmd "github.com/irisnet/irishub/client/auth/cli"
@@ -21,21 +22,6 @@ import (
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tm "github.com/tendermint/tendermint/types"
 	"strconv"
-)
-
-const (
-	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
-	Bech32PrefixAccAddr = "faa"
-	// Bech32PrefixAccPub defines the Bech32 prefix of an account's public key
-	Bech32PrefixAccPub = "fap"
-	// Bech32PrefixValAddr defines the Bech32 prefix of a validator's operator address
-	Bech32PrefixValAddr = "fva"
-	// Bech32PrefixValPub defines the Bech32 prefix of a validator's operator public key
-	Bech32PrefixValPub = "fvp"
-	// Bech32PrefixConsAddr defines the Bech32 prefix of a consensus node address
-	Bech32PrefixConsAddr = "fca"
-	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
-	Bech32PrefixConsPub = "fcp"
 )
 
 type (
@@ -86,14 +72,17 @@ var (
 	ValidatorsKey        = stake.ValidatorsKey
 	GetValidatorKey      = stake.GetValidatorKey
 	GetDelegationKey     = stake.GetDelegationKey
+	GetDelegationsKey    = stake.GetDelegationsKey
 	GetUBDKey            = stake.GetUBDKey
+	GetUBDsKey           = stake.GetUBDsKey
 	TagProposalID        = tags.ProposalID
 	ValAddressFromBech32 = types.ValAddressFromBech32
 
-	UnmarshalValidator     = staketypes.UnmarshalValidator
-	MustUnmarshalValidator = staketypes.MustUnmarshalValidator
-	UnmarshalDelegation    = staketypes.UnmarshalDelegation
-	MustUnmarshalUBD       = staketypes.MustUnmarshalUBD
+	UnmarshalValidator      = staketypes.UnmarshalValidator
+	MustUnmarshalValidator  = staketypes.MustUnmarshalValidator
+	UnmarshalDelegation     = staketypes.UnmarshalDelegation
+	MustUnmarshalDelegation = staketypes.MustUnmarshalDelegation
+	MustUnmarshalUBD        = staketypes.MustUnmarshalUBD
 
 	Bech32ifyValPub      = types.Bech32ifyValPub
 	RegisterCodec        = types.RegisterCodec
@@ -116,9 +105,9 @@ var (
 // 初始化账户地址前缀
 func init() {
 	config := types.GetConfig()
-	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+	config.SetBech32PrefixForAccount(server.Bech32.PrefixAccAddr, server.Bech32.PrefixAccPub)
+	config.SetBech32PrefixForValidator(server.Bech32.PrefixValAddr, server.Bech32.PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
 	config.Seal()
 
 	cdc = codec.New()

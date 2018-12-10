@@ -34,7 +34,7 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 func GetVotes(proposalID uint64) (pVotes []document.PVote, err error) {
 	cdc := types.GetCodec()
 
-	res, err := QuerySubspace(cdc, types.KeyVotesSubspace(proposalID), "gov")
+	res, err := QuerySubspace(types.KeyVotesSubspace(proposalID), "gov")
 	if len(res) == 0 || err != nil {
 		return pVotes, err
 	}

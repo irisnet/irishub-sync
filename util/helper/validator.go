@@ -55,78 +55,87 @@ func GetValidator(valAddr string) (types.StakeValidator, error) {
 	return res, err
 }
 
-// get delegation
-func GetDelegation(delAddr, valAddr string) (types.Delegation, error) {
+// Query a delegation based on address and validator address
+func GetDelegation(delAddr, valAddr string) (res types.Delegation) {
 	var (
-		delegatorAddr types.AccAddress
 		validatorAddr types.ValAddress
 		err           error
-
-		res types.Delegation
 	)
 	cdc := types.GetCodec()
 
-	delegatorAddr, err = types.AccAddressFromBech32(delAddr)
+	delegatorAddr, _ := types.AccAddressFromBech32(delAddr)
+	validatorAddr, _ = types.ValAddressFromBech32(valAddr)
 
-	if err != nil {
-		return res, err
-	}
-
-	validatorAddr, err = types.ValAddressFromBech32(valAddr)
-
-	if err != nil {
-		return res, err
-	}
-	key := types.GetDelegationKey(delegatorAddr, validatorAddr) //TODO
+	key := types.GetDelegationKey(delegatorAddr, validatorAddr)
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
 	if err != nil || resRaw == nil {
-		return res, err
+		logger.Error("helper.GetDelegation err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+		return
 	}
 
-	res, err = types.UnmarshalDelegation(cdc, key, resRaw)
-
-	if err != nil {
-		return res, err
-	}
-
-	return res, err
+	res = types.MustUnmarshalDelegation(cdc, key, resRaw)
+	return res
 }
 
-// get unbonding delegation
-func GetUnbondingDelegation(delAddr, valAddr string) (types.UnbondingDelegation, error) {
-	var (
-		delegatorAddr types.AccAddress
-		validatorAddr types.ValAddress
-		err           error
+//Query all delegations made from one delegator
+func GetDelegations(delAddr string) (delegations []types.Delegation) {
 
-		res types.UnbondingDelegation
-	)
+	delegatorAddr, err := types.AccAddressFromBech32(delAddr)
+	key := types.GetDelegationsKey(delegatorAddr)
+	resKVs, err := QuerySubspace(key, constant.StoreNameStake)
+
+	if err != nil || resKVs == nil {
+		logger.Error("helper.GetDelegations err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+		return
+	}
 
 	cdc := types.GetCodec()
 
-	delegatorAddr, err = types.AccAddressFromBech32(delAddr)
-
-	if err != nil {
-		return res, err
+	for _, kv := range resKVs {
+		delegation := types.MustUnmarshalDelegation(cdc, kv.Key, kv.Value)
+		delegations = append(delegations, delegation)
 	}
+	return
+}
 
-	validatorAddr, err = types.ValAddressFromBech32(valAddr)
+// GetCmdQueryUnbondingDelegation implements the command to query a single unbonding-delegation record.
+func GetUnbondingDelegation(delAddr, valAddr string) (res types.UnbondingDelegation) {
+	cdc := types.GetCodec()
 
-	if err != nil {
-		return res, err
-	}
+	delegatorAddr, _ := types.AccAddressFromBech32(delAddr)
+	validatorAddr, _ := types.ValAddressFromBech32(valAddr)
 
-	key := types.GetUBDKey(delegatorAddr, validatorAddr) //TODO ValAddressFromBech32
+	key := types.GetUBDKey(delegatorAddr, validatorAddr)
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
 	if err != nil || resRaw == nil {
-		return res, err
+		logger.Error("helper.GetUnbondingDelegation err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+		return
 	}
 
 	res = types.MustUnmarshalUBD(cdc, key, resRaw)
 
-	return res, nil
+	return res
+}
+
+//Query all unbonding-delegations records for one delegator
+func GetUnbondingDelegations(delAddr, valAddr string) (ubds []types.UnbondingDelegation) {
+	delegatorAddr, _ := types.AccAddressFromBech32(delAddr)
+
+	cdc := types.GetCodec()
+	key := types.GetUBDsKey(delegatorAddr)
+
+	resKVs, err := QuerySubspace(key, constant.StoreNameStake)
+	if err != nil || resKVs == nil {
+		logger.Error("helper.GetUnbondingDelegations err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+		return
+	}
+	for _, kv := range resKVs {
+		ubd := types.MustUnmarshalUBD(cdc, kv.Key, kv.Value)
+		ubds = append(ubds, ubd)
+	}
+	return
 }

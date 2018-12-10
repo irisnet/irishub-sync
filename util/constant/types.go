@@ -34,6 +34,14 @@ const (
 	EnvNameSyncWithDLock            = "SYNC_WITH_DLOCK"
 	EnvNameCronSaveValidatorHistory = "CRON_SAVE_VALIDATOR_HISTORY"
 
+	//bech32Prefix
+	EnvNamePrefixAccAddr  = "PrefixAccAddr"
+	EnvNamePrefixAccPub   = "PrefixAccPub"
+	EnvNamePrefixValAddr  = "PrefixValAddr"
+	EnvNamePrefixValPub   = "PrefixValPub"
+	EnvNamePrefixConsAddr = "PrefixConsAddr"
+	EnvNamePrefixConsPub  = "PrefixConsPub"
+
 	EnvLogFileName    = "LOG_FILE_NAME"
 	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
 	EnvLogFileMaxAge  = "LOG_FILE_MAX_AGE"

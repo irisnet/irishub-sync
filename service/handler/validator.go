@@ -153,13 +153,13 @@ func updateValidatorsRank(candidates *[]document.Candidate) {
 
 	for index, candidate := range *candidates {
 		lastCandidate := cMap[candidate.Address]
-		var lift document.Lift
+		var lift int
 		if lastCandidate.Tokens > candidate.Tokens {
-			lift = document.Down
+			lift = document.LiftDown
 		} else if lastCandidate.Tokens < candidate.Tokens {
-			lift = document.Up
+			lift = document.LiftUp
 		} else {
-			lift = document.NotChange
+			lift = document.LiftNotChange
 		}
 		rank := document.Rank{
 			Number: index + 1,
