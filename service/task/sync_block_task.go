@@ -137,7 +137,7 @@ func (watcher *BlockWatcher) watchBlock() {
 	if syncTask.Height+1 <= latestBlockHeight-1 {
 		logger.Info("latest height", logger.String("method", methodName), logger.Int64("latestBlockHeight", latestBlockHeight))
 		funcChain := []handler.Action{
-			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
+			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance, handler.SaveOrUpdateDelegator,
 		}
 
 		ch := make(chan int64)
@@ -179,7 +179,7 @@ func (watcher *BlockWatcher) fastSync() int64 {
 	// define functions which should be executed
 	// during parse tx and block
 	funcChain := []handler.Action{
-		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
+		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance, handler.SaveOrUpdateDelegator,
 	}
 
 	// define unbuffered channel

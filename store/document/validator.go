@@ -41,7 +41,7 @@ type (
 		Description     ValDescription `bson:"description"`  // Description terms for the candidate
 		BondHeight      int64          `bson:"bond_height"`
 		Status          string         `bson:"status"`
-		Rank            Rank           `bson:"rank"`
+		Rank            Rank           `bson:"rank,omitempty"`
 	}
 
 	Rank struct {
@@ -75,21 +75,22 @@ func (d Candidate) Remove(query bson.M) error {
 	return store.ExecCollection(d.Name(), remove)
 }
 
-func (d Candidate) GetValidators() ([]Candidate, error) {
+func (d Candidate) GetValidator(address string) (candidate Candidate) {
 	query := bson.M{
-		Candidate_Field_Jailed: false,
-		Candidate_Field_Status: "Bonded",
+		Candidate_Field_Address: address,
 	}
 
 	sorts := make([]string, 0)
 
 	candidates, err := d.Query(query, sorts...)
 
-	if err != nil {
-		return nil, err
+	if err != nil || len(candidates) != 0 {
+		logger.Error("candidate don't find", logger.String("address", address))
+		return candidate
 	}
 
-	return candidates, nil
+	candidate = candidates[0]
+	return candidate
 }
 
 func (d Candidate) QueryAll() (candidates []Candidate) {
