@@ -9,6 +9,10 @@ import (
 )
 
 const (
+	LiftUp        = 1
+	LiftNotChange = 0
+	LiftDown      = -1
+
 	CollectionNmStakeRoleCandidate = "stake_role_candidate"
 
 	Candidate_Field_Address         = "address"
@@ -22,11 +26,6 @@ const (
 	Candidate_Field_Description     = "description"
 	Candidate_Field_BondHeight      = "bond_height"
 	Candidate_Field_Status          = "status"
-
-	_ Lift = iota
-	Up
-	NotChange
-	Down
 )
 
 type (
@@ -46,11 +45,9 @@ type (
 	}
 
 	Rank struct {
-		Number int  `bson:"number"`
-		Lift   Lift `bson:"lift"` // 1:up,0:not change,-1:down
+		Number int `bson:"number"`
+		Lift   int `bson:"lift"` // 1:up,0:not change,-1:down
 	}
-
-	Lift int
 )
 
 func (d Candidate) Name() string {
