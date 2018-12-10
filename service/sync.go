@@ -20,6 +20,7 @@ func init() {
 	engine.AddTask(task.MakeCalculateAndSaveValidatorUpTimeTask())
 	engine.AddTask(task.MakeCalculateTxGasAndGasPriceTask())
 	engine.AddTask(task.MakeSyncProposalStatusTask())
+	engine.AddTask(task.MakeValidatorHistoryTask())
 }
 
 type SyncEngine struct {

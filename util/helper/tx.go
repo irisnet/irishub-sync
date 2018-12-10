@@ -253,7 +253,7 @@ func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 	client := GetClient()
 	defer client.Release()
 
-	res, err := client.Client.Tx(txHash, false)
+	res, err := client.Tx(txHash, false)
 	if err != nil {
 		return "unknown", resDeliverTx, err
 	}

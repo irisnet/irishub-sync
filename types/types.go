@@ -68,6 +68,7 @@ type (
 	KVPair     = types.KVPair
 	AccAddress = types.AccAddress
 	ValAddress = types.ValAddress
+	Dec        = types.Dec
 	Validator  = tm.Validator
 	Tx         = tm.Tx
 	Block      = tm.Block
@@ -98,6 +99,8 @@ var (
 	RegisterCodec        = types.RegisterCodec
 	AccAddressFromBech32 = types.AccAddressFromBech32
 	BondStatusToString   = types.BondStatusToString
+
+	NewDecFromStr = types.NewDecFromStr
 
 	AddressStoreKey   = auth.AddressStoreKey
 	GetAccountDecoder = authcmd.GetAccountDecoder

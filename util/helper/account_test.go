@@ -4,7 +4,9 @@ package helper
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 
 	"github.com/irisnet/irishub-sync/logger"
 )
@@ -43,4 +45,39 @@ func TestQueryAccountBalance(t *testing.T) {
 func TestValAddrToAccAddr(t *testing.T) {
 	valAddr := "fva1qz47703lujvyumg4k3fgl7uf9v7uruhzqqh5f8"
 	fmt.Println(ValAddrToAccAddr(valAddr))
+}
+
+type Student struct {
+	Name   string   `json:"name"`
+	Age    int      `json:"age"`
+	Course []Course `json:"course"`
+}
+
+type Course struct {
+	Name     string     `json:"name"`
+	Schedule []Schedule `json:"schedule"`
+}
+
+type Schedule struct {
+	Time time.Time
+}
+
+func TestMap2Struct(t *testing.T) {
+	data := Student{
+		Name: "zhansan",
+		Age:  10,
+		Course: []Course{
+			{Name: "MAth", Schedule: []Schedule{
+				{Time: time.Now().UTC()},
+			}},
+		},
+	}
+
+	mp := Struct2Map(data)
+
+	var data1 Student
+	Map2Struct(mp, &data1)
+
+	require.EqualValues(t, data, data1)
+
 }

@@ -309,7 +309,7 @@ func syncBlock(start, end, threadNum int64,
 
 		// compare and update validators during watch block
 		if syncType == constant.SyncTypeWatch {
-			handler.CompareAndUpdateValidators(validators)
+			handler.CompareAndUpdateValidators()
 		}
 	}
 
