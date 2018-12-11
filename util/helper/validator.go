@@ -70,8 +70,11 @@ func GetDelegation(delAddr, valAddr string) (res types.Delegation) {
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
-	if err != nil || resRaw == nil {
-		logger.Error("helper.GetDelegation err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+	if err != nil {
+		logger.Error("helper.GetDelegation err ", logger.String("delAddr", delAddr))
+		return
+	} else if resRaw == nil {
+		logger.Info("delegator don't exist delegation on validator", logger.String("delAddr", delAddr), logger.String("valAddr", valAddr))
 		return
 	}
 
@@ -86,8 +89,11 @@ func GetDelegations(delAddr string) (delegations []types.Delegation) {
 	key := types.GetDelegationsKey(delegatorAddr)
 	resKVs, err := QuerySubspace(key, constant.StoreNameStake)
 
-	if err != nil || resKVs == nil {
-		logger.Error("helper.GetDelegations err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+	if err != nil {
+		logger.Error("helper.GetDelegations err ", logger.String("delAddr", delAddr))
+		return
+	} else if resKVs == nil {
+		logger.Info("delegator don't exist delegation", logger.String("delAddr", delAddr))
 		return
 	}
 
@@ -111,8 +117,11 @@ func GetUnbondingDelegation(delAddr, valAddr string) (res types.UnbondingDelegat
 
 	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
 
-	if err != nil || resRaw == nil {
-		logger.Error("helper.GetUnbondingDelegation err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+	if err != nil {
+		logger.Error("helper.GetDelegations err ", logger.String("delAddr", delAddr))
+		return
+	} else if resRaw == nil {
+		logger.Info("delegator don't exist unbondingDelegation", logger.String("delAddr", delAddr), logger.String("valAddr", valAddr))
 		return
 	}
 
@@ -122,15 +131,18 @@ func GetUnbondingDelegation(delAddr, valAddr string) (res types.UnbondingDelegat
 }
 
 //Query all unbonding-delegations records for one delegator
-func GetUnbondingDelegations(delAddr, valAddr string) (ubds []types.UnbondingDelegation) {
+func GetUnbondingDelegations(delAddr string) (ubds []types.UnbondingDelegation) {
 	delegatorAddr, _ := types.AccAddressFromBech32(delAddr)
 
 	cdc := types.GetCodec()
 	key := types.GetUBDsKey(delegatorAddr)
 
 	resKVs, err := QuerySubspace(key, constant.StoreNameStake)
-	if err != nil || resKVs == nil {
-		logger.Error("helper.GetUnbondingDelegations err ", logger.String("delegatorAddr", delAddr), logger.String("err", err.Error()))
+	if err != nil {
+		logger.Error("helper.GetDelegations err ", logger.String("delAddr", delAddr))
+		return
+	} else if resKVs == nil {
+		logger.Info("delegator don't exist unbondingDelegation", logger.String("delAddr", delAddr))
 		return
 	}
 	for _, kv := range resKVs {
