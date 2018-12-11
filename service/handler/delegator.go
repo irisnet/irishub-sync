@@ -10,6 +10,16 @@ import (
 	"sync"
 )
 
+// init delegator for genesis validator
+func InitDelegator() {
+	validators := helper.GetValidators()
+	for _, validator := range validators {
+		valAddr := validator.OperatorAddr.String()
+		valAccAddr := helper.ValAddrToAccAddr(valAddr)
+		modifyDelegator(valAccAddr, valAddr)
+	}
+}
+
 // save or update validator or delegator info
 // by parse stake tx
 
@@ -61,19 +71,12 @@ func SaveOrUpdateDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 }
 
 func modifyDelegator(delAddress, valAddress string) {
+	logger.Info("delegator info has changed", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
 	// get delegation
-	delegation, err := buildDelegation(delAddress, valAddress)
-	if err != nil {
-		logger.Error("get delegation failed", logger.String("valAddress", valAddress), logger.String("delAddress", delAddress))
-		return
-	}
+	delegation := buildDelegation(delAddress, valAddress)
 
 	// get unbondingDelegation
-	ud, err := buildUnbondingDelegation(delAddress, valAddress)
-	if err != nil {
-		logger.Error("get unbonding delegation", logger.String("valAddress", valAddress), logger.String("delAddress", delAddress))
-		return
-	}
+	ud := buildUnbondingDelegation(delAddress, valAddress)
 
 	delegator := document.Delegator{
 		Address:       delAddress,
@@ -94,38 +97,20 @@ func modifyDelegator(delAddress, valAddress string) {
 	if delegator.BondedHeight < 0 &&
 		delegator.UnbondingDelegation.CreationHeight < 0 {
 		store.Delete(delegator)
-		logger.Info("delete delegator", logger.String("Address", delegator.Address), logger.String("ValidatorAddr", delegator.ValidatorAddr))
+		logger.Info("delete delegator", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
 	} else {
 		store.SaveOrUpdate(delegator)
-		logger.Info("saveOrUpdate delegator", logger.String("Address", delegator.Address), logger.String("ValidatorAddr", delegator.ValidatorAddr))
+		logger.Info("saveOrUpdate delegator", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
 	}
 }
 
-func updateValidator(valAddress string) {
-	//var canCollection  document.Candidate
-
-	validator, err := helper.GetValidator(valAddress)
-	if err != nil {
-		logger.Error("validator not existed", logger.String("validator", valAddress))
-		return
-	}
-
-	editValidator := BuildValidatorDocument(validator)
-	//candidate := canCollection.GetValidator(valAddress)
-	//editValidator.Rank = candidate.Rank
-	if err := store.Update(editValidator); err != nil {
-		logger.Error("update candidate error", logger.String("address", valAddress))
-	}
-	logger.Info("Update candidate success", logger.String("Address", valAddress))
-}
-
-func buildDelegation(delAddress, valAddress string) (res tempDelegation, err error) {
+func buildDelegation(delAddress, valAddress string) (res tempDelegation) {
 	d := helper.GetDelegation(delAddress, valAddress)
 
 	if d.DelegatorAddr == nil {
 		// represents delegation is nil
 		res.Height = -1
-		return res, nil
+		return res
 	}
 
 	floatShares := helper.ParseFloat(d.Shares.String())
@@ -135,22 +120,17 @@ func buildDelegation(delAddress, valAddress string) (res tempDelegation, err err
 		Height:         d.Height,
 	}
 
-	return res, nil
+	return res
 }
 
-func buildUnbondingDelegation(delAddress, valAddress string) (
-	document.UnbondingDelegation, error) {
-	var (
-		res document.UnbondingDelegation
-	)
-
+func buildUnbondingDelegation(delAddress, valAddress string) (res document.UnbondingDelegation) {
 	ud := helper.GetUnbondingDelegation(delAddress, valAddress)
 
 	// doesn't have unbonding delegation
 	if ud.DelegatorAddr == nil {
 		// represents unbonding delegation is nil
 		res.CreationHeight = -1
-		return res, nil
+		return res
 	}
 
 	initBalance := types.BuildCoins(types.SdkCoins{ud.InitialBalance})
@@ -162,7 +142,7 @@ func buildUnbondingDelegation(delAddress, valAddress string) (
 		Balance:        balance,
 	}
 
-	return res, nil
+	return res
 }
 
 // Delegation represents the bond with tokens held by an account.  It is

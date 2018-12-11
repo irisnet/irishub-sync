@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
@@ -137,9 +138,6 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 func updateValidatorsRank(candidates *[]document.Candidate) {
 	var historyModel document.ValidatorHistory
 	vs := historyModel.QueryAll()
-	if len(vs) == 0 {
-		return
-	}
 
 	sort.Sort(CandidateWrapper{*candidates, func(p, q *document.Candidate) bool {
 		return q.Tokens < p.Tokens // Tokens 递减排序
@@ -152,15 +150,20 @@ func updateValidatorsRank(candidates *[]document.Candidate) {
 	}
 
 	for index, candidate := range *candidates {
-		lastCandidate := cMap[candidate.Address]
+		lastCandidate, ok := cMap[candidate.Address]
 		var lift int
-		if lastCandidate.Tokens > candidate.Tokens {
-			lift = document.LiftDown
-		} else if lastCandidate.Tokens < candidate.Tokens {
-			lift = document.LiftUp
-		} else {
+		if !ok {
 			lift = document.LiftNotChange
+		} else {
+			if lastCandidate.Tokens > candidate.Tokens {
+				lift = document.LiftDown
+			} else if lastCandidate.Tokens < candidate.Tokens {
+				lift = document.LiftUp
+			} else {
+				lift = document.LiftNotChange
+			}
 		}
+
 		rank := document.Rank{
 			Number: index + 1,
 			Lift:   lift,
@@ -182,4 +185,22 @@ func (cw CandidateWrapper) Swap(i, j int) { // 重写 Swap() 方法
 }
 func (cw CandidateWrapper) Less(i, j int) bool { // 重写 Less() 方法
 	return cw.by(&cw.cs[i], &cw.cs[j])
+}
+
+func updateValidator(valAddress string) {
+	//var canCollection  document.Candidate
+
+	validator, err := helper.GetValidator(valAddress)
+	if err != nil {
+		logger.Error("validator not existed", logger.String("validator", valAddress))
+		return
+	}
+
+	editValidator := BuildValidatorDocument(validator)
+	//candidate := canCollection.GetValidator(valAddress)
+	//editValidator.Rank = candidate.Rank
+	if err := store.Update(editValidator); err != nil {
+		logger.Error("update candidate error", logger.String("address", valAddress))
+	}
+	logger.Info("Update candidate success", logger.String("Address", valAddress))
 }
