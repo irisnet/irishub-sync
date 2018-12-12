@@ -3,6 +3,7 @@
 package store
 
 import (
+	"strings"
 	"time"
 
 	conf "github.com/irisnet/irishub-sync/conf/db"
@@ -24,11 +25,9 @@ func RegisterDocs(d Docs) {
 }
 
 func Start() {
-	addr := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
-	addrs := []string{addr}
-
+	addrs := strings.Split(conf.Addrs, ",")
 	dialInfo := &mgo.DialInfo{
-		Addrs:     addrs, // []string{"192.168.6.122"}
+		Addrs:     addrs,
 		Database:  conf.Database,
 		Username:  conf.User,
 		Password:  conf.Passwd,
