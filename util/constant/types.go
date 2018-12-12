@@ -19,8 +19,7 @@ const (
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
 
-	EnvNameDbHost     = "DB_HOST"
-	EnvNameDbPort     = "DB_PORT"
+	EnvNameDbAddr     = "DB_ADDRS"
 	EnvNameDbUser     = "DB_USER"
 	EnvNameDbPassWd   = "DB_PASSWD"
 	EnvNameDbDataBase = "DB_DATABASE"
