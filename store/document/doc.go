@@ -10,8 +10,10 @@ func init() {
 	store.RegisterDocs(new(Delegator))
 	store.RegisterDocs(new(Block))
 	store.RegisterDocs(new(CommonTx))
-	store.RegisterDocs(new(SyncTask))
+	store.RegisterDocs(new(SyncTaskBak))
 	store.RegisterDocs(new(ValidatorUpTime))
 	store.RegisterDocs(new(TxGas))
 	store.RegisterDocs(new(TxMsg))
+	store.RegisterDocs(new(SyncTask))
+	store.RegisterDocs(new(SyncConf))
 }
