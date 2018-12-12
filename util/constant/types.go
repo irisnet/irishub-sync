@@ -19,7 +19,7 @@ const (
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
 
-	EnvNameDbAddr     = "DB_Addr"
+	EnvNameDbAddr     = "DB_ADDRS"
 	EnvNameDbUser     = "DB_USER"
 	EnvNameDbPassWd   = "DB_PASSWD"
 	EnvNameDbDataBase = "DB_DATABASE"
