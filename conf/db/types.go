@@ -7,8 +7,7 @@ import (
 )
 
 var (
-	Host     = "127.0.0.1"
-	Port     = "27017"
+	Addrs    = "127.0.0.1:27017"
 	User     = "iris"
 	Passwd   = "irispassword"
 	Database = "sync-iris"
@@ -16,17 +15,11 @@ var (
 
 // get value of env var
 func init() {
-	host, found := os.LookupEnv(constant.EnvNameDbHost)
+	addrs, found := os.LookupEnv(constant.EnvNameDbAddr)
 	if found {
-		Host = host
+		Addrs = addrs
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbHost, Host))
-
-	port, found := os.LookupEnv(constant.EnvNameDbPort)
-	if found {
-		Port = port
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbPort, Port))
+	logger.Info("Env Value", logger.String(constant.EnvNameDbAddr, addrs))
 
 	user, found := os.LookupEnv(constant.EnvNameDbUser)
 	if found {
