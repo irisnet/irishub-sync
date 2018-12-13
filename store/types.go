@@ -2,6 +2,10 @@
 
 package store
 
+const (
+	CollectionNameTxn = "mgo_txn"
+)
+
 type Docs interface {
 	// collection name
 	Name() string
