@@ -1,6 +1,7 @@
 package service
 
 import (
+	serverConf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
@@ -20,9 +21,9 @@ var (
 	blockNumPerWorkerHandle int64
 )
 
-func init() {
+func Start() {
 	// get sync conf
-	syncConf, err := syncConfModel.GetConf()
+	syncConf, err := syncConfModel.GetConf(serverConf.ChainId)
 	if err != nil {
 		logger.Fatal("Get sync conf failed", logger.String("err", err.Error()))
 	}
@@ -30,9 +31,7 @@ func init() {
 	if blockNumPerWorkerHandle <= 0 {
 		logger.Fatal("blockNumPerWorkerHandle should greater than 0")
 	}
-}
 
-func start() {
 	// buffer channel to limit goroutine num
 	chanLimit := make(chan bool, goroutineNumCreateTask)
 
@@ -59,7 +58,9 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 	// get current block height
 	getCurrentBlockHeight := func() (int64, error) {
 		client := helper.GetClient()
-		defer client.Release()
+		defer func() {
+			client.Release()
+		}()
 		status, err := client.Status()
 		if err != nil {
 			return 0, err
@@ -90,6 +91,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 
 		if maxEndHeight+blockNumPerWorker <= currentBlockHeight {
 			syncTasks = createCatchUpTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
+			logger.Info("Create catch up task during follow task not exist", logger.Int64("from", maxEndHeight), logger.Int64("to", currentBlockHeight))
 		} else {
 			finished, err := assertAllCatchUpTaskFinished()
 			if err != nil {
@@ -98,6 +100,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			}
 			if finished {
 				syncTasks = createFollowTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
+				logger.Info("Create follow task during follow task not exist", logger.Int64("from", maxEndHeight), logger.Int64("to", currentBlockHeight))
 			}
 		}
 	} else {
@@ -114,15 +117,18 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			syncTasks = createCatchUpTask(followedHeight, blockNumPerWorker, currentBlockHeight)
 
 			removeTask = followTask
+			logger.Info("Create catch up task during follow task exist", logger.Int64("from", followedHeight), logger.Int64("to", currentBlockHeight))
 		}
 	}
 
 	// bulk insert or remove use transaction
 	if len(syncTasks) > 0 {
 		for _, v := range syncTasks {
+			objectId := bson.NewObjectId()
+			v.ID = objectId
 			op := txn.Op{
 				C:      document.CollectionNameSyncTask,
-				Id:     bson.NewObjectId(),
+				Id:     objectId,
 				Assert: nil,
 				Insert: v,
 			}
@@ -131,7 +137,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		}
 	}
 
-	if removeTask.ID.String() != "" {
+	if removeTask.ID.Valid() {
 		removeOp := txn.Op{
 			C:      document.CollectionNameSyncTask,
 			Id:     removeTask.ID,
@@ -147,13 +153,18 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 
 		txObjectId := bson.NewObjectId()
 		err := runner.Run(ops, txObjectId, nil)
-		if err == txn.ErrAborted {
-			err = runner.Resume(txObjectId)
-			if err != nil {
-				logger.Error("Resume transaction failed", logger.String("err", err.Error()))
+		if err != nil {
+			if err == txn.ErrAborted {
+				err = runner.Resume(txObjectId)
+				if err != nil {
+					logger.Error("Resume transaction failed", logger.String("err", err.Error()))
+				}
+			} else {
+				logger.Error("Unknown while run create sync task transaction", logger.String("err", err.Error()))
+
 			}
 		} else {
-			logger.Error("Unknown while run create sync task transaction", logger.String("err", err.Error()))
+			logger.Info("create sync task success")
 		}
 	}
 }

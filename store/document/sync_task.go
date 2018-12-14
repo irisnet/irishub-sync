@@ -55,7 +55,7 @@ func (d SyncTask) GetMaxBlockHeight() (int64, error) {
 		{
 			"$group": bson.M{
 				"_id": nil,
-				"max": bson.M{"$sum": "$end_height"},
+				"max": bson.M{"$max": "$end_height"},
 			},
 		},
 	}

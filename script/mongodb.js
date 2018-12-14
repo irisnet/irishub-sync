@@ -21,6 +21,7 @@ db.createCollection("proposal");
 db.createCollection("tx_msg");
 db.createCollection("power_change");//explorer
 db.createCollection("uptime_change");
+db.createCollection("sync_conf");
 
 
 // create index
@@ -34,7 +35,8 @@ db.stake_role_delegator.createIndex({"validator_addr": 1});
 db.stake_role_delegator.createIndex({"address": 1});
 db.stake_role_delegator.createIndex({"address": 1, "validator_addr": 1}, {"unique": true});
 
-db.sync_task.createIndex({"chain_id": 1}, {"unique": true});
+db.sync_conf.createIndex({"chain_id": 1}, {"unique": true});
+db.sync_task.createIndex({"start_height": 1, "end_height": 1}, {"unique": true});
 
 db.tx_common.createIndex({"height": -1});
 db.tx_common.createIndex({"time": -1});
@@ -44,8 +46,8 @@ db.tx_common.createIndex({"to": 1});
 db.tx_common.createIndex({"type": 1});
 db.tx_common.createIndex({"status": 1});
 
-db.power_change.createIndex({"height":1,"address":1},{"unique":true});
-db.uptime_change.createIndex({"time":1,"address":1},{"unique":true});
+db.power_change.createIndex({"height": 1, "address": 1}, {"unique": true});
+db.uptime_change.createIndex({"time": 1, "address": 1}, {"unique": true});
 
 db.validator_up_time.createIndex({"val_address": 1}, {"unique": true});
 

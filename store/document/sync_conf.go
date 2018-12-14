@@ -12,6 +12,7 @@ const (
 )
 
 type SyncConf struct {
+	ChainId                 string    `bson:"chain_id"`
 	BlockNumPerWorkerHandle int64     `bson:"block_num_per_worker_handle"`
 	MaxWorkerSleepTime      time.Time `bson:"max_worker_sleep_time"`
 }
@@ -21,15 +22,17 @@ func (d SyncConf) Name() string {
 }
 
 func (d SyncConf) PkKvPair() map[string]interface{} {
-	return bson.M{}
+	return bson.M{"chain_id": d.ChainId}
 }
 
-func (d SyncConf) GetConf() (SyncConf, error) {
+func (d SyncConf) GetConf(chainId string) (SyncConf, error) {
 	var syncConf SyncConf
 
-	q := bson.M{}
+	q := bson.M{
+		"chain_id": chainId,
+	}
 	fn := func(c *mgo.Collection) error {
-		return c.FindId(q).One(&syncConf)
+		return c.Find(q).One(&syncConf)
 	}
 
 	err := store.ExecCollection(d.Name(), fn)
