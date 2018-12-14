@@ -43,9 +43,9 @@ func Start() {
 
 func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 	var (
-		syncTasks  []document.SyncTask
-		ops        []txn.Op
-		removeTask document.SyncTask
+		syncTasks         []document.SyncTask
+		ops               []txn.Op
+		invalidFollowTask document.SyncTask
 	)
 
 	defer func() {
@@ -70,12 +70,17 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		return currentBlockHeight, nil
 	}
 
-	// check follow task if exist
-	followTasks, err := syncTaskModel.QueryAll([]string{}, document.SyncTaskTypeFollow)
+	// check valid follow task if exist
+	// status of valid follow task is unhandled or underway
+	validFollowTasks, err := syncTaskModel.QueryAll(
+		[]string{
+			document.SyncTaskStatusUnHandled,
+			document.SyncTaskStatusUnderway,
+		}, document.SyncTaskTypeFollow)
 	if err != nil {
 		logger.Error("Query sync task failed", logger.String("err", err.Error()))
 	}
-	if len(followTasks) == 0 {
+	if len(validFollowTasks) == 0 {
 		// get max end_height from sync_task
 		maxEndHeight, err := syncTaskModel.GetMaxBlockHeight()
 		if err != nil {
@@ -91,7 +96,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 
 		if maxEndHeight+blockNumPerWorker <= currentBlockHeight {
 			syncTasks = createCatchUpTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
-			logger.Info("Create catch up task during follow task not exist", logger.Int64("from", maxEndHeight), logger.Int64("to", currentBlockHeight))
+			logger.Info("Create catch up task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
 		} else {
 			finished, err := assertAllCatchUpTaskFinished()
 			if err != nil {
@@ -100,12 +105,15 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			}
 			if finished {
 				syncTasks = createFollowTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
-				logger.Info("Create follow task during follow task not exist", logger.Int64("from", maxEndHeight), logger.Int64("to", currentBlockHeight))
+				logger.Info("Create follow task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
 			}
 		}
 	} else {
-		followTask := followTasks[0]
+		followTask := validFollowTasks[0]
 		followedHeight := followTask.CurrentHeight
+		if followedHeight == 0 {
+			followedHeight = followTask.StartHeight
+		}
 
 		currentBlockHeight, err := getCurrentBlockHeight()
 		if err != nil {
@@ -116,8 +124,8 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		if followedHeight+blockNumPerWorker <= currentBlockHeight {
 			syncTasks = createCatchUpTask(followedHeight, blockNumPerWorker, currentBlockHeight)
 
-			removeTask = followTask
-			logger.Info("Create catch up task during follow task exist", logger.Int64("from", followedHeight), logger.Int64("to", currentBlockHeight))
+			invalidFollowTask = followTask
+			logger.Info("Create catch up task during follow task exist", logger.Int64("from", followedHeight+1), logger.Int64("to", currentBlockHeight))
 		}
 	}
 
@@ -137,14 +145,18 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		}
 	}
 
-	if removeTask.ID.Valid() {
-		removeOp := txn.Op{
+	if invalidFollowTask.ID.Valid() {
+		op := txn.Op{
 			C:      document.CollectionNameSyncTask,
-			Id:     removeTask.ID,
+			Id:     invalidFollowTask.ID,
 			Assert: txn.DocExists,
-			Remove: true,
+			Update: bson.M{
+				"$set": bson.M{
+					"status": document.FollowTaskStatusInvalid,
+				},
+			},
 		}
-		ops = append(ops, removeOp)
+		ops = append(ops, op)
 	}
 
 	if len(ops) > 0 {
