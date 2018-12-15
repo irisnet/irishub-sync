@@ -7,8 +7,7 @@ services:
       - /mnt/data/irishub-sync/log:/irishub-sync/log
     environment:
       ENV: dev
-      DB_HOST: 192.168.150.7
-      DB_PORT: 30000
+      DB_ADDR: 192.168.150.7:30000
       DB_USER: iris
       DB_PASSWD: irispassword
       DB_DATABASE: sync-iris

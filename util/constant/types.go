@@ -19,18 +19,28 @@ const (
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
 
-	EnvNameDbAddr     = "DB_ADDRS"
+
+	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"
 	EnvNameDbPassWd   = "DB_PASSWD"
 	EnvNameDbDataBase = "DB_DATABASE"
 
-	EnvNameSerNetworkNodeUrl = "SER_BC_NODE_URL"
-	EnvNameSerNetworkChainId = "SER_BC_CHAIN_ID"
-	EnvNameSerNetworkToken   = "SER_BC_TOKEN"
-	EnvNameSerMaxGoRoutine   = "SER_MAX_GOROUTINE"
-	EnvNameSerSyncBlockNum   = "SER_SYNC_BLOCK_NUM"
-	EnvNameConsulAddr        = "CONSUL_ADDR"
-	EnvNameSyncWithDLock     = "SYNC_WITH_DLOCK"
+	EnvNameSerNetworkNodeUrl        = "SER_BC_NODE_URL"
+	EnvNameSerNetworkChainId        = "SER_BC_CHAIN_ID"
+	EnvNameSerNetworkToken          = "SER_BC_TOKEN"
+	EnvNameSerMaxGoRoutine          = "SER_MAX_GOROUTINE"
+	EnvNameSerSyncBlockNum          = "SER_SYNC_BLOCK_NUM"
+	EnvNameConsulAddr               = "CONSUL_ADDR"
+	EnvNameSyncWithDLock            = "SYNC_WITH_DLOCK"
+	EnvNameCronSaveValidatorHistory = "CRON_SAVE_VALIDATOR_HISTORY"
+
+	//bech32Prefix
+	EnvNamePrefixAccAddr  = "PrefixAccAddr"
+	EnvNamePrefixAccPub   = "PrefixAccPub"
+	EnvNamePrefixValAddr  = "PrefixValAddr"
+	EnvNamePrefixValPub   = "PrefixValPub"
+	EnvNamePrefixConsAddr = "PrefixConsAddr"
+	EnvNamePrefixConsPub  = "PrefixConsPub"
 
 	EnvLogFileName    = "LOG_FILE_NAME"
 	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"

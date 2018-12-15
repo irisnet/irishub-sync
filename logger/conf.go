@@ -1,4 +1,4 @@
-package log
+package logger
 
 import (
 	"github.com/irisnet/irishub-sync/util/constant"
@@ -15,7 +15,7 @@ type Config struct {
 }
 
 var (
-	Conf = Config{
+	conf = Config{
 		Filename:          os.ExpandEnv("$HOME/irishub-sync/sync_server.log"),
 		MaxSize:           20,
 		MaxAge:            7,
@@ -27,34 +27,34 @@ var (
 func init() {
 	fileName, found := os.LookupEnv(constant.EnvLogFileName)
 	if found {
-		Conf.Filename = fileName
+		conf.Filename = fileName
 	}
 
 	maxSize, found := os.LookupEnv(constant.EnvLogFileMaxSize)
 	if found {
 		if size, err := strconv.Atoi(maxSize); err == nil {
-			Conf.MaxSize = size
+			conf.MaxSize = size
 		}
 	}
 
 	maxAge, found := os.LookupEnv(constant.EnvLogFileMaxAge)
 	if found {
 		if age, err := strconv.Atoi(maxAge); err == nil {
-			Conf.MaxAge = age
+			conf.MaxAge = age
 		}
 	}
 
 	compress, found := os.LookupEnv(constant.EnvLogCompress)
 	if found {
 		if compre, err := strconv.ParseBool(compress); err == nil {
-			Conf.Compress = compre
+			conf.Compress = compre
 		}
 	}
 
 	enableAtomicLevel, found := os.LookupEnv(constant.EnableAtomicLevel)
 	if found {
 		if atomicLevel, err := strconv.ParseBool(enableAtomicLevel); err == nil {
-			Conf.EnableAtomicLevel = atomicLevel
+			conf.EnableAtomicLevel = atomicLevel
 		}
 	}
 }

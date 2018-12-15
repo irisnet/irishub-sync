@@ -3,7 +3,7 @@ package helper
 import (
 	"testing"
 
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 )
 
 func TestGetValidator(t *testing.T) {

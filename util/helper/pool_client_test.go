@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 )
 
 func TestInitClientPool(t *testing.T) {

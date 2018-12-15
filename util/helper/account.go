@@ -3,8 +3,7 @@
 package helper
 
 import (
-	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
@@ -12,9 +11,11 @@ import (
 
 // query account balance from sdk store
 func QueryAccountBalance(address string) store.Coins {
+	cdc := types.GetCodec()
+
 	addr, err := types.AccAddressFromBech32(address)
 	if err != nil {
-		logger.Error("get addr from hex failed", logger.String("err", err.Error()))
+		logger.Error("get addr from hex failed", logger.Any("err", err))
 		return nil
 	}
 
@@ -22,7 +23,7 @@ func QueryAccountBalance(address string) store.Coins {
 		constant.StoreDefaultEndPath)
 
 	if err != nil {
-		logger.Error("Query balance from tendermint failed", logger.String("err", err.Error()))
+		logger.Error("Query balance from tendermint failed", logger.Any("err", err))
 		return nil
 	}
 
@@ -31,10 +32,10 @@ func QueryAccountBalance(address string) store.Coins {
 		return nil
 	}
 
-	decoder := types.GetAccountDecoder(codec.Cdc)
+	decoder := types.GetAccountDecoder(cdc)
 	account, err := decoder(res)
 	if err != nil {
-		logger.Error("decode account failed", logger.String("err", err.Error()))
+		logger.Error("decode account failed", logger.Any("err", err))
 		return nil
 	}
 

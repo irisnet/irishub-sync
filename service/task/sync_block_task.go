@@ -3,8 +3,7 @@ package task
 import (
 	"fmt"
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/irisnet/irishub-sync/module/codec"
-	"github.com/irisnet/irishub-sync/module/logger"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
@@ -138,7 +137,7 @@ func (watcher *BlockWatcher) watchBlock() {
 	if syncTask.Height+1 <= latestBlockHeight-1 {
 		logger.Info("latest height", logger.String("method", methodName), logger.Int64("latestBlockHeight", latestBlockHeight))
 		funcChain := []handler.Action{
-			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
+			handler.SaveTx, handler.SaveAccount, handler.UpdateBalance, handler.SaveOrUpdateDelegator,
 		}
 
 		ch := make(chan int64)
@@ -173,14 +172,14 @@ func (watcher *BlockWatcher) fastSync() int64 {
 
 	status, err := client.Status()
 	if err != nil {
-		logger.Error("TmClient err", logger.String("err", err.Error()))
+		logger.Error("TmClient err", logger.Any("err", err))
 		return 0
 	}
 
 	// define functions which should be executed
 	// during parse tx and block
 	funcChain := []handler.Action{
-		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
+		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance, handler.SaveOrUpdateDelegator,
 	}
 
 	// define unbuffered channel
@@ -285,7 +284,7 @@ func syncBlock(start, end, threadNum int64,
 		if block.BlockMeta.Header.NumTxs > 0 {
 			txs := block.Block.Data.Txs
 			for _, txByte := range txs {
-				docTx := helper.ParseTx(codec.Cdc, txByte, block.Block)
+				docTx := helper.ParseTx(txByte, block.Block)
 				txHash := helper.BuildHex(txByte.Hash())
 				if txHash == "" {
 					logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))
@@ -311,7 +310,7 @@ func syncBlock(start, end, threadNum int64,
 
 		// compare and update validators during watch block
 		if syncType == constant.SyncTypeWatch {
-			handler.CompareAndUpdateValidators(validators)
+			handler.CompareAndUpdateValidators()
 		}
 	}
 

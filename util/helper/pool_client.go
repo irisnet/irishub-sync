@@ -4,10 +4,10 @@
 package helper
 
 import (
-	"github.com/irisnet/irishub-sync/module/logger"
+	"encoding/hex"
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"time"
-	"fmt"
 )
 
 type Client struct {
@@ -23,7 +23,6 @@ func newClient(addr string) *Client {
 }
 
 // get client from pool
-// while get a client from pool, available should -1, used should +1
 func GetClient() *Client {
 
 	c, err := pool.BorrowObject(ctx)
