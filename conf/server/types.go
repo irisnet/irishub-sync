@@ -47,12 +47,12 @@ type Bech32AddrPrefix struct {
 
 // get value of env var
 func init() {
-	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkNodeUrl)
+	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkFullNode)
 	if found {
 		BlockChainMonitorUrl = strings.Split(nodeUrl, ",")
 	}
 
-	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl))
+	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkFullNode, BlockChainMonitorUrl))
 
 	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
 	if found {
