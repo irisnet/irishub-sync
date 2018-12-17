@@ -13,12 +13,16 @@ func GetValidators() (validators []types.StakeValidator) {
 
 	resRaw, err := Query(keys, constant.StoreNameStake, "subspace")
 
-	if err != nil {
-		logger.Error("helper.GetValidators err ", logger.String("err", err.Error()))
+	if err != nil || len(resRaw) == 0 {
+		logger.Error("GetValidators Failed ", logger.String("err", err.Error()))
 		return
 	}
 
-	cdc.MustUnmarshalBinaryLengthPrefixed(resRaw, &kvs)
+	err = cdc.UnmarshalBinaryLengthPrefixed(resRaw, &kvs)
+	if err != nil {
+		logger.Error("UnmarshalBinaryLengthPrefixed validators err ", logger.String("err", err.Error()))
+		return
+	}
 
 	for _, v := range kvs {
 		addr := v.Key[1:]
@@ -26,6 +30,7 @@ func GetValidators() (validators []types.StakeValidator) {
 
 		if err2 != nil {
 			logger.Error("types.UnmarshalValidator", logger.String("err", err2.Error()))
+			continue
 		}
 
 		validators = append(validators, validator)

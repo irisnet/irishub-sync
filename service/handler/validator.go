@@ -28,11 +28,17 @@ func CompareAndUpdateValidators() {
 	// get all validatorSets from blockChain
 	validators := helper.GetValidators()
 
+	logger.Info("Get Validators from blockchain", logger.Any("Validators", validators))
 	var chainValidators []document.Candidate
 	for _, validator := range validators {
 		// build validator document struct by stake.validator
 		doc := BuildValidatorDocument(validator)
 		chainValidators = append(chainValidators, doc)
+	}
+
+	if len(chainValidators) == 0 {
+		logger.Error("Validators is empty,Update Validators Failed")
+		return
 	}
 
 	// dbCandidates not equal chainValidators
@@ -86,7 +92,7 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 func compareValidators(dbVals []document.Candidate, chainVals []document.Candidate) bool {
 	//Candidate数量不一致
 	if len(dbVals) != len(chainVals) {
-		logger.Info("Candidate's member amount has changed")
+		logger.Info("Candidate's member amount has changed", logger.Int("db", len(dbVals)), logger.Int("blockchain", len(chainVals)))
 		return true
 	}
 
@@ -107,8 +113,8 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 		if v.Tokens != v1.Tokens {
 			logger.Info("Candidate's votingPower has changed",
 				logger.String("validator", v.Address),
-				logger.Float64("dbValue", v1.Tokens),
-				logger.Float64("tmValue", v1.Tokens),
+				logger.Float64("dbTokens", v1.Tokens),
+				logger.Float64("tmTokens", v1.Tokens),
 			)
 			return true
 		}
@@ -116,8 +122,8 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 		if v.Jailed != v1.Jailed {
 			logger.Info("Candidate's jailed status has changed",
 				logger.String("validator", v.Address),
-				logger.Bool("dbValue", v.Jailed),
-				logger.Bool("tmValue", v1.Jailed),
+				logger.Bool("dbJailed", v.Jailed),
+				logger.Bool("tmJailed", v1.Jailed),
 			)
 			return true
 		}
@@ -125,8 +131,8 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 		if v.Status != v1.Status {
 			logger.Info("Candidate's status has changed",
 				logger.String("validator", v.Address),
-				logger.String("dbValue", v.Status),
-				logger.String("tmValue", v1.Status),
+				logger.String("dbStatus", v.Status),
+				logger.String("tmStatus", v1.Status),
 			)
 			return true
 		}
