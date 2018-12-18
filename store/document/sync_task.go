@@ -25,19 +25,19 @@ const (
 )
 
 type WorkerLog struct {
-	WorkerId  int64     `bson:"worker_id"`  // worker id
+	WorkerId  string    `bson:"worker_id"`  // worker id
 	BeginTime time.Time `bson:"begin_time"` // time which worker begin handle this task
 }
 
 type SyncTask struct {
 	ID             bson.ObjectId `bson:"_id"`
-	StartHeight    int64         `bson:"start_height"`   // task start height
-	EndHeight      int64         `bson:"end_height"`     // task end height
-	CurrentHeight  int64         `bson:"current_height"` // task current height
-	Status         string        `bson:"status"`         // task status
-	WorkerId       int64         `bson:"worker_id"`      // worker id
-	WorkerLogs     []WorkerLog   `bson:"worker_logs"`    // worker logs
-	LastUpdateTime time.Time     `bson:"last_update_time"`
+	StartHeight    int64         `bson:"start_height"`     // task start height
+	EndHeight      int64         `bson:"end_height"`       // task end height
+	CurrentHeight  int64         `bson:"current_height"`   // task current height
+	Status         string        `bson:"status"`           // task status
+	WorkerId       string        `bson:"worker_id"`        // worker id
+	WorkerLogs     []WorkerLog   `bson:"worker_logs"`      // worker logs
+	LastUpdateTime int64         `bson:"last_update_time"` // unix timestamp
 }
 
 func (d SyncTask) Name() string {
@@ -114,4 +114,69 @@ func (d SyncTask) QueryAll(status []string, taskType string) ([]SyncTask, error)
 	}
 
 	return syncTasks, nil
+}
+
+func (d SyncTask) GetExecutableTask(maxWorkerSleepTime int64) ([]SyncTask, error) {
+	var tasks []SyncTask
+
+	t := time.Now().Add(time.Duration(-maxWorkerSleepTime) * time.Second).Unix()
+	q := bson.M{
+		"$or": []bson.M{
+			{
+				"status": SyncTaskStatusUnHandled,
+			},
+			{
+				"status": SyncTaskStatusUnderway,
+				"last_update_time": bson.M{
+					"$lte": t,
+				},
+			},
+		},
+	}
+
+	fn := func(c *mgo.Collection) error {
+		return c.Find(q).Sort("current_height", "-status").All(&tasks)
+	}
+
+	err := store.ExecCollection(d.Name(), fn)
+
+	if err != nil {
+		return tasks, err
+	}
+
+	return tasks, nil
+}
+
+func (d SyncTask) GetTaskById(id bson.ObjectId) (SyncTask, error) {
+	var task SyncTask
+	c := store.GetCollection(CollectionNameSyncTask)
+
+	err := c.FindId(id).One(&task)
+	if err != nil {
+		return task, err
+	}
+	return task, nil
+}
+
+// take over a task
+// update status, worker_id, worker_logs and last_update_time
+func (d SyncTask) TaskOverTask(task SyncTask, workerId string) error {
+	c := store.GetCollection(CollectionNameSyncTask)
+
+	// multiple goroutine attempt to update same record,
+	// use this selector to ensure only one goroutine can update success at same time
+	selector := bson.M{
+		"_id":              task.ID,
+		"last_update_time": task.LastUpdateTime,
+	}
+
+	task.Status = SyncTaskStatusUnderway
+	task.WorkerId = workerId
+	task.LastUpdateTime = time.Now().Unix()
+	task.WorkerLogs = append(task.WorkerLogs, WorkerLog{
+		WorkerId:  workerId,
+		BeginTime: time.Now(),
+	})
+
+	return c.Update(selector, task)
 }

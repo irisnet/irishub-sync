@@ -1,4 +1,4 @@
-package service
+package task
 
 import (
 	"github.com/irisnet/irishub-sync/store"

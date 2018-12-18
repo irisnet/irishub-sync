@@ -4,7 +4,6 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 )
 
 const (
@@ -12,9 +11,9 @@ const (
 )
 
 type SyncConf struct {
-	ChainId                 string    `bson:"chain_id"`
-	BlockNumPerWorkerHandle int64     `bson:"block_num_per_worker_handle"`
-	MaxWorkerSleepTime      time.Time `bson:"max_worker_sleep_time"`
+	ChainId                 string `bson:"chain_id"`
+	BlockNumPerWorkerHandle int64  `bson:"block_num_per_worker_handle"`
+	MaxWorkerSleepTime      int64  `bson:"max_worker_sleep_time"`
 }
 
 func (d SyncConf) Name() string {
