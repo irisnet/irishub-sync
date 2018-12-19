@@ -37,7 +37,7 @@ func StartExecuteTask() {
 	}
 
 	// buffer channel to limit goroutine num
-	chanLimit := make(chan bool, 10)
+	chanLimit := make(chan bool, serverConf.WorkerNumExecuteTask)
 
 	for {
 		chanLimit <- true
@@ -59,10 +59,6 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	}
 
 	getBlockChainLatestHeight := func() (int64, error) {
-		// TODO: delete mock test
-		return 1000, nil
-		// ===
-
 		client := helper.GetClient()
 		defer func() {
 			client.Release()
@@ -104,7 +100,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	// take over sync task
 	// attempt to update status, worker_id and worker_logs
 	task := tasks[0]
-	err = syncTaskModel.TaskOverTask(task, workerId)
+	err = syncTaskModel.TakeOverTask(task, workerId)
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			// this task has been take over by other goroutine
@@ -293,7 +289,12 @@ func saveDocs(blockDoc document.Block, taskDoc document.SyncTask) error {
 		C:      document.CollectionNameSyncTask,
 		Id:     taskDoc.ID,
 		Assert: txn.DocExists,
-		Update: taskDoc,
+		Update: bson.M{
+			"$set": bson.M{
+				"current_height":   taskDoc.CurrentHeight,
+				"last_update_time": taskDoc.LastUpdateTime,
+			},
+		},
 	}
 
 	ops = append(ops, insertOp, updateOp)

@@ -42,7 +42,7 @@ func init() {
 		gcp.NewObjectPool(ctx, &factory, config),
 	}
 	//自动搜索可用节点
-	factory.StartCrawlPeers()
+	//factory.StartCrawlPeers()
 }
 
 type EndPoint struct {

@@ -3,6 +3,10 @@ package document
 import (
 	"encoding/json"
 	"testing"
+
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 func TestSyncTask_GetMaxBlockHeight(t *testing.T) {
@@ -81,6 +85,45 @@ func TestSyncTask_GetExecutableTask(t *testing.T) {
 				t.Error(err)
 			}
 			t.Logf("res is %v\n", string(resBytes))
+		})
+	}
+}
+
+func TestSyncTask_TakeOverTask(t *testing.T) {
+	type args struct {
+		task     SyncTask
+		workerId string
+	}
+	var (
+		syncTaskModel SyncTask
+	)
+
+	task1, _ := syncTaskModel.GetTaskById(bson.ObjectIdHex("5c176dc63b6c5c4027b8fb92"))
+
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "test take over task",
+			args: args{
+				task:     task1,
+				workerId: bson.NewObjectIdWithTime(time.Now()).String(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := SyncTask{}
+			err := d.TakeOverTask(tt.args.task, tt.args.workerId)
+			if err != nil {
+				if err == mgo.ErrNotFound {
+					t.Log("this task has been take over by other goroutine")
+				} else {
+					t.Fatal(err)
+				}
+			}
+			t.Log("take over task success")
 		})
 	}
 }

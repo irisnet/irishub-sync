@@ -33,6 +33,8 @@ const (
 	EnvNameConsulAddr               = "CONSUL_ADDR"
 	EnvNameSyncWithDLock            = "SYNC_WITH_DLOCK"
 	EnvNameCronSaveValidatorHistory = "CRON_SAVE_VALIDATOR_HISTORY"
+	EnvNameWorkerNumCreateTask      = "WORKER_NUM_CREATE_TASK"
+	EnvNameWorkerNumExecuteTask     = "WORKER_NUM_EXECUTE_TASK"
 
 	//bech32Prefix
 	EnvNamePrefixAccAddr  = "PrefixAccAddr"

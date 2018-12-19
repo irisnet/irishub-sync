@@ -160,7 +160,7 @@ func (d SyncTask) GetTaskById(id bson.ObjectId) (SyncTask, error) {
 
 // take over a task
 // update status, worker_id, worker_logs and last_update_time
-func (d SyncTask) TaskOverTask(task SyncTask, workerId string) error {
+func (d SyncTask) TakeOverTask(task SyncTask, workerId string) error {
 	c := store.GetCollection(CollectionNameSyncTask)
 
 	// multiple goroutine attempt to update same record,

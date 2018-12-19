@@ -11,10 +11,6 @@ import (
 	"time"
 )
 
-const (
-	goroutineNumCreateTask = 2
-)
-
 func StartCreateTask() {
 	var (
 		syncConfModel           document.SyncConf
@@ -32,7 +28,7 @@ func StartCreateTask() {
 	}
 
 	// buffer channel to limit goroutine num
-	chanLimit := make(chan bool, goroutineNumCreateTask)
+	chanLimit := make(chan bool, serverConf.WorkerNumCreateTask)
 
 	for {
 		chanLimit <- true
@@ -163,6 +159,8 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		err := store.Txn(ops)
 		if err != nil {
 			logger.Error("Create sync task fail", logger.String("err", err.Error()))
+		} else {
+			logger.Info("Create sync task success")
 		}
 	}
 }
