@@ -102,7 +102,6 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 			validator := document.Validator{
 				Address:     v.Address.String(),
 				VotingPower: v.VotingPower,
-				Accum:       v.Accum,
 				PubKey:      hexFunc(v.PubKey.Bytes()),
 			}
 			vals = append(vals, validator)

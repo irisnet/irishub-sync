@@ -4,7 +4,7 @@ import (
 	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
-	authcmd "github.com/irisnet/irishub/client/auth/cli"
+	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
 	"github.com/irisnet/irishub/modules/auth"
 	"github.com/irisnet/irishub/modules/bank"
@@ -91,7 +91,7 @@ var (
 	NewDecFromStr = types.NewDecFromStr
 
 	AddressStoreKey   = auth.AddressStoreKey
-	GetAccountDecoder = authcmd.GetAccountDecoder
+	GetAccountDecoder = utils.GetAccountDecoder
 
 	KeyProposal      = gov.KeyProposal
 	KeyVotesSubspace = gov.KeyVotesSubspace
@@ -157,6 +157,6 @@ func BuildCoin(coin types.Coin) store.Coin {
 func BuildFee(fee auth.StdFee) store.Fee {
 	return store.Fee{
 		Amount: BuildCoins(fee.Amount),
-		Gas:    fee.Gas,
+		Gas:    int64(fee.Gas),
 	}
 }
