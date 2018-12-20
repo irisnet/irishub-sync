@@ -24,7 +24,7 @@ const (
 	EnvNameDbPassWd   = "DB_PASSWD"
 	EnvNameDbDataBase = "DB_DATABASE"
 
-	EnvNameSerNetworkFullNode        = "SER_BC_FULL_NODE"
+	EnvNameSerNetworkFullNode       = "SER_BC_FULL_NODE"
 	EnvNameSerNetworkChainId        = "SER_BC_CHAIN_ID"
 	EnvNameSerNetworkToken          = "SER_BC_TOKEN"
 	EnvNameSerMaxGoRoutine          = "SER_MAX_GOROUTINE"
