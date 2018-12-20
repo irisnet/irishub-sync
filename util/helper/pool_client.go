@@ -51,24 +51,6 @@ func (c *Client) HeartBeat() error {
 	return err
 }
 
-func (c *Client) GetNodeAddress() []string {
-	//http := c.Client.(*types.HTTP)
-	//netInfo, err := http.NetInfo()
-	var addrs []string
-	//if err == nil {
-	//	peers := netInfo.Peers
-	//	for _, peer := range peers {
-	//		addr := peer.NodeInfo.ListenAddr
-	//		ip := strings.Split(addr, ":")[0]
-	//		port := strings.Split(peer.NodeInfo.Other[5], ":")[2] //TODO
-	//		endpoint := fmt.Sprintf("%s%s:%s", "tcp://", ip, port)
-	//		addrs = append(addrs, endpoint)
-	//	}
-	//}
-	logger.Debug("found new node ", logger.Any("address", addrs))
-	return addrs
-}
-
 func generateId(address string) string {
 	id := []byte(address)
 	return hex.EncodeToString(id)

@@ -61,7 +61,6 @@ type (
 	BlockMeta  = tm.BlockMeta
 	HexBytes   = cmn.HexBytes
 
-	Codec            = codec.Codec
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
 	Client           = rpcclient.Client
 	HTTP             = rpcclient.HTTP

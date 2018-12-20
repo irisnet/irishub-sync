@@ -106,7 +106,7 @@ func init() {
 	if found {
 		CronSaveValidatorHistory = cronSaveValidatorHistory
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, ConsulAddr))
+	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
 
 	loadBe32Prefix()
 }
