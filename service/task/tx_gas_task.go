@@ -23,7 +23,11 @@ func calculateTxGasAndGasPrice() {
 		constant.TxTypeStakeEditValidator,
 		constant.TxTypeStakeDelegate,
 		constant.TxTypeStakeBeginUnbonding,
-		constant.TxTypeStakeCompleteUnbonding,
+		constant.TxTypeBeginRedelegate,
+		constant.TxTypeSetWithdrawAddress,
+		constant.TxTypeWithdrawDelegatorReward,
+		constant.TxTypeWithdrawDelegatorRewardsAll,
+		constant.TxTypeWithdrawValidatorRewardsAll,
 	}
 
 	for _, v := range txTypes {
