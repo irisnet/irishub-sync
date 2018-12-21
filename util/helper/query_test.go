@@ -51,10 +51,7 @@ func TestGetDelegation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := GetDelegation(tt.args.delAddr, tt.args.valAddr)
-			if err != nil {
-				logger.Error(err.Error())
-			}
+			res := GetDelegation(tt.args.delAddr, tt.args.valAddr)
 			logger.Info(ToJson(res))
 		})
 	}
@@ -79,10 +76,7 @@ func TestGetUnbondingDelegation(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := GetUnbondingDelegation(tt.args.delAddr, tt.args.valAddr)
-			if err != nil {
-				logger.Error(err.Error())
-			}
+			res := GetUnbondingDelegation(tt.args.delAddr, tt.args.valAddr)
 			logger.Info(ToJson(res))
 		})
 	}

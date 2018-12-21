@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/module/codec"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
@@ -45,7 +44,7 @@ func buildDocData(blockHeight int64) document.CommonTx {
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
 		txByte := txs[0]
-		docTx := helper.ParseTx(codec.Cdc, txByte, block.Block)
+		docTx := helper.ParseTx(txByte, block.Block)
 
 		return docTx
 

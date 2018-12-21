@@ -1,14 +1,16 @@
 package types
 
 import (
+	"fmt"
 	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
-	authcmd "github.com/irisnet/irishub/client/auth/cli"
+	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
 	"github.com/irisnet/irishub/modules/auth"
 	"github.com/irisnet/irishub/modules/bank"
 	"github.com/irisnet/irishub/modules/distribution"
+	dtags "github.com/irisnet/irishub/modules/distribution/tags"
 	"github.com/irisnet/irishub/modules/gov"
 	"github.com/irisnet/irishub/modules/gov/tags"
 	"github.com/irisnet/irishub/modules/slashing"
@@ -21,7 +23,9 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tm "github.com/tendermint/tendermint/types"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 type (
@@ -75,6 +79,7 @@ var (
 	GetUBDKey            = stake.GetUBDKey
 	GetUBDsKey           = stake.GetUBDsKey
 	TagProposalID        = tags.ProposalID
+	TagReward            = dtags.Reward
 	ValAddressFromBech32 = types.ValAddressFromBech32
 
 	UnmarshalValidator      = staketypes.UnmarshalValidator
@@ -91,7 +96,7 @@ var (
 	NewDecFromStr = types.NewDecFromStr
 
 	AddressStoreKey   = auth.AddressStoreKey
-	GetAccountDecoder = authcmd.GetAccountDecoder
+	GetAccountDecoder = utils.GetAccountDecoder
 
 	KeyProposal      = gov.KeyProposal
 	KeyVotesSubspace = gov.KeyVotesSubspace
@@ -129,34 +134,52 @@ func GetCodec() *codec.Codec {
 }
 
 //
-func BuildCoins(coins types.Coins) store.Coins {
-	var (
-		localCoins store.Coins
-	)
-
-	if len(coins) > 0 {
-		for _, coin := range coins {
-			localCoins = append(localCoins, BuildCoin(coin))
-		}
+func ParseCoins(coinsStr string) (coins store.Coins) {
+	coinsStr = strings.TrimSpace(coinsStr)
+	if len(coinsStr) == 0 {
+		return
 	}
 
-	return localCoins
+	coinStrs := strings.Split(coinsStr, ",")
+	for _, coinStr := range coinStrs {
+		coin := ParseCoin(coinStr)
+		coins = append(coins, coin)
+	}
+	return coins
 }
 
-func BuildCoin(coin types.Coin) store.Coin {
-	amount, err := strconv.ParseFloat(coin.Amount.String(), 64)
-	if err != nil {
-		logger.Error("Can't parse str to float, err is %v\n", logger.String("err", err.Error()))
+func ParseCoin(coinStr string) (coin store.Coin) {
+	var (
+		reDnm  = `[A-Za-z\-]{2,15}`
+		reAmt  = `[0-9]+[.]?[0-9]*`
+		reSpc  = `[[:space:]]*`
+		reCoin = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, reAmt, reSpc, reDnm))
+	)
+
+	coinStr = strings.TrimSpace(coinStr)
+
+	matches := reCoin.FindStringSubmatch(coinStr)
+	if matches == nil {
+		logger.Error("invalid coin expression", logger.Any("coin", coinStr))
+		return coin
 	}
+	denom, amount := matches[2], matches[1]
+
+	amt, err := strconv.ParseFloat(amount, 64)
+	if err != nil {
+		logger.Error("Convert str to int failed", logger.Any("amount", amount))
+		return coin
+	}
+
 	return store.Coin{
-		Denom:  coin.Denom,
-		Amount: amount,
+		Denom:  denom,
+		Amount: amt,
 	}
 }
 
 func BuildFee(fee auth.StdFee) store.Fee {
 	return store.Fee{
-		Amount: BuildCoins(fee.Amount),
-		Gas:    fee.Gas,
+		Amount: ParseCoins(fee.Amount.String()),
+		Gas:    int64(fee.Gas),
 	}
 }
