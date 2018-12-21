@@ -35,7 +35,6 @@ db.stake_role_delegator.createIndex({"validator_addr": 1});
 db.stake_role_delegator.createIndex({"address": 1});
 db.stake_role_delegator.createIndex({"address": 1, "validator_addr": 1}, {"unique": true});
 
-db.sync_conf.createIndex({"chain_id": 1}, {"unique": true});
 db.sync_task.createIndex({"start_height": 1, "end_height": 1}, {"unique": true});
 
 db.tx_common.createIndex({"height": -1});
@@ -54,6 +53,9 @@ db.validator_up_time.createIndex({"val_address": 1}, {"unique": true});
 db.tx_gas.createIndex({"tx_type": 1}, {"unique": true});
 db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
 db.tx_msg.createIndex({"hash": 1}, {"unique": true});
+
+// init data
+db.sync_conf.insert({"block_num_per_worker_handle": 1000, "max_worker_sleep_time": 60});
 
 // drop collection
 // db.account.drop();

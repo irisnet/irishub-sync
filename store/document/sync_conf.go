@@ -11,9 +11,8 @@ const (
 )
 
 type SyncConf struct {
-	ChainId                 string `bson:"chain_id"`
-	BlockNumPerWorkerHandle int64  `bson:"block_num_per_worker_handle"`
-	MaxWorkerSleepTime      int64  `bson:"max_worker_sleep_time"`
+	BlockNumPerWorkerHandle int64 `bson:"block_num_per_worker_handle"`
+	MaxWorkerSleepTime      int64 `bson:"max_worker_sleep_time"`
 }
 
 func (d SyncConf) Name() string {
@@ -21,7 +20,7 @@ func (d SyncConf) Name() string {
 }
 
 func (d SyncConf) PkKvPair() map[string]interface{} {
-	return bson.M{"chain_id": d.ChainId}
+	return bson.M{}
 }
 
 func (d SyncConf) GetConf() (SyncConf, error) {
