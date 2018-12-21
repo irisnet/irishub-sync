@@ -39,7 +39,7 @@ func QueryAccountBalance(address string) store.Coins {
 		return nil
 	}
 
-	return types.BuildCoins(account.GetCoins())
+	return types.ParseCoins(account.GetCoins().String())
 }
 
 func ValAddrToAccAddr(address string) (accAddr string) {

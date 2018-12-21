@@ -28,27 +28,29 @@ const (
 	Tx_Field_GasPrice             = "gas_price"
 	Tx_Field_ActualFee            = "actual_fee"
 	Tx_Field_ProposalId           = "proposal_id"
+	Tx_Field_Tags                 = "tags"
 	Tx_Field_StakeCreateValidator = "stake_create_validator"
 	Tx_Field_StakeEditValidator   = "stake_edit_validator"
 )
 
 type CommonTx struct {
-	Time       time.Time       `bson:"time"`
-	Height     int64           `bson:"height"`
-	TxHash     string          `bson:"tx_hash"`
-	From       string          `bson:"from"`
-	To         string          `bson:"to"`
-	Amount     store.Coins     `bson:"amount"`
-	Type       string          `bson:"type"`
-	Fee        store.Fee       `bson:"fee"`
-	Memo       string          `bson:"memo"`
-	Status     string          `bson:"status"`
-	Code       uint32          `bson:"code"`
-	Log        string          `bson:"log"`
-	GasUsed    int64           `bson:"gas_used"`
-	GasPrice   float64         `bson:"gas_price"`
-	ActualFee  store.ActualFee `bson:"actual_fee"`
-	ProposalId uint64          `bson:"proposal_id"`
+	Time       time.Time         `bson:"time"`
+	Height     int64             `bson:"height"`
+	TxHash     string            `bson:"tx_hash"`
+	From       string            `bson:"from"`
+	To         string            `bson:"to"`
+	Amount     store.Coins       `bson:"amount"`
+	Type       string            `bson:"type"`
+	Fee        store.Fee         `bson:"fee"`
+	Memo       string            `bson:"memo"`
+	Status     string            `bson:"status"`
+	Code       uint32            `bson:"code"`
+	Log        string            `bson:"log"`
+	GasUsed    int64             `bson:"gas_used"`
+	GasPrice   float64           `bson:"gas_price"`
+	ActualFee  store.ActualFee   `bson:"actual_fee"`
+	ProposalId uint64            `bson:"proposal_id"`
+	Tags       map[string]string `bson:"tags"`
 
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
