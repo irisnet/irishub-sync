@@ -18,7 +18,7 @@ func StartCreateTask() {
 	)
 
 	// get sync conf
-	syncConf, err := syncConfModel.GetConf(serverConf.ChainId)
+	syncConf, err := syncConfModel.GetConf()
 	if err != nil {
 		logger.Fatal("Get sync conf failed", logger.String("err", err.Error()))
 	}
@@ -26,6 +26,8 @@ func StartCreateTask() {
 	if blockNumPerWorkerHandle <= 0 {
 		logger.Fatal("blockNumPerWorkerHandle should greater than 0")
 	}
+
+	logger.Info("Start create task", logger.Any("sync conf", syncConf))
 
 	// buffer channel to limit goroutine num
 	chanLimit := make(chan bool, serverConf.WorkerNumCreateTask)
@@ -51,21 +53,6 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		<-chanLimit
 	}()
 
-	// get current block height
-	getCurrentBlockHeight := func() (int64, error) {
-		client := helper.GetClient()
-		defer func() {
-			client.Release()
-		}()
-		status, err := client.Status()
-		if err != nil {
-			return 0, err
-		}
-		currentBlockHeight := status.SyncInfo.LatestBlockHeight
-
-		return currentBlockHeight, nil
-	}
-
 	// check valid follow task if exist
 	// status of valid follow task is unhandled or underway
 	validFollowTasks, err := syncTaskModel.QueryAll(
@@ -84,7 +71,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			return
 		}
 
-		currentBlockHeight, err := getCurrentBlockHeight()
+		currentBlockHeight, err := getBlockChainLatestHeight()
 		if err != nil {
 			logger.Error("Get current block height failed", logger.String("err", err.Error()))
 			return
@@ -111,7 +98,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			followedHeight = followTask.StartHeight - 1
 		}
 
-		currentBlockHeight, err := getCurrentBlockHeight()
+		currentBlockHeight, err := getBlockChainLatestHeight()
 		if err != nil {
 			logger.Error("Get current block height failed", logger.String("err", err.Error()))
 			return
@@ -163,6 +150,21 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			logger.Info("Create sync task success")
 		}
 	}
+}
+
+// get current block height
+func getBlockChainLatestHeight() (int64, error) {
+	client := helper.GetClient()
+	defer func() {
+		client.Release()
+	}()
+	status, err := client.Status()
+	if err != nil {
+		return 0, err
+	}
+	currentBlockHeight := status.SyncInfo.LatestBlockHeight
+
+	return currentBlockHeight, nil
 }
 
 func createCatchUpTask(maxEndHeight, blockNumPerWorker, currentBlockHeight int64) []document.SyncTask {

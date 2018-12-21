@@ -135,7 +135,7 @@ func (d SyncTask) GetExecutableTask(maxWorkerSleepTime int64) ([]SyncTask, error
 	}
 
 	fn := func(c *mgo.Collection) error {
-		return c.Find(q).Sort("current_height", "-status").All(&tasks)
+		return c.Find(q).Sort("-status", "start_height").All(&tasks)
 	}
 
 	err := store.ExecCollection(d.Name(), fn)

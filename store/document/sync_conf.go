@@ -24,12 +24,10 @@ func (d SyncConf) PkKvPair() map[string]interface{} {
 	return bson.M{"chain_id": d.ChainId}
 }
 
-func (d SyncConf) GetConf(chainId string) (SyncConf, error) {
+func (d SyncConf) GetConf() (SyncConf, error) {
 	var syncConf SyncConf
 
-	q := bson.M{
-		"chain_id": chainId,
-	}
+	q := bson.M{}
 	fn := func(c *mgo.Collection) error {
 		return c.Find(q).One(&syncConf)
 	}

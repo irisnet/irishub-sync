@@ -16,7 +16,7 @@ func TestSyncConf_GetConf(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := SyncConf{}
-			res, err := d.GetConf("rainbow-dev")
+			res, err := d.GetConf()
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -5,6 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/service/task"
 	"github.com/robfig/cron"
+	"time"
 )
 
 var (
@@ -48,6 +49,26 @@ func (engine *SyncEngine) Start() {
 	//watcher.FastSync()
 	go task.StartCreateTask()
 	go task.StartExecuteTask()
+
+	// cron task should start after fast sync finished
+	fastSyncChan := make(chan bool, 1)
+	ticker := time.NewTicker(1 * time.Minute)
+	go func() {
+		for {
+			<-ticker.C
+			flag, err := task.AssertFastSyncFinished()
+			if err != nil {
+				logger.Error("assert fast sync finished failed", logger.String("err", err.Error()))
+			}
+			if flag {
+				close(fastSyncChan)
+				return
+			}
+		}
+	}()
+	<-fastSyncChan
+	logger.Info("fast sync finished, now cron task can start")
+
 	engine.cron.Start()
 }
 
