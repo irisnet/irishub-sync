@@ -82,6 +82,8 @@ db.tx_msg.createIndex({"hash": 1}, {"unique": true});
 // db.tx_gas.remove({});
 // db.tx_msg.remove({});
 // db.uptime_change.remove({});
+// db.mgo_txn.remove({});
+// db.mgo_txn.stash.remove({});
 
 
 

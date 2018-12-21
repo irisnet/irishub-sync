@@ -136,15 +136,13 @@ func Query(collectionName string, query bson.M, sort string, fields bson.M, skip
 	return results, ExecCollection(collectionName, callback)
 }
 
-func GetCollection(collectionName string) *mgo.Collection {
-	session := getSession()
-	return session.DB(conf.Database).C(collectionName)
-}
-
 // mgo transaction method
 // detail to see: https://godoc.org/gopkg.in/mgo.v2/txn
 func Txn(ops []txn.Op) error {
-	c := GetCollection(CollectionNameTxn)
+	session := getSession()
+	defer session.Close()
+
+	c := session.DB(conf.Database).C(CollectionNameTxn)
 	runner := txn.NewRunner(c)
 
 	txObjectId := bson.NewObjectId()
