@@ -36,7 +36,7 @@ var (
 	}
 
 	WorkerNumCreateTask  = 2
-	WorkerNumExecuteTask = 10
+	WorkerNumExecuteTask = 20
 )
 
 type Bech32AddrPrefix struct {

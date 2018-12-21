@@ -19,7 +19,7 @@ func Test_executeTask(t *testing.T) {
 		chanLimit               chan bool
 	}
 
-	limitChan := make(chan bool)
+	limitChan := make(chan bool, 2)
 
 	tests := []struct {
 		name string
@@ -40,7 +40,7 @@ func Test_executeTask(t *testing.T) {
 			wg.Add(1)
 
 			tt.args.chanLimit <- true
-			executeTask(tt.args.blockNumPerWorkerHandle, tt.args.maxWorkerSleepTime, tt.args.chanLimit)
+			go executeTask(tt.args.blockNumPerWorkerHandle, tt.args.maxWorkerSleepTime, tt.args.chanLimit)
 
 			wg.Wait()
 		})

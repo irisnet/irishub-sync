@@ -12,6 +12,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
+	"os"
 	"sync"
 	"time"
 )
@@ -36,6 +37,10 @@ func StartExecuteTask() {
 		logger.Fatal("maxWorkerSleepTime should greater than 0")
 	}
 
+	logger.Info("start execute task",
+		logger.Int64("blockNumPerWorkerHandle", blockNumPerWorkerHandle),
+		logger.Int64("maxWorkerSleepTime", maxWorkerSleepTime))
+
 	// buffer channel to limit goroutine num
 	chanLimit := make(chan bool, serverConf.WorkerNumExecuteTask)
 
@@ -54,8 +59,9 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	)
 
 	genWorkerId := func() string {
-		// TODO: generate worker id use ip@xxx
-		return bson.NewObjectIdWithTime(time.Now()).String()
+		// generate worker id use hostname@xxx
+		hostname, _ := os.Hostname()
+		return fmt.Sprintf("%v@%v", hostname, bson.NewObjectId().Hex())
 	}
 
 	getBlockChainLatestHeight := func() (int64, error) {
@@ -93,7 +99,6 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 
 	if len(tasks) == 0 {
 		// there is no executable tasks
-		logger.Info("There is no executable tasks")
 		return
 	}
 
@@ -110,6 +115,9 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 			logger.Error("Take over task fail", logger.String("err", err.Error()))
 			return
 		}
+	} else {
+		// task over task success, update task worker to current worker
+		task.WorkerId = workerId
 	}
 
 	if task.EndHeight != 0 {
@@ -117,28 +125,58 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	} else {
 		taskType = document.SyncTaskTypeFollow
 	}
+	logger.Info("worker begin execute task",
+		logger.String("cur_worker", workerId),
+		logger.Any("task_id", task.ID),
+		logger.String("task_worker", task.WorkerId),
+		logger.String("task_type", taskType),
+		logger.Int64("task_from", task.StartHeight),
+		logger.Int64("task_to", task.EndHeight),
+		logger.Int64("task_current", task.CurrentHeight))
 
 	// check task is valid
 	// valid catch up task: current_height < end_height
-	// valid follow task: current_height < blockChainLatestHeight and
-	// current_height + blockNumPerWorkerHandle > blockChainLatestHeight
+	// valid follow task: current_height + blockNumPerWorkerHandle > blockChainLatestHeight
 	blockChainLatestHeight, err = getBlockChainLatestHeight()
 	if err != nil {
 		logger.Error("get block chain latest height fail", logger.String("err", err.Error()))
 		return
 	}
 	for assertTaskValid(task, blockNumPerWorkerHandle, blockChainLatestHeight) {
-		var cur int64
+		var inProcessBlock int64
 		if task.CurrentHeight == 0 {
-			cur = task.StartHeight
+			inProcessBlock = task.StartHeight
 		} else {
-			cur = task.CurrentHeight + 1
+			inProcessBlock = task.CurrentHeight + 1
+		}
+
+		// if task is follow task,
+		// wait value of blockChainLatestHeight updated when inProcessBlock >= blockChainLatestHeight
+		if taskType == document.SyncTaskTypeFollow {
+			blockChainLatestHeight, err = getBlockChainLatestHeight()
+			if err != nil {
+				logger.Error("get block chain latest height fail", logger.String("err", err.Error()))
+				return
+			}
+
+			if inProcessBlock-1 > blockChainLatestHeight {
+				logger.Info("wait block chain latest block height greater than in process block",
+					logger.Int64("blockChainLatestHeight", blockChainLatestHeight),
+					logger.Int64("inProcessHeight", inProcessBlock))
+
+				logger.Info("wait block chain latest block height updated, must interval two block",
+					logger.Int64("syncedHeight", inProcessBlock-1),
+					logger.Int64("latestHeight", blockChainLatestHeight))
+				continue
+			}
 		}
 
 		// parse block and tx
-		blockDoc, err := parseBlock(cur, client)
+		blockDoc, err := parseBlock(inProcessBlock, client)
 		if err != nil {
-			logger.Error("Parse block fail", logger.String("err", err.Error()))
+			logger.Error("Parse block fail",
+				logger.Int64("block", inProcessBlock),
+				logger.String("err", err.Error()))
 		}
 
 		// check task owner
@@ -149,36 +187,44 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 		if workerUnchanged {
 			// save data and update sync task
 			taskDoc := task
-			taskDoc.CurrentHeight = cur
+			taskDoc.CurrentHeight = inProcessBlock
 			taskDoc.LastUpdateTime = time.Now().Unix()
+			taskDoc.Status = document.SyncTaskStatusUnderway
+			if inProcessBlock == task.EndHeight {
+				taskDoc.Status = document.SyncTaskStatusCompleted
+			}
 
 			err := saveDocs(blockDoc, taskDoc)
 			if err != nil {
 				logger.Error("save docs fail", logger.String("err", err.Error()))
 			} else {
-				task.CurrentHeight += 1
+				task.CurrentHeight = inProcessBlock
 
 				if taskType == document.SyncTaskTypeFollow {
 					// compare and update validators
 					handler.CompareAndUpdateValidators()
-
-					// update block chain latest height
-					blockChainLatestHeight, err = getBlockChainLatestHeight()
-					if err != nil {
-						logger.Error("get block chain latest height fail", logger.String("err", err.Error()))
-					}
 				}
 			}
 		} else {
+			logger.Info("task worker changed",
+				logger.String("origin worker", workerId),
+				logger.String("current worker", task.WorkerId))
 			return
 		}
 	}
+
+	logger.Info("worker finish execute task",
+		logger.String("task_worker", task.WorkerId),
+		logger.Any("task_id", task.ID),
+		logger.String("task_type", taskType),
+		logger.Int64("task_from", task.StartHeight),
+		logger.Int64("task_to", task.EndHeight),
+		logger.Int64("task_current", task.CurrentHeight))
 }
 
 // assert task is valid
 // valid catch up task: current_height < end_height
-// valid follow task: current_height < blockChainLatestHeight and
-// current_height + blockNumPerWorkerHandle > blockChainLatestHeight
+// valid follow task: current_height + blockNumPerWorkerHandle > blockChainLatestHeight
 func assertTaskValid(task document.SyncTask, blockNumPerWorkerHandle, blockChainLatestHeight int64) bool {
 	var (
 		taskType string
@@ -189,16 +235,19 @@ func assertTaskValid(task document.SyncTask, blockNumPerWorkerHandle, blockChain
 	} else {
 		taskType = document.SyncTaskTypeFollow
 	}
+	currentHeight := task.CurrentHeight
+	if currentHeight == 0 {
+		currentHeight = task.StartHeight - 1
+	}
 
 	switch taskType {
 	case document.SyncTaskTypeCatchUp:
-		if task.CurrentHeight < task.EndHeight {
+		if currentHeight < task.EndHeight {
 			flag = true
 		}
 		break
 	case document.SyncTaskTypeFollow:
-		if task.CurrentHeight < blockChainLatestHeight &&
-			task.CurrentHeight+blockNumPerWorkerHandle > blockChainLatestHeight {
+		if currentHeight+blockNumPerWorkerHandle > blockChainLatestHeight {
 			flag = true
 		}
 		break
@@ -221,7 +270,14 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 
 	block, err := client.Block(&b)
 	if err != nil {
-		return blockDoc, err
+		// there is possible parse block fail when in iterator
+		var err2 error
+		client2 := helper.GetClient()
+		block, err2 = client2.Block(&b)
+		client2.Release()
+		if err2 != nil {
+			return blockDoc, err2
+		}
 	}
 
 	// save or update common_tx, tx_msg, proposal, delegator, candidate, account document
@@ -292,6 +348,7 @@ func saveDocs(blockDoc document.Block, taskDoc document.SyncTask) error {
 		Update: bson.M{
 			"$set": bson.M{
 				"current_height":   taskDoc.CurrentHeight,
+				"status":           taskDoc.Status,
 				"last_update_time": taskDoc.LastUpdateTime,
 			},
 		},

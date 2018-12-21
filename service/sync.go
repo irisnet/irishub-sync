@@ -46,8 +46,8 @@ func (engine *SyncEngine) Start() {
 	}
 	//watcher := task.NewWatcher()
 	//watcher.FastSync()
-	task.StartCreateTask()
-	task.StartExecuteTask()
+	go task.StartCreateTask()
+	go task.StartExecuteTask()
 	engine.cron.Start()
 }
 
