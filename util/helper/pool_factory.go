@@ -7,6 +7,7 @@ import (
 	gcp "github.com/jolestar/go-commons-pool"
 	"github.com/robfig/cron"
 	"math/rand"
+	"sync"
 )
 
 var (
@@ -16,17 +17,19 @@ var (
 )
 
 func init() {
-	peersMap := map[string]EndPoint{}
+	var syncMap sync.Map
 	for _, url := range conf.BlockChainMonitorUrl {
-		peersMap[generateId(url)] = EndPoint{
+		key := generateId(url)
+		endPoint := EndPoint{
 			Address:   url,
 			Available: true,
 		}
-	}
 
+		syncMap.Store(key, endPoint)
+	}
 	factory = PoolFactory{
-		peersMap: peersMap,
 		cron:     cron.New(),
+		peersMap: syncMap,
 	}
 	config := gcp.NewDefaultPoolConfig()
 
@@ -41,8 +44,8 @@ func init() {
 	pool = &NodePool{
 		gcp.NewObjectPool(ctx, &factory, config),
 	}
-	//启动心跳检测
-	factory.heartBeat()
+	//自动搜索可用节点
+	//factory.StartCrawlPeers()
 }
 
 type EndPoint struct {
@@ -55,7 +58,7 @@ type NodePool struct {
 }
 
 type PoolFactory struct {
-	peersMap map[string]EndPoint
+	peersMap sync.Map
 	cron     *cron.Cron
 }
 
@@ -85,9 +88,11 @@ func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObje
 	logger.Debug("PoolFactory ValidateObject peer", logger.Any("peer", object.Object))
 	c := object.Object.(*Client)
 	if c.HeartBeat() != nil {
-		if endPoint, ok := f.peersMap[c.Id]; ok {
-			endPoint.Available = false
-			f.peersMap[c.Id] = endPoint
+		value, ok := f.peersMap.Load(c.Id)
+		if ok {
+			endPoint := value.(EndPoint)
+			endPoint.Available = true
+			f.peersMap.Store(c.Id, endPoint)
 		}
 		return false
 	}
@@ -105,38 +110,75 @@ func (f *PoolFactory) PassivateObject(ctx context.Context, object *gcp.PooledObj
 }
 
 func (f *PoolFactory) GetEndPoint() EndPoint {
-	logger.Info("PoolFactory pullEndPoint peer", logger.Any("peers", f.peersMap))
-	var keys []string
-	var selectedKey string
-	for key := range f.peersMap {
-		endPoint := f.peersMap[key]
+	var (
+		keys        []string
+		selectedKey string
+	)
+	peers := make(map[string]EndPoint)
+
+	f.peersMap.Range(func(k, value interface{}) bool {
+		key := k.(string)
+		endPoint := value.(EndPoint)
 		if endPoint.Available {
 			keys = append(keys, key)
 		}
 		selectedKey = key
-	}
+
+		peers[key] = endPoint
+
+		return true
+	})
+
+	logger.Info("PoolFactory pullEndPoint peer", logger.Any("peers", peers))
+
 	if len(keys) > 0 {
 		index := rand.Intn(len(keys))
 		selectedKey = keys[index]
 	}
-	return f.peersMap[selectedKey]
+	value, ok := f.peersMap.Load(selectedKey)
+	if ok {
+		return value.(EndPoint)
+	} else {
+		logger.Error("Can't get selected end point", logger.String("selectedKey", selectedKey))
+	}
+	return EndPoint{}
 }
 
 func (f *PoolFactory) heartBeat() {
 	go func() {
 		f.cron.AddFunc("0 0/1 * * * *", func() {
-			logger.Info("PoolFactory heartBeat", logger.Any("peers", f.peersMap))
-			//检测节点是否上线
-			for key := range f.peersMap {
-				endPoint := f.peersMap[key]
-				if !endPoint.Available {
-					node := newClient(endPoint.Address)
-					if node.HeartBeat() == nil {
-						endPoint.Available = true
-						f.peersMap[key] = endPoint
-					}
-				}
-			}
+			//logger.Info("PoolFactory StartCrawlPeers peer", logger.Any("peers", f.peersMap))
+			//client := GetClient()
+			//
+			//defer func() {
+			//	client.Release()
+			//	if err := recover(); err != nil {
+			//		logger.Info("PoolFactory StartCrawlPeers error", logger.Any("err", err))
+			//	}
+			//}()
+			//
+			//addrs := client.GetNodeAddress()
+			//for _, addr := range addrs {
+			//	key := generateId(addr)
+			//	if _, ok := f.peersMap[key]; !ok {
+			//		f.peersMap[key] = EndPoint{
+			//			Address:   addr,
+			//			Available: true,
+			//		}
+			//	}
+			//}
+			//
+			////检测节点是否上线
+			//for key := range f.peersMap {
+			//	endPoint := f.peersMap[key]
+			//	if !endPoint.Available {
+			//		node := newClient(endPoint.Address)
+			//		if node.HeartBeat() == nil {
+			//			endPoint.Available = true
+			//			f.peersMap[key] = endPoint
+			//		}
+			//	}
+			//}
 		})
 		f.cron.Start()
 	}()
