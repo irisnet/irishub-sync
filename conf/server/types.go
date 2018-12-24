@@ -34,6 +34,9 @@ var (
 		PrefixConsAddr: "fca",
 		PrefixConsPub:  "fcp",
 	}
+
+	WorkerNumCreateTask  = 2
+	WorkerNumExecuteTask = 20
 )
 
 type Bech32AddrPrefix struct {
@@ -107,6 +110,26 @@ func init() {
 		CronSaveValidatorHistory = cronSaveValidatorHistory
 	}
 	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
+
+	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
+	if found {
+		var err error
+		WorkerNumCreateTask, err = strconv.Atoi(workerNumCreateTask)
+		if err != nil {
+			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumCreateTask, workerNumCreateTask))
+		}
+	}
+	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumCreateTask, WorkerNumCreateTask))
+
+	workerNumExecuteTask, found := os.LookupEnv(constant.EnvNameWorkerNumExecuteTask)
+	if found {
+		var err error
+		WorkerNumExecuteTask, err = strconv.Atoi(workerNumExecuteTask)
+		if err != nil {
+			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumExecuteTask, workerNumCreateTask))
+		}
+	}
+	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
 
 	loadBe32Prefix()
 }
