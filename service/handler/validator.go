@@ -48,7 +48,7 @@ func CompareAndUpdateValidators() {
 			logger.Error("RemoveCandidates err ", logger.String("method", methodName), logger.String("err", err.Error()))
 		}
 
-		updateValidatorsRank(&chainValidators)
+		updateValidatorsRank(chainValidators)
 
 		// store latest validators into db
 		if err := candidateModel.SaveAll(chainValidators); err != nil {
@@ -141,13 +141,13 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 	return false
 }
 
-func updateValidatorsRank(candidates *[]document.Candidate) {
+func updateValidatorsRank(candidates []document.Candidate) {
 	var historyModel document.ValidatorHistory
 	vs := historyModel.QueryAll()
 
-	sort.Sort(CandidateWrapper{*candidates, func(p, q *document.Candidate) bool {
-		return q.Tokens < p.Tokens // Tokens 递减排序
-	}})
+	sort.SliceStable(candidates, func(i, j int) bool {
+		return candidates[i].Tokens > candidates[j].Tokens
+	})
 
 	var cMap = make(map[string]document.Candidate)
 
@@ -155,42 +155,36 @@ func updateValidatorsRank(candidates *[]document.Candidate) {
 		cMap[validator.Address] = validator.Candidate
 	}
 
-	for index, candidate := range *candidates {
+	var number = 1
+	for index, candidate := range candidates {
 		lastCandidate, ok := cMap[candidate.Address]
 		var lift int
 		if !ok {
-			lift = document.LiftNotChange
+			lift = document.LiftUp
 		} else {
-			if lastCandidate.Tokens > candidate.Tokens {
+			if lastCandidate.Rank.Number > candidate.Rank.Number {
 				lift = document.LiftDown
-			} else if lastCandidate.Tokens < candidate.Tokens {
+			} else if lastCandidate.Rank.Number < candidate.Rank.Number {
 				lift = document.LiftUp
 			} else {
 				lift = document.LiftNotChange
 			}
 		}
 
+		if index >= 1 {
+			if candidates[index-1].Tokens == candidates[index].Tokens {
+				number = candidates[index-1].Rank.Number
+			} else {
+				number++
+			}
+		}
+
 		rank := document.Rank{
-			Number: index + 1,
+			Number: number,
 			Lift:   lift,
 		}
-		(*candidates)[index].Rank = rank
+		candidates[index].Rank = rank
 	}
-}
-
-type CandidateWrapper struct {
-	cs []document.Candidate
-	by func(p, q *document.Candidate) bool
-}
-
-func (cw CandidateWrapper) Len() int { // 重写 Len() 方法
-	return len(cw.cs)
-}
-func (cw CandidateWrapper) Swap(i, j int) { // 重写 Swap() 方法
-	cw.cs[i], cw.cs[j] = cw.cs[j], cw.cs[i]
-}
-func (cw CandidateWrapper) Less(i, j int) bool { // 重写 Less() 方法
-	return cw.by(&cw.cs[i], &cw.cs[j])
 }
 
 func updateValidator(valAddress string) {
@@ -203,8 +197,6 @@ func updateValidator(valAddress string) {
 	}
 
 	editValidator := BuildValidatorDocument(validator)
-	//candidate := canCollection.GetValidator(valAddress)
-	//editValidator.Rank = candidate.Rank
 	if err := store.Update(editValidator); err != nil {
 		logger.Error("update candidate error", logger.String("address", valAddress))
 	}
