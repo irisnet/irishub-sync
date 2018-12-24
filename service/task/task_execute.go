@@ -135,10 +135,8 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 				return
 			}
 
-			if inProcessBlock-1 > blockChainLatestHeight {
-				logger.Info("wait block chain latest block height updated, must interval two block",
-					logger.Int64("syncedHeight", inProcessBlock-1),
-					logger.Int64("latestHeight", blockChainLatestHeight))
+			if task.CurrentHeight+2 >= blockChainLatestHeight {
+				// wait block chain latest block height updated, must interval two block
 				continue
 			}
 		}
@@ -229,8 +227,7 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 	// define functions which should be executed
 	// during parse tx and block
 	funcChain := []handler.Action{
-		handler.SaveTx, handler.SaveAccount, handler.UpdateBalance,
-		handler.SaveOrUpdateDelegator,
+		handler.SaveTx, handler.SaveAccount, handler.SaveOrUpdateDelegator,
 	}
 
 	block, err := client.Block(&b)

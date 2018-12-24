@@ -70,6 +70,8 @@ db.sync_conf.insert({"block_num_per_worker_handle": 1000, "max_worker_sleep_time
 // db.tx_gas.drop();
 // db.tx_msg.drop();
 // db.uptime_change.drop();
+// db.mgo_txn.drop();
+// db.mgo_txn.stash.drop();
 
 // remove collection data
 // db.account.remove({});
