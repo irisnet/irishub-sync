@@ -12,7 +12,9 @@ import (
 var (
 	BlockChainMonitorUrl = []string{"tcp://127.0.0.1:26657"}
 	ChainId              = "rainbow-dev"
-	Token                = "iris"
+
+	WorkerNumCreateTask  = 2
+	WorkerNumExecuteTask = 20
 
 	InitConnectionNum        = 50              // fast init num of tendermint client pool
 	MaxConnectionNum         = 100             // max size of tendermint client pool
@@ -22,11 +24,14 @@ var (
 	SyncProposalStatus       = "0 */1 * * * *" // every minute
 	CronSaveValidatorHistory = "@daily"        // every day
 
-	SyncMaxGoroutine     = 60   // max go routine in server
+	// deprecated
+	SyncMaxGoroutine = 60 // max go routine in server
+	// deprecated
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
-	ConsulAddr           = "192.168.150.7:8500"
-	SyncWithDLock        = false
-	Bech32               = Bech32AddrPrefix{
+
+	ConsulAddr    = "192.168.150.7:8500"
+	SyncWithDLock = false
+	Bech32        = Bech32AddrPrefix{
 		PrefixAccAddr:  "faa",
 		PrefixAccPub:   "fap",
 		PrefixValAddr:  "fva",
@@ -34,9 +39,6 @@ var (
 		PrefixConsAddr: "fca",
 		PrefixConsPub:  "fcp",
 	}
-
-	WorkerNumCreateTask  = 2
-	WorkerNumExecuteTask = 20
 )
 
 type Bech32AddrPrefix struct {
@@ -62,32 +64,6 @@ func init() {
 		ChainId = chainId
 	}
 	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
-
-	token, found := os.LookupEnv(constant.EnvNameSerNetworkToken)
-	if found {
-		Token = token
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkToken, Token))
-
-	maxGoroutine, found := os.LookupEnv(constant.EnvNameSerMaxGoRoutine)
-	if found {
-		var err error
-		SyncMaxGoroutine, err = strconv.Atoi(maxGoroutine)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSerMaxGoRoutine, maxGoroutine))
-		}
-	}
-	logger.Info("Env Value", logger.Int(constant.EnvNameSerMaxGoRoutine, SyncMaxGoroutine))
-
-	syncBlockNum, found := os.LookupEnv(constant.EnvNameSerSyncBlockNum)
-	if found {
-		var err error
-		SyncBlockNumFastSync, err = strconv.Atoi(syncBlockNum)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSerSyncBlockNum, syncBlockNum))
-		}
-	}
-	logger.Info("Env Value", logger.Int(constant.EnvNameSerSyncBlockNum, SyncBlockNumFastSync))
 
 	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
 	if found {
