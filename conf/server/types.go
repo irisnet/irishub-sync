@@ -14,7 +14,7 @@ var (
 	ChainId              = "rainbow-dev"
 
 	WorkerNumCreateTask  = 2
-	WorkerNumExecuteTask = 20
+	WorkerNumExecuteTask = 60
 
 	InitConnectionNum        = 50              // fast init num of tendermint client pool
 	MaxConnectionNum         = 100             // max size of tendermint client pool
