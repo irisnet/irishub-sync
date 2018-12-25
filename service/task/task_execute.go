@@ -69,8 +69,8 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 		if r := recover(); r != nil {
 			logger.Error("execute task fail", logger.Any("err", r))
 		}
-		client.Release()
 		<-chanLimit
+		client.Release()
 	}()
 
 	// check sync task if exist
@@ -107,8 +107,9 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	} else {
 		taskType = document.SyncTaskTypeFollow
 	}
-	logger.Info("worker begin execute task", logger.String("cur_worker", workerId),
-		logger.String("task_type", taskType), logger.Any("task", task))
+	logger.Info("worker begin execute task",
+		logger.String("cur_worker", workerId), logger.Any("task_id", task.ID),
+		logger.String("from-to", fmt.Sprintf("%v-%v", task.StartHeight, task.EndHeight)))
 
 	// check task is valid
 	// valid catch up task: current_height < end_height
@@ -175,14 +176,15 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 				}
 			}
 		} else {
-			logger.Info("task worker changed", logger.String("origin worker", workerId),
-				logger.String("current worker", task.WorkerId))
+			logger.Info("task worker changed", logger.Any("task_id", task.ID),
+				logger.String("origin worker", workerId), logger.String("current worker", task.WorkerId))
 			return
 		}
 	}
 
-	logger.Info("worker finish execute task", logger.String("task_worker", task.WorkerId),
-		logger.String("task_type", taskType), logger.Any("task", task.ID))
+	logger.Info("worker finish execute task",
+		logger.String("task_worker", task.WorkerId), logger.Any("task_id", task.ID),
+		logger.String("from-to-current", fmt.Sprintf("%v-%v-%v", task.StartHeight, task.EndHeight, task.CurrentHeight)))
 }
 
 // assert task is valid
