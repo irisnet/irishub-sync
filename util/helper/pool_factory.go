@@ -114,7 +114,6 @@ func (f *PoolFactory) GetEndPoint() EndPoint {
 		keys        []string
 		selectedKey string
 	)
-	peers := make(map[string]EndPoint)
 
 	f.peersMap.Range(func(k, value interface{}) bool {
 		key := k.(string)
@@ -124,12 +123,8 @@ func (f *PoolFactory) GetEndPoint() EndPoint {
 		}
 		selectedKey = key
 
-		peers[key] = endPoint
-
 		return true
 	})
-
-	logger.Info("PoolFactory pullEndPoint peer", logger.Any("peers", peers))
 
 	if len(keys) > 0 {
 		index := rand.Intn(len(keys))
