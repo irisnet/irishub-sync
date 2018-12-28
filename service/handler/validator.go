@@ -142,46 +142,17 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 }
 
 func updateValidatorsRank(candidates []document.Candidate) {
-	var historyModel document.ValidatorHistory
-	vs := historyModel.QueryAll()
-
 	sort.SliceStable(candidates, func(i, j int) bool {
 		return candidates[i].Tokens > candidates[j].Tokens
 	})
 
-	var cMap = make(map[string]document.Candidate)
-
-	for _, validator := range vs {
-		cMap[validator.Address] = validator.Candidate
-	}
-
-	var number = 1
-	for index, candidate := range candidates {
-		lastCandidate, ok := cMap[candidate.Address]
-		var lift int
-		if !ok {
-			lift = document.LiftUp
-		} else {
-			if lastCandidate.Rank.Number > candidate.Rank.Number {
-				lift = document.LiftDown
-			} else if lastCandidate.Rank.Number < candidate.Rank.Number {
-				lift = document.LiftUp
-			} else {
-				lift = document.LiftNotChange
-			}
-		}
-
+	var rank int
+	for index, _ := range candidates {
+		rank = index + 1
 		if index >= 1 {
 			if candidates[index-1].Tokens == candidates[index].Tokens {
-				number = candidates[index-1].Rank.Number
-			} else {
-				number++
+				rank = candidates[index-1].Rank
 			}
-		}
-
-		rank := document.Rank{
-			Number: number,
-			Lift:   lift,
 		}
 		candidates[index].Rank = rank
 	}
