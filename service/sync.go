@@ -24,6 +24,7 @@ func init() {
 	engine.AddTask(task.MakeCalculateTxGasAndGasPriceTask())
 	engine.AddTask(task.MakeSyncProposalStatusTask())
 	engine.AddTask(task.MakeValidatorHistoryTask())
+	engine.AddTask(task.MakeUpdateDelegatorTask())
 
 	// init delegator for genesis validator
 	engine.initFuncs = append(engine.initFuncs, handler.InitDelegator)

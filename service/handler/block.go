@@ -219,3 +219,38 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 		logger.Error("SaveBlock error", logger.String("methodName", methodName), logger.Any("err", err))
 	}
 }
+
+func EndBlocker(height int64) {
+	client := helper.GetClient()
+	defer client.Release()
+
+	result, err := client.BlockResults(&height)
+	if err != nil {
+		logger.Error("EndBlocker error", logger.Any("err", err))
+	}
+
+	tags := result.Results.EndBlock.Tags
+
+	var action string
+	var kvs = make([]kvPair, len(tags))
+	for _, tag := range tags {
+		key := string(tag.Key)
+		value := string(tag.Value)
+
+		if key == types.TagAction {
+			action = value
+		}
+		kvs = append(kvs, kvPair{
+			key:   key,
+			value: value,
+		})
+	}
+	switch action {
+
+	}
+}
+
+type kvPair struct {
+	key   string
+	value string
+}

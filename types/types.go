@@ -15,6 +15,7 @@ import (
 	"github.com/irisnet/irishub/modules/gov/tags"
 	"github.com/irisnet/irishub/modules/slashing"
 	"github.com/irisnet/irishub/modules/stake"
+	stags "github.com/irisnet/irishub/modules/stake/tags"
 	staketypes "github.com/irisnet/irishub/modules/stake/types"
 	"github.com/irisnet/irishub/modules/upgrade"
 	"github.com/irisnet/irishub/types"
@@ -78,8 +79,6 @@ var (
 	GetDelegationsKey    = stake.GetDelegationsKey
 	GetUBDKey            = stake.GetUBDKey
 	GetUBDsKey           = stake.GetUBDsKey
-	TagProposalID        = tags.ProposalID
-	TagReward            = dtags.Reward
 	ValAddressFromBech32 = types.ValAddressFromBech32
 
 	UnmarshalValidator      = staketypes.UnmarshalValidator
@@ -102,6 +101,14 @@ var (
 	KeyVotesSubspace = gov.KeyVotesSubspace
 
 	NewHTTP = rpcclient.NewHTTP
+
+	//tags
+	TagGovProposalID                   = tags.ProposalID
+	TagDistributionReward              = dtags.Reward
+	TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
+	TagStakeDelegator                  = stags.Delegator
+	TagStakeSrcValidator               = stags.SrcValidator
+	TagAction                          = types.TagAction
 
 	cdc *codec.Codec
 )
