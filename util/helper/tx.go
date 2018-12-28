@@ -195,7 +195,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
-			if key == itypes.TagReward {
+			if key == itypes.TagDistributionReward {
 				reward := string(tag.Value)
 				docTx.Amount = itypes.ParseCoins(reward)
 				break
@@ -209,7 +209,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewWithdrawDelegatorRewardsAllMsg(msg)
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
-			if key == itypes.TagReward {
+			if key == itypes.TagDistributionReward {
 				reward := string(tag.Value)
 				docTx.Amount = itypes.ParseCoins(reward)
 				break
@@ -223,7 +223,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewWithdrawValidatorRewardsAllMsg(msg)
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
-			if key == itypes.TagReward {
+			if key == itypes.TagDistributionReward {
 				reward := string(tag.Value)
 				docTx.Amount = itypes.ParseCoins(reward)
 				break
@@ -241,7 +241,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		//query proposal_id
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
-			if key == itypes.TagProposalID {
+			if key == itypes.TagGovProposalID {
 				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
 				if err == nil {
 					docTx.ProposalId = uint64(proposalId)
