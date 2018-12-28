@@ -10,7 +10,7 @@ import (
 const CollectionNmValidatorHistory = "validator_history"
 
 type ValidatorHistory struct {
-	Candidate
+	Candidate  `bson:"candidate"`
 	UpdateTime time.Time `bson:"update_time"`
 }
 

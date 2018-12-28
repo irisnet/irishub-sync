@@ -41,12 +41,7 @@ type (
 		Description     ValDescription `bson:"description"`  // Description terms for the candidate
 		BondHeight      int64          `bson:"bond_height"`
 		Status          string         `bson:"status"`
-		Rank            Rank           `bson:"rank,omitempty"`
-	}
-
-	Rank struct {
-		Number int `bson:"number"`
-		Lift   int `bson:"lift"` // 1:up,0:not change,-1:down
+		Rank            int            `bson:"rank,omitempty"`
 	}
 )
 
