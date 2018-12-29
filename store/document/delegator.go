@@ -18,12 +18,11 @@ const (
 )
 
 type Delegator struct {
-	ID             bson.ObjectId `bson:"_id"`
-	Address        string        `bson:"address"`
-	ValidatorAddr  string        `bson:"validator_addr"` // validatorAddr
-	Shares         float64       `bson:"shares"`
-	OriginalShares string        `bson:"original_shares"`
-	BondedHeight   int64         `bson:"height"`
+	Address        string  `bson:"address"`
+	ValidatorAddr  string  `bson:"validator_addr"` // validatorAddr
+	Shares         float64 `bson:"shares"`
+	OriginalShares string  `bson:"original_shares"`
+	BondedHeight   int64   `bson:"height"`
 
 	UnbondingDelegation UnbondingDelegation `bson:"unbonding_delegation"`
 }
