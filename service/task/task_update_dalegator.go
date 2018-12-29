@@ -6,8 +6,6 @@ import (
 	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	"gopkg.in/mgo.v2/bson"
-	"gopkg.in/mgo.v2/txn"
 )
 
 func MakeUpdateDelegatorTask() Task {
@@ -26,32 +24,10 @@ func updateDelegator() {
 		return
 	}
 
-	var ops []txn.Op
 	for _, d := range delegators {
-		unb := handler.BuildUnbondingDelegation(d.Address, d.ValidatorAddr)
-		delegation := handler.BuildDelegation(d.Address, d.ValidatorAddr)
-		updateOp := txn.Op{
-			C:      document.CollectionNmStakeRoleDelegator,
-			Id:     d.ID,
-			Assert: txn.DocExists,
-			Update: bson.M{
-				"$set": bson.M{
-					"unbonding_delegation": unb,
-					"shares":               delegation.Shares,
-					"original_shares":      delegation.OriginalShares,
-					"height":               delegation.Height,
-				},
-			},
-		}
-		ops = append(ops, updateOp, updateOp)
-		logger.Info("update delegator", logger.Any("updateOp", updateOp))
+		ubd := handler.BuildUnbondingDelegation(d.Address, d.ValidatorAddr)
+		d.UnbondingDelegation = ubd
+		store.Update(d)
+		logger.Info("update delegator", logger.Any("ubd", ubd))
 	}
-	if len(ops) > 0 {
-		err := store.Txn(ops)
-		if err != nil {
-			logger.Info("update delegator failed")
-			return
-		}
-	}
-
 }

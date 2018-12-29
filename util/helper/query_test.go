@@ -56,28 +56,3 @@ func TestGetDelegation(t *testing.T) {
 		})
 	}
 }
-
-func TestGetUnbondingDelegation(t *testing.T) {
-	type args struct {
-		delAddr string
-		valAddr string
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{
-			name: "test get unbonding delegation",
-			args: args{
-				delAddr: "faa19tyxwyj7y2sld8qy2m2wgv7cekfep229schqnn",
-				valAddr: "faa15lpdxlk0hwkewmncdhlyfle8jc3k9xzhh75txs",
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			res := GetUnbondingDelegation(tt.args.delAddr, tt.args.valAddr)
-			logger.Info(ToJson(res))
-		})
-	}
-}
