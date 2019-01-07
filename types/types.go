@@ -46,11 +46,12 @@ type (
 	Delegation                     = stake.Delegation
 	UnbondingDelegation            = stake.UnbondingDelegation
 
-	MsgDeposit        = gov.MsgDeposit
-	MsgSubmitProposal = gov.MsgSubmitProposal
-	MsgVote           = gov.MsgVote
-	Proposal          = gov.Proposal
-	SdkVote           = gov.Vote
+	MsgDeposit                       = gov.MsgDeposit
+	MsgSubmitProposal                = gov.MsgSubmitProposal
+	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
+	MsgVote                          = gov.MsgVote
+	Proposal                         = gov.Proposal
+	SdkVote                          = gov.Vote
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
@@ -65,6 +66,7 @@ type (
 	Block      = tm.Block
 	BlockMeta  = tm.BlockMeta
 	HexBytes   = cmn.HexBytes
+	TmKVPair   = cmn.KVPair
 
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
 	Client           = rpcclient.Client

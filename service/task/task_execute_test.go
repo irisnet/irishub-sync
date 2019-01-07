@@ -1,6 +1,7 @@
 package task
 
 import (
+	"github.com/irisnet/irishub-sync/service/handler"
 	"sync"
 	"testing"
 
@@ -193,4 +194,22 @@ func Test_saveDocs(t *testing.T) {
 			t.Log("save success")
 		})
 	}
+}
+
+func Test_saveParseTx(t *testing.T) {
+	height := int64(91326)
+	client := helper.GetClient()
+	block, _ := client.Block(&height)
+
+	// save or update common_tx, tx_msg, proposal, delegator, candidate, account document
+	// TODO: saveOrUpdate above documents, save block and update sync task should be in a transaction.
+	// TODO  this task will be finished during second refactor plan.
+	//if block.BlockMeta.Header.NumTxs > 0 {
+	//	txs := block.Block.Data.Txs
+	//	for _, txByte := range txs {
+	//		helper.ParseTx(txByte, block.Block)
+	//
+	//	}
+	//}
+	handler.SaveBlock(block.BlockMeta, block.Block, nil)
 }
