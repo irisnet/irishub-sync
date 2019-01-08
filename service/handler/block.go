@@ -214,13 +214,15 @@ func SaveBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Va
 	docBlock.Block = blockContent
 	docBlock.Validators = vals
 
+	docBlock.Result = parseBlockResult(docBlock.Height)
+
 	err := store.Save(docBlock)
 	if err != nil {
 		logger.Error("SaveBlock error", logger.String("methodName", methodName), logger.Any("err", err))
 	}
 }
 
-func EndBlocker(height int64) {
+func parseBlockResult(height int64) (res document.BlockResults) {
 	client := helper.GetClient()
 	defer client.Release()
 
@@ -229,28 +231,65 @@ func EndBlocker(height int64) {
 		logger.Error("EndBlocker error", logger.Any("err", err))
 	}
 
-	tags := result.Results.EndBlock.Tags
+	var deliverTxRes []document.ResponseDeliverTx
+	for _, tx := range result.Results.DeliverTx {
+		deliverTxRes = append(deliverTxRes, document.ResponseDeliverTx{
+			Code:      tx.Code,
+			Data:      string(tx.Data),
+			Log:       tx.Log,
+			GasWanted: tx.GasWanted,
+			GasUsed:   tx.GasUsed,
+			Tags:      parseTags(tx.Tags),
+			Codespace: tx.Codespace,
+		})
+	}
 
-	var action string
-	var kvs = make([]kvPair, len(tags))
+	res.DeliverTx = deliverTxRes
+
+	var validatorUpdates []document.ValidatorUpdate
+	for _, tx := range result.Results.EndBlock.ValidatorUpdates {
+		validatorUpdates = append(validatorUpdates, document.ValidatorUpdate{
+			PubKey: tx.PubKey.String(),
+			Power:  tx.Power,
+		})
+	}
+
+	var consensusParamUpdates document.ConsensusParams
+	var tmConsensusParamUpdates = result.Results.EndBlock.ConsensusParamUpdates
+	if tmConsensusParamUpdates != nil {
+		if tmConsensusParamUpdates.Validator != nil {
+			consensusParamUpdates.Validator = document.ValidatorParams{
+				PubKeyTypes: tmConsensusParamUpdates.Validator.PubKeyTypes,
+			}
+		}
+		if tmConsensusParamUpdates.BlockSize != nil {
+			consensusParamUpdates.BlockSize = document.BlockSizeParams{
+				MaxBytes: tmConsensusParamUpdates.BlockSize.MaxBytes,
+				MaxGas:   tmConsensusParamUpdates.BlockSize.MaxGas,
+			}
+		}
+
+		if tmConsensusParamUpdates.Evidence != nil {
+			consensusParamUpdates.Evidence = document.EvidenceParams{
+				MaxAge: tmConsensusParamUpdates.Evidence.MaxAge,
+			}
+		}
+	}
+
+	res.EndBlock = document.ResponseEndBlock{
+		ValidatorUpdates:      validatorUpdates,
+		ConsensusParamUpdates: consensusParamUpdates,
+		Tags:                  parseTags(result.Results.EndBlock.Tags),
+	}
+
+	return res
+}
+
+func parseTags(tags []types.TmKVPair) (response []document.KvPair) {
 	for _, tag := range tags {
 		key := string(tag.Key)
 		value := string(tag.Value)
-
-		if key == types.TagAction {
-			action = value
-		}
-		kvs = append(kvs, kvPair{
-			key:   key,
-			value: value,
-		})
+		response = append(response, document.KvPair{Key: key, Value: value})
 	}
-	switch action {
-
-	}
-}
-
-type kvPair struct {
-	key   string
-	value string
+	return response
 }
