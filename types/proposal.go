@@ -32,7 +32,7 @@ func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 		Description:    msg.Description,
 		ProposalType:   msg.ProposalType.String(),
 		Proposer:       msg.Proposer.String(),
-		InitialDeposit: BuildCoins(msg.InitialDeposit),
+		InitialDeposit: ParseCoins(msg.InitialDeposit.String()),
 		Params:         p,
 	}
 }
@@ -89,7 +89,7 @@ func NewDeposit(deposit MsgDeposit) Deposit {
 	return Deposit{
 		ProposalID: deposit.ProposalID,
 		Depositer:  deposit.Depositor.String(),
-		Amount:     BuildCoins(deposit.Amount),
+		Amount:     ParseCoins(deposit.Amount.String()),
 	}
 }
 

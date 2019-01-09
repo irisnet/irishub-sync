@@ -73,10 +73,10 @@ func SaveOrUpdateDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 func modifyDelegator(delAddress, valAddress string) {
 	logger.Info("delegator info has changed", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
 	// get delegation
-	delegation := buildDelegation(delAddress, valAddress)
+	delegation := BuildDelegation(delAddress, valAddress)
 
 	// get unbondingDelegation
-	ud := buildUnbondingDelegation(delAddress, valAddress)
+	ud := BuildUnbondingDelegation(delAddress, valAddress)
 
 	delegator := document.Delegator{
 		Address:       delAddress,
@@ -104,7 +104,7 @@ func modifyDelegator(delAddress, valAddress string) {
 	}
 }
 
-func buildDelegation(delAddress, valAddress string) (res tempDelegation) {
+func BuildDelegation(delAddress, valAddress string) (res tempDelegation) {
 	d := helper.GetDelegation(delAddress, valAddress)
 
 	if d.DelegatorAddr == nil {
@@ -123,7 +123,7 @@ func buildDelegation(delAddress, valAddress string) (res tempDelegation) {
 	return res
 }
 
-func buildUnbondingDelegation(delAddress, valAddress string) (res document.UnbondingDelegation) {
+func BuildUnbondingDelegation(delAddress, valAddress string) (res document.UnbondingDelegation) {
 	ud := helper.GetUnbondingDelegation(delAddress, valAddress)
 
 	// doesn't have unbonding delegation
@@ -133,8 +133,8 @@ func buildUnbondingDelegation(delAddress, valAddress string) (res document.Unbon
 		return res
 	}
 
-	initBalance := types.BuildCoins(types.SdkCoins{ud.InitialBalance})
-	balance := types.BuildCoins(types.SdkCoins{ud.Balance})
+	initBalance := types.ParseCoins(types.SdkCoins{ud.InitialBalance}.String())
+	balance := types.ParseCoins(types.SdkCoins{ud.Balance}.String())
 	res = document.UnbondingDelegation{
 		CreationHeight: ud.CreationHeight,
 		MinTime:        ud.MinTime.Unix(),

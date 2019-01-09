@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"gopkg.in/mgo.v2/txn"
 )
 
 var (
@@ -132,4 +133,29 @@ func Query(collectionName string, query bson.M, sort string, fields bson.M, skip
 		return c.Find(query).Sort(sort).Select(fields).Skip(skip).Limit(limit).All(&results)
 	}
 	return results, ExecCollection(collectionName, callback)
+}
+
+// mgo transaction method
+// detail to see: https://godoc.org/gopkg.in/mgo.v2/txn
+func Txn(ops []txn.Op) error {
+	session := getSession()
+	defer session.Close()
+
+	c := session.DB(conf.Database).C(CollectionNameTxn)
+	runner := txn.NewRunner(c)
+
+	txObjectId := bson.NewObjectId()
+	err := runner.Run(ops, txObjectId, nil)
+	if err != nil {
+		if err == txn.ErrAborted {
+			err = runner.Resume(txObjectId)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	return nil
 }

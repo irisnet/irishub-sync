@@ -2,6 +2,7 @@ package document
 
 import (
 	"github.com/irisnet/irishub-sync/store"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -40,4 +41,17 @@ func (d Delegator) Name() string {
 
 func (d Delegator) PkKvPair() map[string]interface{} {
 	return bson.M{Delegator_Field_Addres: d.Address, Delegator_Field_ValidatorAddr: d.ValidatorAddr}
+}
+
+func (d Delegator) QueryUnbonding() (results []Delegator) {
+	condition := bson.M{
+		"unbonding_delegation.balance.amount": bson.M{
+			"$gt": 0,
+		},
+	}
+	query := func(c *mgo.Collection) error {
+		return c.Find(condition).All(&results)
+	}
+	store.ExecCollection(d.Name(), query)
+	return results
 }

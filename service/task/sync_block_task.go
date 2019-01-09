@@ -188,7 +188,7 @@ loop:
 	// define how many goroutine should be used during fast sync
 	syncTaskDoc, err := document.QuerySyncTask()
 	if err != nil {
-		syncTaskDoc = document.SyncTask{
+		syncTaskDoc = document.SyncTaskBak{
 			Height:  0,
 			ChainID: conf.ChainId,
 			Syncing: true,

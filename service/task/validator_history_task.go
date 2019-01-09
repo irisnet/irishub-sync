@@ -3,9 +3,7 @@ package task
 import (
 	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/util/helper"
 	"time"
 )
 
@@ -18,16 +16,17 @@ func MakeValidatorHistoryTask() Task {
 }
 
 func SaveValidatorHistory() {
-	validators := helper.GetValidators()
 
 	var vHistory []document.ValidatorHistory
+	var validatorsModel document.Candidate
 	var historyModel document.ValidatorHistory
+
+	validators := validatorsModel.QueryAll()
 
 	updateTime := time.Now()
 	for _, v := range validators {
-		candidate := handler.BuildValidatorDocument(v)
 		vHistory = append(vHistory, document.ValidatorHistory{
-			Candidate:  candidate,
+			Candidate:  v,
 			UpdateTime: updateTime,
 		})
 	}

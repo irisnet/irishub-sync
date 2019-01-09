@@ -25,7 +25,7 @@ const (
 	EnvNameDbPassWd   = "DB_PASSWD"
 	EnvNameDbDataBase = "DB_DATABASE"
 
-	EnvNameSerNetworkNodeUrl        = "SER_BC_NODE_URL"
+	EnvNameSerNetworkFullNode       = "SER_BC_FULL_NODE"
 	EnvNameSerNetworkChainId        = "SER_BC_CHAIN_ID"
 	EnvNameSerNetworkToken          = "SER_BC_TOKEN"
 	EnvNameSerMaxGoRoutine          = "SER_MAX_GOROUTINE"
@@ -33,6 +33,8 @@ const (
 	EnvNameConsulAddr               = "CONSUL_ADDR"
 	EnvNameSyncWithDLock            = "SYNC_WITH_DLOCK"
 	EnvNameCronSaveValidatorHistory = "CRON_SAVE_VALIDATOR_HISTORY"
+	EnvNameWorkerNumCreateTask      = "WORKER_NUM_CREATE_TASK"
+	EnvNameWorkerNumExecuteTask     = "WORKER_NUM_EXECUTE_TASK"
 
 	//bech32Prefix
 	EnvNamePrefixAccAddr  = "PrefixAccAddr"

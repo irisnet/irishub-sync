@@ -61,6 +61,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	}
 	msg := msgs[0]
 
+	tags := make(map[string]string, 0)
+	for _, tag := range result.Tags {
+		key := string(tag.Key)
+		value := string(tag.Value)
+		tags[key] = value
+	}
+
 	docTx = document.CommonTx{
 		Height:    height,
 		Time:      time,
@@ -73,6 +80,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		GasUsed:   gasUsed,
 		GasPrice:  gasPrice,
 		ActualFee: actualFee,
+		Tags:      tags,
 	}
 
 	switch msg.(type) {
@@ -81,7 +89,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Inputs[0].Address.String()
 		docTx.To = msg.Outputs[0].Address.String()
-		docTx.Amount = itypes.BuildCoins(msg.Inputs[0].Coins)
+		docTx.Amount = itypes.ParseCoins(msg.Inputs[0].Coins.String())
 		docTx.Type = constant.TxTypeTransfer
 		return docTx
 	case itypes.MsgStakeCreate:
@@ -89,7 +97,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
-		docTx.Amount = []store.Coin{itypes.BuildCoin(msg.Delegation)}
+		docTx.Amount = []store.Coin{itypes.ParseCoin(msg.Delegation.String())}
 		docTx.Type = constant.TxTypeStakeCreateValidator
 
 		// struct of createValidator
@@ -135,7 +143,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
-		docTx.Amount = []store.Coin{itypes.BuildCoin(msg.Delegation)}
+		docTx.Amount = []store.Coin{itypes.ParseCoin(msg.Delegation.String())}
 		docTx.Type = constant.TxTypeStakeDelegate
 
 		return docTx
@@ -184,34 +192,60 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeWithdrawDelegatorReward
 		docTx.Msg = itypes.NewWithdrawDelegatorRewardMsg(msg)
+
+		for _, tag := range result.Tags {
+			key := string(tag.Key)
+			if key == itypes.TagDistributionReward {
+				reward := string(tag.Value)
+				docTx.Amount = itypes.ParseCoins(reward)
+				break
+			}
+		}
 	case itypes.MsgWithdrawDelegatorRewardsAll:
 		msg := msg.(itypes.MsgWithdrawDelegatorRewardsAll)
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.Type = constant.TxTypeWithdrawDelegatorRewardsAll
 		docTx.Msg = itypes.NewWithdrawDelegatorRewardsAllMsg(msg)
+		for _, tag := range result.Tags {
+			key := string(tag.Key)
+			if key == itypes.TagDistributionReward {
+				reward := string(tag.Value)
+				docTx.Amount = itypes.ParseCoins(reward)
+				break
+			}
+		}
 	case itypes.MsgWithdrawValidatorRewardsAll:
 		msg := msg.(itypes.MsgWithdrawValidatorRewardsAll)
 
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeWithdrawValidatorRewardsAll
 		docTx.Msg = itypes.NewWithdrawValidatorRewardsAllMsg(msg)
+		for _, tag := range result.Tags {
+			key := string(tag.Key)
+			if key == itypes.TagDistributionReward {
+				reward := string(tag.Value)
+				docTx.Amount = itypes.ParseCoins(reward)
+				break
+			}
+		}
 	case itypes.MsgSubmitProposal:
 		msg := msg.(itypes.MsgSubmitProposal)
 
 		docTx.From = msg.Proposer.String()
 		docTx.To = ""
-		docTx.Amount = itypes.BuildCoins(msg.InitialDeposit)
+		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
 		docTx.Msg = itypes.NewSubmitProposal(msg)
 
 		//query proposal_id
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
-			if key == itypes.TagProposalID {
+			if key == itypes.TagGovProposalID {
 				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
 				if err == nil {
 					docTx.ProposalId = uint64(proposalId)
+					break
 				}
 			}
 		}
@@ -220,7 +254,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		msg := msg.(itypes.MsgDeposit)
 
 		docTx.From = msg.Depositor.String()
-		docTx.Amount = itypes.BuildCoins(msg.Amount)
+		docTx.Amount = itypes.ParseCoins(msg.Amount.String())
 		docTx.Type = constant.TxTypeDeposit
 		docTx.Msg = itypes.NewDeposit(msg)
 		docTx.ProposalId = msg.ProposalID

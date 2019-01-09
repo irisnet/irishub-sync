@@ -26,7 +26,7 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	proposal.VotingStartTime = propo.GetVotingStartTime()
 	proposal.VotingEndTime = propo.GetVotingEndTime()
 	proposal.DepositEndTime = propo.GetDepositEndTime()
-	proposal.TotalDeposit = types.BuildCoins(propo.GetTotalDeposit())
+	proposal.TotalDeposit = types.ParseCoins(propo.GetTotalDeposit().String())
 	proposal.Votes = []document.PVote{}
 	return
 }
@@ -40,7 +40,7 @@ func GetVotes(proposalID uint64) (pVotes []document.PVote, err error) {
 	}
 	for i := 0; i < len(res); i++ {
 		var vote types.SdkVote
-		cdc.UnmarshalBinaryLengthPrefixed(res[i].Value, &vote) //TODO
+		cdc.UnmarshalBinaryLengthPrefixed(res[i].Value, &vote)
 		v := document.PVote{
 			Voter:  vote.Voter.String(),
 			Option: vote.Option.String(),

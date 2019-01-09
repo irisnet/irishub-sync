@@ -27,11 +27,32 @@ func TestInitWithAuth(t *testing.T) {
 	}
 }
 
+type I interface {
+	Test()
+}
+
 type Block struct {
-	Height int64     `bson:"height"`
-	Hash   string    `bson:"hash"`
-	Time   time.Time `bson:"time"`
-	NumTxs int64     `bson:"num_txs"`
+	Height int64                  `bson:"height"`
+	Hash   string                 `bson:"hash"`
+	Time   time.Time              `bson:"time"`
+	NumTxs int64                  `bson:"num_txs"`
+	I      map[string]interface{} `bson:"i"`
+}
+
+type I1 struct {
+	F1 string
+	F2 string
+}
+
+func (I1) Test() {
+}
+
+func TestInterface(t *testing.T) {
+	Start()
+	c := session.Copy().DB("").C("user1")
+	var r []Block
+	c.Find(bson.M{"i.f1": "f1"}).All(&r)
+	fmt.Println(r)
 }
 
 func TestTransaction(t *testing.T) {
@@ -41,32 +62,32 @@ func TestTransaction(t *testing.T) {
 	//txn.SetDebug(true)
 	runner := txn.NewRunner(c)
 	ops := []txn.Op{
-		//{
-		//	C:  "user1",
-		//	Id: bson.NewObjectId(),
-		//	Insert: Block{Height: 1},
-		//},
-		//{
-		//	C:  "user1",
-		//	Id: bson.NewObjectId(),
-		//	Insert: Block{Height: 2, Hash: "xxxxxx"},
-		//},
-		//{
-		//	C:  "user1",
-		//	Id: bson.NewObjectId(),
-		//	Insert: Block{Height: 2},
-		//},
-		//{
-		//	C:  "user1",
-		//	Id: bson.NewObjectId(),
-		//	Insert: Block{Height: 3},
-		//},
 		{
-			C:      "user2",
-			Id:     "5bfcbb90914120370830b8ad",
-			Assert: bson.M{"balance": bson.M{"$gte": 100}},
-			Update: bson.M{"$set": bson.M{"height": 4}},
+			C:  "user1",
+			Id: bson.NewObjectId(),
+			//Insert: Block{Height: 1, I: I1{F1: "f1"}},
 		},
+		{
+			C:      "user1",
+			Id:     bson.NewObjectId(),
+			Insert: Block{Height: 2, Hash: "xxxxxx"},
+		},
+		{
+			C:      "user1",
+			Id:     bson.NewObjectId(),
+			Insert: Block{Height: 2},
+		},
+		{
+			C:      "user1",
+			Id:     bson.NewObjectId(),
+			Insert: Block{Height: 3},
+		},
+		//{
+		//	C:      "user2",
+		//	Id:     "5bfcbb90914120370830b8ad",
+		//	Assert: bson.M{"balance": bson.M{"$gte": 100}},
+		//	Update: bson.M{"$set": bson.M{"height": 4}},
+		//},
 	}
 	id := bson.NewObjectId() // Optional
 	err := runner.Run(ops, id, nil)
@@ -84,7 +105,6 @@ type Task struct {
 
 func TestApply(t *testing.T) {
 	prepare()
-
 	for i := 1; i <= 10; i++ {
 		go func(i int) {
 			worker := fmt.Sprintf("thread[%d]", i)

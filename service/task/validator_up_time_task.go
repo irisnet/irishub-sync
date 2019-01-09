@@ -17,13 +17,23 @@ func calculateAndSaveValidatorUpTime() {
 		methodName    = "AnalyzeValidatorUpTime"
 		intervalBlock = constant.IntervalBlockNumCalculateValidatorUpTime
 		blockModel    document.Block
+		syncTaskModel document.SyncTask
 		model         document.ValidatorUpTime
 		valUpTimes    []document.ValidatorUpTime
 	)
 	logger.Info("Start", logger.String("method", methodName))
 	// query synced latest height
-	syncTask, _ := document.QuerySyncTask()
-	latestHeight := syncTask.Height
+	tasks, err := syncTaskModel.QueryAll([]string{document.SyncTaskStatusUnderway},
+		document.SyncTaskTypeFollow)
+	if err != nil {
+		logger.Error("Query follow task failed", logger.String("err", err.Error()))
+		return
+	}
+	if len(tasks) == 0 {
+		logger.Error("There is no follow task")
+		return
+	}
+	latestHeight := tasks[0].CurrentHeight
 
 	// get validator precommit
 	res, err := blockModel.CalculateValidatorPreCommit(latestHeight-intervalBlock, latestHeight)

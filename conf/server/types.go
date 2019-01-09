@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = []string{"tcp://54.176.242.8:26657", "tcp://47.105.116.4:26657", "tcp://118.31.4.59:26657", "tcp://120.79.226.163:26657", "tcp://39.104.16.237:26657"}
-
+	BlockChainMonitorUrl = []string{"tcp://192.168.150.7:30657"}
 	ChainId              = "rainbow-dev"
-	Token                = "iris"
+
+	WorkerNumCreateTask  = 2
+	WorkerNumExecuteTask = 60
 
 	InitConnectionNum        = 50              // fast init num of tendermint client pool
 	MaxConnectionNum         = 100             // max size of tendermint client pool
@@ -22,12 +23,16 @@ var (
 	CronCalculateTxGas       = "0 */5 * * * *" // every five minute
 	SyncProposalStatus       = "0 */1 * * * *" // every minute
 	CronSaveValidatorHistory = "@daily"        // every day
+	CronUpdateDelegator      = "0/5 * * * * *" // every ten minute
 
-	SyncMaxGoroutine     = 60   // max go routine in server
+	// deprecated
+	SyncMaxGoroutine = 60 // max go routine in server
+	// deprecated
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
-	ConsulAddr           = "192.168.150.7:8500"
-	SyncWithDLock        = false
-	Bech32               = Bech32AddrPrefix{
+
+	ConsulAddr    = "192.168.150.7:8500"
+	SyncWithDLock = false
+	Bech32        = Bech32AddrPrefix{
 		PrefixAccAddr:  "faa",
 		PrefixAccPub:   "fap",
 		PrefixValAddr:  "fva",
@@ -48,44 +53,18 @@ type Bech32AddrPrefix struct {
 
 // get value of env var
 func init() {
-	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkNodeUrl)
+	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkFullNode)
 	if found {
 		BlockChainMonitorUrl = strings.Split(nodeUrl, ",")
 	}
 
-	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkNodeUrl, BlockChainMonitorUrl))
+	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkFullNode, BlockChainMonitorUrl))
 
 	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
 	if found {
 		ChainId = chainId
 	}
 	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
-
-	token, found := os.LookupEnv(constant.EnvNameSerNetworkToken)
-	if found {
-		Token = token
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkToken, Token))
-
-	maxGoroutine, found := os.LookupEnv(constant.EnvNameSerMaxGoRoutine)
-	if found {
-		var err error
-		SyncMaxGoroutine, err = strconv.Atoi(maxGoroutine)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSerMaxGoRoutine, maxGoroutine))
-		}
-	}
-	logger.Info("Env Value", logger.Int(constant.EnvNameSerMaxGoRoutine, SyncMaxGoroutine))
-
-	syncBlockNum, found := os.LookupEnv(constant.EnvNameSerSyncBlockNum)
-	if found {
-		var err error
-		SyncBlockNumFastSync, err = strconv.Atoi(syncBlockNum)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSerSyncBlockNum, syncBlockNum))
-		}
-	}
-	logger.Info("Env Value", logger.Int(constant.EnvNameSerSyncBlockNum, SyncBlockNumFastSync))
 
 	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
 	if found {
@@ -107,7 +86,27 @@ func init() {
 	if found {
 		CronSaveValidatorHistory = cronSaveValidatorHistory
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, ConsulAddr))
+	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
+
+	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
+	if found {
+		var err error
+		WorkerNumCreateTask, err = strconv.Atoi(workerNumCreateTask)
+		if err != nil {
+			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumCreateTask, workerNumCreateTask))
+		}
+	}
+	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumCreateTask, WorkerNumCreateTask))
+
+	workerNumExecuteTask, found := os.LookupEnv(constant.EnvNameWorkerNumExecuteTask)
+	if found {
+		var err error
+		WorkerNumExecuteTask, err = strconv.Atoi(workerNumExecuteTask)
+		if err != nil {
+			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumExecuteTask, workerNumCreateTask))
+		}
+	}
+	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
 
 	loadBe32Prefix()
 }

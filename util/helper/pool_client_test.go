@@ -4,7 +4,9 @@
 package helper
 
 import (
+	"context"
 	"fmt"
+	"github.com/tendermint/tendermint/types"
 	"testing"
 
 	"github.com/irisnet/irishub-sync/logger"
@@ -35,4 +37,11 @@ func TestGetClient(t *testing.T) {
 	}
 	fmt.Println("====4======")
 
+	txEventsCh := make(chan interface{})
+	client.Start()
+	client.Subscribe(context.Background(), "xxx", types.EventQueryValidatorSetUpdates, txEventsCh)
+	for e := range txEventsCh {
+		edt := e.(types.EventDataValidatorSetUpdates)
+		fmt.Println(edt.ValidatorUpdates)
+	}
 }
