@@ -22,6 +22,9 @@ db.createCollection("tx_msg");
 db.createCollection("power_change");//explorer
 db.createCollection("uptime_change");
 db.createCollection("sync_conf");
+db.createCollection("validator_history");
+db.createCollection("mgo_txn");
+db.createCollection("mgo_txn.stash");
 
 
 // create index
