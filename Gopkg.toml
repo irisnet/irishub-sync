@@ -35,12 +35,12 @@
 [[override]]
   name = "github.com/tendermint/iavl"
   source = "https://github.com/irisnet/iavl.git"
-  branch = "=v0.12.0-iris"
+  version = "=v0.12.0-iris"
 
 [[override]]
   name = "github.com/tendermint/tendermint"
   source = "https://github.com/irisnet/tendermint.git"
-  branch = "=v0.27.3-iris"
+  version = "=v0.27.3-iris"
 
 [[override]]
   name = "github.com/golang/protobuf"

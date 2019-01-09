@@ -256,10 +256,9 @@ func parseBlockResult(height int64) (res document.BlockResults) {
 	var consensusParamUpdates document.ConsensusParams
 	var tmConsensusParamUpdates = result.Results.EndBlock.ConsensusParamUpdates
 	if tmConsensusParamUpdates != nil {
-		if tmConsensusParamUpdates.TxSize != nil {
-			consensusParamUpdates.TxSize = document.TxSize{
-				MaxBytes: tmConsensusParamUpdates.TxSize.MaxBytes,
-				MaxGas:   tmConsensusParamUpdates.TxSize.MaxGas,
+		if tmConsensusParamUpdates.Validator != nil {
+			consensusParamUpdates.Validator = document.ValidatorParams{
+				PubKeyTypes: tmConsensusParamUpdates.Validator.PubKeyTypes,
 			}
 		}
 		if tmConsensusParamUpdates.BlockSize != nil {
@@ -269,9 +268,9 @@ func parseBlockResult(height int64) (res document.BlockResults) {
 			}
 		}
 
-		if tmConsensusParamUpdates.BlockGossip != nil {
-			consensusParamUpdates.BlockGossip = document.BlockGossip{
-				BlockPartSizeBytes: tmConsensusParamUpdates.BlockGossip.BlockPartSizeBytes,
+		if tmConsensusParamUpdates.Evidence != nil {
+			consensusParamUpdates.Evidence = document.EvidenceParams{
+				MaxAge: tmConsensusParamUpdates.Evidence.MaxAge,
 			}
 		}
 	}

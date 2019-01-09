@@ -134,19 +134,22 @@ type ValidatorUpdate struct {
 }
 
 type ConsensusParams struct {
-	BlockSize   BlockSizeParams `bson:"block_size"`
-	TxSize      TxSize          `bson:"evidence"`
-	BlockGossip BlockGossip     `bson:"block_gossip"`
+	BlockSize BlockSizeParams `bson:"block_size"`
+	Evidence  EvidenceParams  `bson:"evidence"`
+	Validator ValidatorParams `bson:"validator"`
+}
+
+type ValidatorParams struct {
+	PubKeyTypes []string `bson:"pub_key_types`
 }
 
 type BlockSizeParams struct {
-	MaxBytes int32 `bson:"max_bytes"`
+	MaxBytes int64 `bson:"max_bytes"`
 	MaxGas   int64 `bson:"max_gas"`
 }
 
-type TxSize struct {
-	MaxBytes int32 `bson:"max_bytes"`
-	MaxGas   int64 `bson:"max_gas"`
+type EvidenceParams struct {
+	MaxAge int64 `bson:"max_age"`
 }
 
 type BlockGossip struct {
