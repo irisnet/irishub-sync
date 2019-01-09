@@ -5,27 +5,6 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
-type SetWithdrawAddressMsg struct {
-	DelegatorAddr string `json:"delegator_addr"`
-	WithdrawAddr  string `json:"delegator_addr"`
-}
-
-func NewSetWithdrawAddressMsg(msg MsgSetWithdrawAddress) SetWithdrawAddressMsg {
-	return SetWithdrawAddressMsg{
-		DelegatorAddr: msg.DelegatorAddr.String(),
-		WithdrawAddr:  msg.WithdrawAddr.String(),
-	}
-}
-
-func (s SetWithdrawAddressMsg) Type() string {
-	return constant.TxTypeSetWithdrawAddress
-}
-
-func (s SetWithdrawAddressMsg) String() string {
-	str, _ := json.Marshal(s)
-	return string(str)
-}
-
 type WithdrawDelegatorRewardsAllMsg struct {
 	DelegatorAddr string `json:"delegator_addr"`
 }

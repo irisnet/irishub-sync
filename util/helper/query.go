@@ -13,8 +13,8 @@ func Query(key types.HexBytes, storeName string, endPath string) (res []byte, er
 	defer client.Release()
 
 	opts := types.ABCIQueryOptions{
-		Height: 0,
-		Prove:  false, //不需要验证prof
+		Height:  0,
+		Trusted: true, //不需要验证prof
 	}
 	result, err := client.ABCIQueryWithOptions(path, key, opts)
 	if err != nil {

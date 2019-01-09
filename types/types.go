@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub/client/utils"
@@ -32,13 +31,13 @@ import (
 type (
 	MsgTransfer = bank.MsgSend
 
-	MsgStakeCreate                 = stake.MsgCreateValidator
-	MsgStakeEdit                   = stake.MsgEditValidator
-	MsgStakeDelegate               = stake.MsgDelegate
-	MsgStakeBeginUnbonding         = stake.MsgBeginUnbonding
-	MsgBeginRedelegate             = stake.MsgBeginRedelegate
-	MsgUnjail                      = slashing.MsgUnjail
-	MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
+	MsgStakeCreate         = stake.MsgCreateValidator
+	MsgStakeEdit           = stake.MsgEditValidator
+	MsgStakeDelegate       = stake.MsgDelegate
+	MsgStakeBeginUnbonding = stake.MsgBeginUnbonding
+	MsgBeginRedelegate     = stake.MsgBeginRedelegate
+	MsgUnjail              = slashing.MsgUnjail
+	//MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
 	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
 	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
 	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll
@@ -117,11 +116,12 @@ var (
 
 // 初始化账户地址前缀
 func init() {
-	config := types.GetConfig()
-	config.SetBech32PrefixForAccount(server.Bech32.PrefixAccAddr, server.Bech32.PrefixAccPub)
-	config.SetBech32PrefixForValidator(server.Bech32.PrefixValAddr, server.Bech32.PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
-	config.Seal()
+	//TODO
+	//config := types.GetConfig()
+	//config.SetBech32PrefixForAccount(server.Bech32.PrefixAccAddr, server.Bech32.PrefixAccPub)
+	//config.SetBech32PrefixForValidator(server.Bech32.PrefixValAddr, server.Bech32.PrefixValPub)
+	//config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
+	//config.Seal()
 
 	cdc = codec.New()
 
