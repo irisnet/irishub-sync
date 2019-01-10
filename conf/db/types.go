@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	Addrs    = "127.0.0.1:27017"
+	Addrs    = "192.168.150.7:30000"
 	User     = "iris"
 	Passwd   = "irispassword"
 	Database = "sync-iris"

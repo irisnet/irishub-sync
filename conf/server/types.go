@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = []string{"tcp://127.0.0.1:26657"}
+	BlockChainMonitorUrl = []string{"tcp://192.168.150.7:30657"}
 	ChainId              = "rainbow-dev"
 
 	WorkerNumCreateTask  = 2
