@@ -56,6 +56,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:50272737989a0ecdc6529d90e0cdf7dd2378220f1f8fce9870b410ad04d064b7"
+  name = "github.com/emicklei/proto"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "31ca1a37608053a92355be293b13f08fe25e526e"
+  version = "v1.6.5"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -200,9 +208,12 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:f69b1cb04fb540f0c7ea620f75c453f833811367eea5b9ca0bb647df23bf0d8d"
+  digest = "1:7f736e3dd14c2439ee4d456beeafd441c72e3046e8d047ff8b2839e63c71f9b3"
   name = "github.com/irisnet/irishub"
   packages = [
+    "app",
+    "app/protocol",
+    "app/v0",
     "client",
     "client/context",
     "client/keys",
@@ -215,26 +226,37 @@
     "crypto/keys/mintkey",
     "modules/auth",
     "modules/bank",
+    "modules/bank/simulation",
     "modules/distribution",
     "modules/distribution/keeper",
+    "modules/distribution/simulation",
     "modules/distribution/tags",
     "modules/distribution/types",
     "modules/gov",
     "modules/gov/tags",
     "modules/guardian",
+    "modules/mint",
+    "modules/mint/tags",
     "modules/mock",
     "modules/mock/baseapp",
+    "modules/mock/simulation",
     "modules/params",
     "modules/params/subspace",
+    "modules/service",
+    "modules/service/tags",
     "modules/slashing",
     "modules/stake",
     "modules/stake/keeper",
     "modules/stake/querier",
+    "modules/stake/simulation",
     "modules/stake/tags",
     "modules/stake/types",
     "modules/upgrade",
     "modules/upgrade/params",
+    "server",
+    "server/config",
     "store",
+    "tools/protoidl",
     "types",
     "version",
   ]
@@ -776,6 +798,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/hashicorp/consul/api",
+    "github.com/irisnet/irishub/app",
     "github.com/irisnet/irishub/client/utils",
     "github.com/irisnet/irishub/codec",
     "github.com/irisnet/irishub/modules/auth",
@@ -788,7 +811,6 @@
     "github.com/irisnet/irishub/modules/stake",
     "github.com/irisnet/irishub/modules/stake/tags",
     "github.com/irisnet/irishub/modules/stake/types",
-    "github.com/irisnet/irishub/modules/upgrade",
     "github.com/irisnet/irishub/types",
     "github.com/jolestar/go-commons-pool",
     "github.com/pkg/errors",

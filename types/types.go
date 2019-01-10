@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub/app"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
 	"github.com/irisnet/irishub/modules/auth"
@@ -16,7 +17,6 @@ import (
 	"github.com/irisnet/irishub/modules/stake"
 	stags "github.com/irisnet/irishub/modules/stake/tags"
 	staketypes "github.com/irisnet/irishub/modules/stake/types"
-	"github.com/irisnet/irishub/modules/upgrade"
 	"github.com/irisnet/irishub/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
@@ -123,19 +123,7 @@ func init() {
 	//config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
 	//config.Seal()
 
-	cdc = codec.New()
-
-	bank.RegisterCodec(cdc)
-	stake.RegisterCodec(cdc)
-	slashing.RegisterCodec(cdc)
-	auth.RegisterCodec(cdc)
-	gov.RegisterCodec(cdc)
-	upgrade.RegisterCodec(cdc)
-	distribution.RegisterCodec(cdc)
-
-	types.RegisterCodec(cdc)
-
-	codec.RegisterCrypto(cdc)
+	cdc = app.MakeLatestCodec()
 }
 
 func GetCodec() *codec.Codec {
