@@ -27,7 +27,13 @@ func updateDelegator() {
 	for _, d := range delegators {
 		ubd := handler.BuildUnbondingDelegation(d.Address, d.ValidatorAddr)
 		d.UnbondingDelegation = ubd
-		store.Update(d)
-		logger.Info("update delegator", logger.Any("ubd", ubd))
+		if d.BondedHeight < 0 &&
+			d.UnbondingDelegation.CreationHeight < 0 {
+			store.Delete(d)
+			logger.Info("delete delegator", logger.String("delAddress", d.Address), logger.String("valAddress", d.ValidatorAddr))
+		} else {
+			store.Update(d)
+			logger.Info("Update delegator", logger.String("delAddress", d.Address), logger.String("valAddress", d.ValidatorAddr))
+		}
 	}
 }
