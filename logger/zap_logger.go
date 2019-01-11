@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	logger Logger
+	zapLogger *zap.Logger
 
 	//zap method
 	Binary     = zap.Binary
@@ -34,47 +34,45 @@ var (
 	Duration   = zap.Duration
 )
 
-type Logger struct {
-	*zap.Logger
+type Field = zap.Field
+
+func Info(msg string, fields ...Field) {
+	defer Sync()
+	zapLogger.Info(msg, fields...)
 }
 
-func Info(msg string, fields ...zap.Field) {
-	defer logger.Sync()
-	logger.Info(msg, fields...)
+func Debug(msg string, fields ...Field) {
+	defer Sync()
+	zapLogger.Debug(msg, fields...)
 }
 
-func Debug(msg string, fields ...zap.Field) {
-	defer logger.Sync()
-	logger.Debug(msg, fields...)
+func Warn(msg string, fields ...Field) {
+	defer Sync()
+	zapLogger.Warn(msg, fields...)
 }
 
-func Warn(msg string, fields ...zap.Field) {
-	defer logger.Sync()
-	logger.Warn(msg, fields...)
+func Error(msg string, fields ...Field) {
+	defer Sync()
+	zapLogger.Error(msg, fields...)
 }
 
-func Error(msg string, fields ...zap.Field) {
-	defer logger.Sync()
-	logger.Error(msg, fields...)
+func Panic(msg string, fields ...Field) {
+	defer Sync()
+	zapLogger.Panic(msg, fields...)
 }
 
-func Panic(msg string, fields ...zap.Field) {
-	defer logger.Sync()
-	logger.Panic(msg, fields...)
+func Fatal(msg string, fields ...Field) {
+	defer Sync()
+	zapLogger.Fatal(msg, fields...)
 }
 
-func Fatal(msg string, fields ...zap.Field) {
-	defer logger.Sync()
-	logger.Fatal(msg, fields...)
-}
-
-func With(fields ...zap.Field) {
-	defer logger.Sync()
-	logger.With(fields...)
+func With(fields ...Field) {
+	defer Sync()
+	zapLogger.With(fields...)
 }
 
 func Sync() {
-	logger.Sync()
+	zapLogger.Sync()
 }
 
 func init() {
@@ -128,11 +126,7 @@ func init() {
 	caller := zap.AddCaller()
 	callerSkipOpt := zap.AddCallerSkip(1)
 	// From a zapcore.Core, it's easy to construct a Logger.
-	zapLogger := zap.New(core, caller, callerSkipOpt, zap.AddStacktrace(zap.ErrorLevel))
-
-	logger = Logger{
-		zapLogger,
-	}
+	zapLogger = zap.New(core, caller, callerSkipOpt, zap.AddStacktrace(zap.ErrorLevel))
 
 	if conf.EnableAtomicLevel {
 		go func() {

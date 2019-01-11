@@ -240,7 +240,6 @@ func parseBlockResult(height int64) (res document.BlockResults) {
 			GasWanted: tx.GasWanted,
 			GasUsed:   tx.GasUsed,
 			Tags:      parseTags(tx.Tags),
-			Codespace: tx.Codespace,
 		})
 	}
 
