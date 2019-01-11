@@ -19,7 +19,6 @@ func init() {
 		initFuncs: []func(){},
 	}
 
-	//engine.AddTask(task.MakeSyncBlockTask())
 	engine.AddTask(task.MakeCalculateAndSaveValidatorUpTimeTask())
 	engine.AddTask(task.MakeCalculateTxGasAndGasPriceTask())
 	engine.AddTask(task.MakeSyncProposalStatusTask())
@@ -46,8 +45,6 @@ func (engine *SyncEngine) Start() {
 	for _, init := range engine.initFuncs {
 		init()
 	}
-	//watcher := task.NewWatcher()
-	//watcher.FastSync()
 	go task.StartCreateTask()
 	go task.StartExecuteTask()
 
