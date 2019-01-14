@@ -120,7 +120,6 @@ type ResponseDeliverTx struct {
 	GasWanted int64    `bson:"gas_wanted"`
 	GasUsed   int64    `bson:"gas_used"`
 	Tags      []KvPair `bson:"tags"`
-	Codespace string   `bson:"codespace"`
 }
 
 type ResponseEndBlock struct {
@@ -140,6 +139,10 @@ type ConsensusParams struct {
 	Validator ValidatorParams `bson:"validator"`
 }
 
+type ValidatorParams struct {
+	PubKeyTypes []string `bson:"pub_key_types`
+}
+
 type BlockSizeParams struct {
 	MaxBytes int64 `bson:"max_bytes"`
 	MaxGas   int64 `bson:"max_gas"`
@@ -149,8 +152,8 @@ type EvidenceParams struct {
 	MaxAge int64 `bson:"max_age"`
 }
 
-type ValidatorParams struct {
-	PubKeyTypes []string `bson:"pub_key_types`
+type BlockGossip struct {
+	BlockPartSizeBytes int32 `bson:"block_part_size_bytes"`
 }
 
 type ResponseBeginBlock struct {

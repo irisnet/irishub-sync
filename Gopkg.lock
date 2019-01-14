@@ -41,14 +41,6 @@
   revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
-  digest = "1:3d43e35d7159c669fd70a9499170ad06a85bdb075f7db1e3b9cc604c17a9293b"
-  name = "github.com/cosmos/cosmos-sdk"
-  packages = ["codec"]
-  pruneopts = "UT"
-  revision = "2b3842c58305a4e26d457d3d3bd6cf849ffddcdd"
-  version = "v0.29.0"
-
-[[projects]]
   digest = "1:e8a3550c8786316675ff54ad6f09d265d129c9d986919af7f541afba50d87ce2"
   name = "github.com/cosmos/go-bip39"
   packages = ["."]
@@ -216,11 +208,11 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:5c0b4ace3502074be5932e864936e9ac7e59d1cebd73546a45cc503d76b61928"
+  digest = "1:7f736e3dd14c2439ee4d456beeafd441c72e3046e8d047ff8b2839e63c71f9b3"
   name = "github.com/irisnet/irishub"
   packages = [
+    "app",
     "app/protocol",
-    "app/protocol/keeper",
     "app/v0",
     "client",
     "client/context",
@@ -232,45 +224,45 @@
     "crypto/keys/hd",
     "crypto/keys/keyerror",
     "crypto/keys/mintkey",
-    "modules/arbitration",
-    "modules/arbitration/params",
     "modules/auth",
     "modules/bank",
+    "modules/bank/simulation",
     "modules/distribution",
     "modules/distribution/keeper",
+    "modules/distribution/simulation",
     "modules/distribution/tags",
     "modules/distribution/types",
     "modules/gov",
-    "modules/gov/params",
     "modules/gov/tags",
     "modules/guardian",
-    "modules/guardian/tags",
     "modules/mint",
+    "modules/mint/tags",
     "modules/mock",
     "modules/mock/baseapp",
+    "modules/mock/simulation",
     "modules/params",
     "modules/params/subspace",
-    "modules/record",
-    "modules/record/tags",
     "modules/service",
-    "modules/service/params",
     "modules/service/tags",
     "modules/slashing",
     "modules/stake",
     "modules/stake/keeper",
     "modules/stake/querier",
+    "modules/stake/simulation",
     "modules/stake/tags",
     "modules/stake/types",
     "modules/upgrade",
+    "modules/upgrade/params",
+    "server",
+    "server/config",
     "store",
     "tools/protoidl",
     "types",
-    "types/common",
     "version",
   ]
   pruneopts = "UT"
-  revision = "fbb7d147c14857638814faf71a03f3b2e216a645"
-  version = "v0.9.0-rc0"
+  revision = "3894c521bd7d6b83075262026b6dfaa395808bae"
+  version = "v0.10.0-rc0"
 
 [[projects]]
   branch = "master"
@@ -386,7 +378,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:33c81bf709f084827a560e14415b1d7001a6d1d6fa4bec2cc2e60b84ecbc0e0a"
+  digest = "1:ce62b400185bf6b16ef6088011b719e449f5c15c4adb6821589679f752c2788e"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -394,11 +386,11 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "67670fe90761d7ff18ec1d640135e53b9198328f"
+  revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
 
 [[projects]]
   branch = "master"
-  digest = "1:d39e7c7677b161c2dd4c635a2ac196460608c7d8ba5337cc8cae5825a2681f8f"
+  digest = "1:08eb8b60450efe841e37512d66ce366a87d187505d7c67b99307a6c1803483a2"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -407,7 +399,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
+  revision = "b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1"
 
 [[projects]]
   digest = "1:c4556a44e350b50a490544d9b06e9fba9c286c21d6c0e47f54f3a9214597298c"
@@ -530,17 +522,16 @@
   version = "v0.14.0"
 
 [[projects]]
-  branch = "irisnet/v0.12.0-iris"
   digest = "1:bfbae02a6a9430f804a8a7fee56edbb93c38e08a777ab4a6a33b03b4780b97f6"
   name = "github.com/tendermint/iavl"
   packages = ["."]
   pruneopts = "UT"
   revision = "4114c0fad8f5909e46327dc967259e33e0e80508"
   source = "https://github.com/irisnet/iavl.git"
+  version = "v0.12.0-iris"
 
 [[projects]]
-  branch = "irisnet/v0.27.0-iris"
-  digest = "1:141818a9e0d1b5e0559605b6014621199327a3a23e64369f9039eb68f99a640f"
+  digest = "1:4416561b9d6e7de60334a880810e9d02c348b2549f5a327ccd34e90edac16271"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -605,8 +596,9 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "afb2a33bca018b99bc11dfc2e5e8332baa23f557"
+  revision = "ae55f6ecaab71915ff86bf7303c43f1e91b9dac2"
   source = "https://github.com/irisnet/tendermint.git"
+  version = "v0.27.3-iris"
 
 [[projects]]
   digest = "1:7886f86064faff6f8d08a3eb0e8c773648ff5a2e27730831e2bfbf07467f6666"
@@ -691,14 +683,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9bd2a1332ddcee55c2dad82b983716d41a32635dafab848a12de0e73f29d4c2c"
+  digest = "1:4ff5231c36a2154d059285c0aa91b785a94ed78194fbc762b225573d34c53723"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix",
   ]
   pruneopts = "UT"
-  revision = "074acd46bca67915925527c07849494d115e7c43"
+  revision = "7fbe1cd0fcc20051e1fcb87fbabec4a1bacaaeba"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -806,17 +798,19 @@
   analyzer-version = 1
   input-imports = [
     "github.com/hashicorp/consul/api",
+    "github.com/irisnet/irishub/app",
     "github.com/irisnet/irishub/client/utils",
     "github.com/irisnet/irishub/codec",
     "github.com/irisnet/irishub/modules/auth",
     "github.com/irisnet/irishub/modules/bank",
     "github.com/irisnet/irishub/modules/distribution",
+    "github.com/irisnet/irishub/modules/distribution/tags",
     "github.com/irisnet/irishub/modules/gov",
     "github.com/irisnet/irishub/modules/gov/tags",
     "github.com/irisnet/irishub/modules/slashing",
     "github.com/irisnet/irishub/modules/stake",
+    "github.com/irisnet/irishub/modules/stake/tags",
     "github.com/irisnet/irishub/modules/stake/types",
-    "github.com/irisnet/irishub/modules/upgrade",
     "github.com/irisnet/irishub/types",
     "github.com/jolestar/go-commons-pool",
     "github.com/pkg/errors",

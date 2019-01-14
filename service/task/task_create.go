@@ -12,6 +12,7 @@ import (
 )
 
 func StartCreateTask() {
+	log := logger.GetLogger("StartCreateTask")
 	var (
 		syncConfModel           document.SyncConf
 		blockNumPerWorkerHandle int64
@@ -20,14 +21,14 @@ func StartCreateTask() {
 	// get sync conf
 	syncConf, err := syncConfModel.GetConf()
 	if err != nil {
-		logger.Fatal("Get sync conf failed", logger.String("err", err.Error()))
+		log.Fatal("Get sync conf failed", logger.String("err", err.Error()))
 	}
 	blockNumPerWorkerHandle = syncConf.BlockNumPerWorkerHandle
 	if blockNumPerWorkerHandle <= 0 {
-		logger.Fatal("blockNumPerWorkerHandle should greater than 0")
+		log.Fatal("blockNumPerWorkerHandle should greater than 0")
 	}
 
-	logger.Info("Start create task", logger.Any("sync conf", syncConf))
+	log.Info("Start create task", logger.Any("sync conf", syncConf))
 
 	// buffer channel to limit goroutine num
 	chanLimit := make(chan bool, serverConf.WorkerNumCreateTask)
@@ -45,10 +46,11 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		ops               []txn.Op
 		invalidFollowTask document.SyncTask
 	)
+	log := logger.GetLogger("createTask")
 
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Error("Create sync task failed", logger.Any("err", err))
+			log.Error("Create sync task failed", logger.Any("err", err))
 		}
 		<-chanLimit
 	}()
@@ -61,34 +63,34 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			document.SyncTaskStatusUnderway,
 		}, document.SyncTaskTypeFollow)
 	if err != nil {
-		logger.Error("Query sync task failed", logger.String("err", err.Error()))
+		log.Error("Query sync task failed", logger.String("err", err.Error()))
 	}
 	if len(validFollowTasks) == 0 {
 		// get max end_height from sync_task
 		maxEndHeight, err := syncTaskModel.GetMaxBlockHeight()
 		if err != nil {
-			logger.Error("Get max end_block failed", logger.String("err", err.Error()))
+			log.Error("Get max end_block failed", logger.String("err", err.Error()))
 			return
 		}
 
 		currentBlockHeight, err := getBlockChainLatestHeight()
 		if err != nil {
-			logger.Error("Get current block height failed", logger.String("err", err.Error()))
+			log.Error("Get current block height failed", logger.String("err", err.Error()))
 			return
 		}
 
 		if maxEndHeight+blockNumPerWorker <= currentBlockHeight {
 			syncTasks = createCatchUpTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
-			logger.Info("Create catch up task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
+			log.Info("Create catch up task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
 		} else {
 			finished, err := assertAllCatchUpTaskFinished()
 			if err != nil {
-				logger.Error("AssertAllCatchUpTaskFinished failed", logger.String("err", err.Error()))
+				log.Error("AssertAllCatchUpTaskFinished failed", logger.String("err", err.Error()))
 				return
 			}
 			if finished {
 				syncTasks = createFollowTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
-				logger.Info("Create follow task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
+				log.Info("Create follow task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
 			}
 		}
 	} else {
@@ -100,7 +102,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 
 		currentBlockHeight, err := getBlockChainLatestHeight()
 		if err != nil {
-			logger.Error("Get current block height failed", logger.String("err", err.Error()))
+			log.Error("Get current block height failed", logger.String("err", err.Error()))
 			return
 		}
 
@@ -108,7 +110,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			syncTasks = createCatchUpTask(followedHeight, blockNumPerWorker, currentBlockHeight)
 
 			invalidFollowTask = followTask
-			logger.Info("Create catch up task during follow task exist", logger.Int64("from", followedHeight+1), logger.Int64("to", currentBlockHeight))
+			log.Info("Create catch up task during follow task exist", logger.Int64("from", followedHeight+1), logger.Int64("to", currentBlockHeight))
 		}
 	}
 
@@ -145,9 +147,9 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 	if len(ops) > 0 {
 		err := store.Txn(ops)
 		if err != nil {
-			logger.Error("Create sync task fail", logger.String("err", err.Error()))
+			log.Error("Create sync task fail", logger.String("err", err.Error()))
 		} else {
-			logger.Info("Create sync task success")
+			log.Info("Create sync task success")
 		}
 	}
 }

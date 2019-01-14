@@ -28,7 +28,7 @@ func CompareAndUpdateValidators() {
 	// get all validatorSets from blockChain
 	validators := helper.GetValidators()
 
-	logger.Info("Get Validators from blockchain", logger.Any("Validators", validators))
+	logger.Debug("Get Validators from blockchain", logger.Any("Validators", validators))
 	var chainValidators []document.Candidate
 	for _, validator := range validators {
 		// build validator document struct by stake.validator

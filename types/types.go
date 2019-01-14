@@ -2,9 +2,9 @@ package types
 
 import (
 	"fmt"
-	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub/app"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
 	"github.com/irisnet/irishub/modules/auth"
@@ -17,7 +17,6 @@ import (
 	"github.com/irisnet/irishub/modules/stake"
 	stags "github.com/irisnet/irishub/modules/stake/tags"
 	staketypes "github.com/irisnet/irishub/modules/stake/types"
-	"github.com/irisnet/irishub/modules/upgrade"
 	"github.com/irisnet/irishub/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
@@ -32,13 +31,13 @@ import (
 type (
 	MsgTransfer = bank.MsgSend
 
-	MsgStakeCreate                 = stake.MsgCreateValidator
-	MsgStakeEdit                   = stake.MsgEditValidator
-	MsgStakeDelegate               = stake.MsgDelegate
-	MsgStakeBeginUnbonding         = stake.MsgBeginUnbonding
-	MsgBeginRedelegate             = stake.MsgBeginRedelegate
-	MsgUnjail                      = slashing.MsgUnjail
-	MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
+	MsgStakeCreate         = stake.MsgCreateValidator
+	MsgStakeEdit           = stake.MsgEditValidator
+	MsgStakeDelegate       = stake.MsgDelegate
+	MsgStakeBeginUnbonding = stake.MsgBeginUnbonding
+	MsgBeginRedelegate     = stake.MsgBeginRedelegate
+	MsgUnjail              = slashing.MsgUnjail
+	//MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
 	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
 	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
 	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll
@@ -117,25 +116,14 @@ var (
 
 // 初始化账户地址前缀
 func init() {
-	config := types.GetConfig()
-	config.SetBech32PrefixForAccount(server.Bech32.PrefixAccAddr, server.Bech32.PrefixAccPub)
-	config.SetBech32PrefixForValidator(server.Bech32.PrefixValAddr, server.Bech32.PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
-	config.Seal()
+	//TODO
+	//config := types.GetConfig()
+	//config.SetBech32PrefixForAccount(server.Bech32.PrefixAccAddr, server.Bech32.PrefixAccPub)
+	//config.SetBech32PrefixForValidator(server.Bech32.PrefixValAddr, server.Bech32.PrefixValPub)
+	//config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
+	//config.Seal()
 
-	cdc = codec.New()
-
-	bank.RegisterCodec(cdc)
-	stake.RegisterCodec(cdc)
-	slashing.RegisterCodec(cdc)
-	auth.RegisterCodec(cdc)
-	gov.RegisterCodec(cdc)
-	upgrade.RegisterCodec(cdc)
-	distribution.RegisterCodec(cdc)
-
-	types.RegisterCodec(cdc)
-
-	codec.RegisterCrypto(cdc)
+	cdc = app.MakeLatestCodec()
 }
 
 func GetCodec() *codec.Codec {
