@@ -244,7 +244,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
-		//docTx.Msg = itypes.NewSubmitProposal(msg.MsgSubmitProposal)
+		docTx.Msg = itypes.NewSubmitSoftwareUpgradeProposal(msg)
 
 		//query proposal_id
 		for _, tag := range result.Tags {

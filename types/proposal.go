@@ -15,6 +15,13 @@ type SubmitProposal struct {
 	Params         Params      `json:"params"`
 }
 
+type SubmitSoftwareUpgradeProposal struct {
+	SubmitProposal
+	Version      uint64 `json:"version"`
+	Software     string `json:"software"`
+	SwitchHeight uint64 `json:"switch_height"`
+}
+
 type Param struct {
 	Subspace string `json:"subspace"`
 	Key      string `json:"key"`
@@ -39,6 +46,15 @@ func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 		Proposer:       msg.Proposer.String(),
 		InitialDeposit: ParseCoins(msg.InitialDeposit.String()),
 		Params:         params,
+	}
+}
+func NewSubmitSoftwareUpgradeProposal(msg MsgSubmitSoftwareUpgradeProposal) SubmitSoftwareUpgradeProposal {
+	submitProposal := NewSubmitProposal(msg.MsgSubmitProposal)
+	return SubmitSoftwareUpgradeProposal{
+		SubmitProposal: submitProposal,
+		Version:        msg.Version,
+		Software:       msg.Software,
+		SwitchHeight:   msg.SwitchHeight,
 	}
 }
 
