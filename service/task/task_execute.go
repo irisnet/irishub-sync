@@ -23,21 +23,23 @@ func StartExecuteTask() {
 		blockNumPerWorkerHandle int64
 		maxWorkerSleepTime      int64
 	)
+	log := logger.GetLogger("StartCreateTask")
+
 	// get sync conf
 	syncConf, err := syncConfModel.GetConf()
 	if err != nil {
-		logger.Fatal("Get sync conf failed", logger.String("err", err.Error()))
+		log.Fatal("Get sync conf failed", logger.String("err", err.Error()))
 	}
 	blockNumPerWorkerHandle = syncConf.BlockNumPerWorkerHandle
 	if blockNumPerWorkerHandle <= 0 {
-		logger.Fatal("blockNumPerWorkerHandle should greater than 0")
+		log.Fatal("blockNumPerWorkerHandle should greater than 0")
 	}
 	maxWorkerSleepTime = syncConf.MaxWorkerSleepTime
 	if maxWorkerSleepTime <= 0 {
-		logger.Fatal("maxWorkerSleepTime should greater than 0")
+		log.Fatal("maxWorkerSleepTime should greater than 0")
 	}
 
-	logger.Info("Start execute task", logger.Any("sync conf", syncConf))
+	log.Info("Start execute task", logger.Any("sync conf", syncConf))
 
 	// buffer channel to limit goroutine num
 	chanLimit := make(chan bool, serverConf.WorkerNumExecuteTask)
@@ -55,7 +57,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 		taskType               string
 		blockChainLatestHeight int64
 	)
-
+	log := logger.GetLogger("StartCreateTask")
 	genWorkerId := func() string {
 		// generate worker id use hostname@xxx
 		hostname, _ := os.Hostname()
@@ -67,7 +69,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 
 	defer func() {
 		if r := recover(); r != nil {
-			logger.Error("execute task fail", logger.Any("err", r))
+			log.Error("execute task fail", logger.Any("err", r))
 		}
 		<-chanLimit
 		client.Release()
@@ -78,7 +80,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	// status = underway and now - lastUpdateTime > confTime
 	tasks, err := syncTaskModel.GetExecutableTask(maxWorkerSleepTime)
 	if err != nil {
-		logger.Error("Get executable task fail", logger.String("err", err.Error()))
+		log.Error("Get executable task fail", logger.String("err", err.Error()))
 	}
 	if len(tasks) == 0 {
 		// there is no executable tasks
@@ -92,9 +94,9 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			// this task has been take over by other goroutine
-			logger.Info("Task has been take over by other goroutine")
+			log.Info("Task has been take over by other goroutine")
 		} else {
-			logger.Error("Take over task fail", logger.String("err", err.Error()))
+			log.Error("Take over task fail", logger.String("err", err.Error()))
 		}
 		return
 	} else {
@@ -107,7 +109,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	} else {
 		taskType = document.SyncTaskTypeFollow
 	}
-	logger.Info("worker begin execute task",
+	log.Info("worker begin execute task",
 		logger.String("cur_worker", workerId), logger.Any("task_id", task.ID),
 		logger.String("from-to", fmt.Sprintf("%v-%v", task.StartHeight, task.EndHeight)))
 
@@ -116,7 +118,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	// valid follow task: current_height + blockNumPerWorkerHandle > blockChainLatestHeight
 	blockChainLatestHeight, err = getBlockChainLatestHeight()
 	if err != nil {
-		logger.Error("get block chain latest height fail", logger.String("err", err.Error()))
+		log.Error("get block chain latest height fail", logger.String("err", err.Error()))
 		return
 	}
 	for assertTaskValid(task, blockNumPerWorkerHandle, blockChainLatestHeight) {
@@ -132,12 +134,18 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 		if taskType == document.SyncTaskTypeFollow {
 			blockChainLatestHeight, err = getBlockChainLatestHeight()
 			if err != nil {
-				logger.Error("get block chain latest height fail", logger.String("err", err.Error()))
+				log.Error("get block chain latest height fail", logger.String("err", err.Error()))
 				return
 			}
 
 			if task.CurrentHeight+2 >= blockChainLatestHeight {
 				// wait block chain latest block height updated, must interval two block
+				log.Info("wait block chain latest block height updated, must interval two block",
+					logger.String("taskId", task.ID.String()),
+					logger.String("workerId", task.WorkerId),
+					logger.Int64("taskCurrentHeight", task.CurrentHeight),
+					logger.Int64("blockChainLatestHeight", blockChainLatestHeight))
+				time.Sleep(2 * time.Second)
 				continue
 			}
 		}
@@ -145,14 +153,14 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 		// parse block and tx
 		blockDoc, err := parseBlock(inProcessBlock, client)
 		if err != nil {
-			logger.Error("Parse block fail", logger.Int64("block", inProcessBlock),
+			log.Error("Parse block fail", logger.Int64("block", inProcessBlock),
 				logger.String("err", err.Error()))
 		}
 
 		// check task owner
 		workerUnchanged, err := assertTaskWorkerUnchanged(task.ID, task.WorkerId)
 		if err != nil {
-			logger.Error("assert task worker is unchanged fail", logger.String("err", err.Error()))
+			log.Error("assert task worker is unchanged fail", logger.String("err", err.Error()))
 		}
 		if workerUnchanged {
 			// save data and update sync task
@@ -166,8 +174,10 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 
 			err := saveDocs(blockDoc, taskDoc)
 			if err != nil {
-				logger.Error("save docs fail", logger.String("err", err.Error()))
+				log.Error("save docs fail", logger.String("err", err.Error()))
 			} else {
+				log.Info("save Docs success", logger.Int64("height", blockDoc.Height))
+				log.Debug("update taskDoc success", logger.Any("task", taskDoc))
 				task.CurrentHeight = inProcessBlock
 
 				if taskType == document.SyncTaskTypeFollow {
@@ -176,13 +186,13 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 				}
 			}
 		} else {
-			logger.Info("task worker changed", logger.Any("task_id", task.ID),
+			log.Info("task worker changed", logger.Any("task_id", task.ID),
 				logger.String("origin worker", workerId), logger.String("current worker", task.WorkerId))
 			return
 		}
 	}
 
-	logger.Info("worker finish execute task",
+	log.Info("worker finish execute task",
 		logger.String("task_worker", task.WorkerId), logger.Any("task_id", task.ID),
 		logger.String("from-to-current", fmt.Sprintf("%v-%v-%v", task.StartHeight, task.EndHeight, task.CurrentHeight)))
 }

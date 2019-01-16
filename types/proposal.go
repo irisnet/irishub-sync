@@ -12,20 +12,32 @@ type SubmitProposal struct {
 	Proposer       string      `json:"proposer"`       //  Address of the proposer
 	InitialDeposit store.Coins `json:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
 	ProposalType   string      `json:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
-	Params         Param       `json:"params"`
+	Params         Params      `json:"params"`
+}
+
+type SubmitSoftwareUpgradeProposal struct {
+	SubmitProposal
+	Version      uint64 `json:"version"`
+	Software     string `json:"software"`
+	SwitchHeight uint64 `json:"switch_height"`
 }
 
 type Param struct {
-	Key   string `bson:"key"`
-	Value string `bson:"value"`
-	Op    string `bson:"op"`
+	Subspace string `json:"subspace"`
+	Key      string `json:"key"`
+	Value    string `json:"value"`
 }
 
+type Params []Param
+
 func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
-	p := Param{
-		Key:   msg.Param.Key,
-		Value: msg.Param.Value,
-		Op:    msg.Param.Op,
+	var params Params
+	for _, p := range msg.Params {
+		params = append(params, Param{
+			Subspace: p.Subspace,
+			Key:      p.Key,
+			Value:    p.Value,
+		})
 	}
 	return SubmitProposal{
 		Title:          msg.Title,
@@ -33,7 +45,16 @@ func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 		ProposalType:   msg.ProposalType.String(),
 		Proposer:       msg.Proposer.String(),
 		InitialDeposit: ParseCoins(msg.InitialDeposit.String()),
-		Params:         p,
+		Params:         params,
+	}
+}
+func NewSubmitSoftwareUpgradeProposal(msg MsgSubmitSoftwareUpgradeProposal) SubmitSoftwareUpgradeProposal {
+	submitProposal := NewSubmitProposal(msg.MsgSubmitProposal)
+	return SubmitSoftwareUpgradeProposal{
+		SubmitProposal: submitProposal,
+		Version:        msg.Version,
+		Software:       msg.Software,
+		SwitchHeight:   msg.SwitchHeight,
 	}
 }
 
