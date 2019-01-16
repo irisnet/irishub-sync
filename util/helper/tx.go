@@ -61,13 +61,6 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	}
 	msg := msgs[0]
 
-	tags := make(map[string]string, 0)
-	for _, tag := range result.Tags {
-		key := string(tag.Key)
-		value := string(tag.Value)
-		tags[key] = value
-	}
-
 	docTx = document.CommonTx{
 		Height:    height,
 		Time:      time,
@@ -80,7 +73,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		GasUsed:   gasUsed,
 		GasPrice:  gasPrice,
 		ActualFee: actualFee,
-		Tags:      tags,
+		Tags:      parseTags(result),
 	}
 
 	switch msg.(type) {
@@ -178,13 +171,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeUnjail
-	case itypes.MsgSetWithdrawAddress:
-		msg := msg.(itypes.MsgSetWithdrawAddress)
 
-		docTx.From = msg.DelegatorAddr.String()
-		docTx.To = msg.WithdrawAddr.String()
-		docTx.Type = constant.TxTypeSetWithdrawAddress
-		docTx.Msg = itypes.NewSetWithdrawAddressMsg(msg)
 	case itypes.MsgWithdrawDelegatorReward:
 		msg := msg.(itypes.MsgWithdrawDelegatorReward)
 
@@ -250,6 +237,27 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			}
 		}
 		return docTx
+	case itypes.MsgSubmitSoftwareUpgradeProposal:
+		msg := msg.(itypes.MsgSubmitSoftwareUpgradeProposal)
+
+		docTx.From = msg.Proposer.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
+		docTx.Type = constant.TxTypeSubmitProposal
+		docTx.Msg = itypes.NewSubmitSoftwareUpgradeProposal(msg)
+
+		//query proposal_id
+		for _, tag := range result.Tags {
+			key := string(tag.Key)
+			if key == itypes.TagGovProposalID {
+				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
+				if err == nil {
+					docTx.ProposalId = uint64(proposalId)
+					break
+				}
+			}
+		}
+		return docTx
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
 
@@ -274,6 +282,16 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	}
 
 	return docTx
+}
+
+func parseTags(result itypes.ResponseDeliverTx) map[string]string {
+	tags := make(map[string]string, 0)
+	for _, tag := range result.Tags {
+		key := string(tag.Key)
+		value := string(tag.Value)
+		tags[key] = value
+	}
+	return tags
 }
 func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))

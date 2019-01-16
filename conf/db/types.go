@@ -19,7 +19,7 @@ func init() {
 	if found {
 		Addrs = addrs
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbAddr, addrs))
+	logger.Info("Env Value", logger.String(constant.EnvNameDbAddr, Addrs))
 
 	user, found := os.LookupEnv(constant.EnvNameDbUser)
 	if found {
