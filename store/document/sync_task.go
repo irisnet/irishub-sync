@@ -128,7 +128,7 @@ func (d SyncTask) GetExecutableTask(maxWorkerSleepTime int64) ([]SyncTask, error
 			{
 				"status": SyncTaskStatusUnderway,
 				"last_update_time": bson.M{
-					"$lte": t,
+					"$lt": t,
 				},
 			},
 		},
@@ -161,6 +161,25 @@ func (d SyncTask) GetTaskById(id bson.ObjectId) (SyncTask, error) {
 	return task, nil
 }
 
+func (d SyncTask) GetTaskByIdAndWorker(id bson.ObjectId, worker string) (SyncTask, error) {
+	var task SyncTask
+
+	fn := func(c *mgo.Collection) error {
+		q := bson.M{
+			"_id":       id,
+			"worker_id": worker,
+		}
+
+		return c.Find(q).One(&task)
+	}
+
+	err := store.ExecCollection(d.Name(), fn)
+	if err != nil {
+		return task, err
+	}
+	return task, nil
+}
+
 // take over a task
 // update status, worker_id, worker_logs and last_update_time
 func (d SyncTask) TakeOverTask(task SyncTask, workerId string) error {
@@ -179,6 +198,22 @@ func (d SyncTask) TakeOverTask(task SyncTask, workerId string) error {
 			WorkerId:  workerId,
 			BeginTime: time.Now(),
 		})
+
+		return c.Update(selector, task)
+	}
+
+	return store.ExecCollection(d.Name(), fn)
+}
+
+// update task last update time
+func (d SyncTask) UpdateLastUpdateTime(task SyncTask) error {
+	fn := func(c *mgo.Collection) error {
+		selector := bson.M{
+			"_id":       task.ID,
+			"worker_id": task.WorkerId,
+		}
+
+		task.LastUpdateTime = time.Now().Unix()
 
 		return c.Update(selector, task)
 	}

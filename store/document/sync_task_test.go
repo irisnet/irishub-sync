@@ -3,10 +3,10 @@ package document
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"time"
 )
 
 func TestSyncTask_GetMaxBlockHeight(t *testing.T) {
@@ -124,6 +124,69 @@ func TestSyncTask_TakeOverTask(t *testing.T) {
 				}
 			}
 			t.Log("take over task success")
+		})
+	}
+}
+
+func TestSyncTask_GetTaskByIdAndWorker(t *testing.T) {
+	type args struct {
+		id     bson.ObjectId
+		worker string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "test get task by task id and worker",
+			args: args{
+				id:     bson.ObjectIdHex("5c3bf4ee8bd9750001d0165f"),
+				worker: "irishub-sync-qgpqq@5c3bf4ee8bd9750001d01647",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := SyncTask{}
+			res, err := d.GetTaskByIdAndWorker(tt.args.id, tt.args.worker)
+			if err != nil {
+				if err == mgo.ErrNotFound {
+					t.Fatalf("can't find task, err is %v\n", err)
+				}
+				t.Fatal(err)
+			}
+			resBytes, err := json.MarshalIndent(res, "", "\t")
+			t.Log(string(resBytes))
+		})
+	}
+}
+
+func TestSyncTask_UpdateLastUpdateTime(t *testing.T) {
+	d := SyncTask{}
+	task, err := d.GetTaskById(bson.ObjectIdHex("5c3bf4ee8bd9750001d0165f"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	type args struct {
+		task SyncTask
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "test update last update time",
+			args: args{
+				task: task,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := d.UpdateLastUpdateTime(tt.args.task); err != nil {
+				t.Fatal(err)
+			}
+			t.Log("success")
 		})
 	}
 }
