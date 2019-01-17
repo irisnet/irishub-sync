@@ -53,8 +53,7 @@ func StartExecuteTask() {
 func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit chan bool) {
 	var (
 		syncTaskModel          document.SyncTask
-		workerId               string
-		taskType               string
+		workerId, taskType     string
 		blockChainLatestHeight int64
 	)
 	log := logger.GetLogger("StartCreateTask")
@@ -75,7 +74,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 		client.Release()
 	}()
 
-	// check sync task if exist
+	// check whether exist executable task
 	// status = unhandled or
 	// status = underway and now - lastUpdateTime > confTime
 	tasks, err := syncTaskModel.GetExecutableTask(maxWorkerSleepTime)
@@ -112,6 +111,49 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 	log.Info("worker begin execute task",
 		logger.String("cur_worker", workerId), logger.Any("task_id", task.ID),
 		logger.String("from-to", fmt.Sprintf("%v-%v", task.StartHeight, task.EndHeight)))
+
+	// worker health check, if worker is alive, then update last update time every minute.
+	// health check will exit in follow conditions:
+	// 1. task is not owned by current worker
+	// 2. task is invalid
+	workerHealthCheck := func(taskId bson.ObjectId, currentWorker string) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Error("worker health check err", logger.Any("err", r))
+			}
+		}()
+
+		for {
+			task, err := syncTaskModel.GetTaskByIdAndWorker(taskId, workerId)
+			if err == nil {
+				blockChainLatestHeight, err := getBlockChainLatestHeight()
+				if err == nil {
+					if assertTaskValid(task, blockNumPerWorkerHandle, blockChainLatestHeight) {
+						// update task last update time
+						if err := syncTaskModel.UpdateLastUpdateTime(task); err != nil {
+							log.Error("update last update time fail", logger.String("err", err.Error()))
+						}
+					} else {
+						log.Info("task is invalid, exit health check", logger.String("task_id", taskId.Hex()))
+						break
+					}
+				} else {
+					log.Error("get block chain latest height fail", logger.String("err", err.Error()))
+				}
+			} else {
+				if err == mgo.ErrNotFound {
+					log.Info("task may be task over by other goroutine, exit health check",
+						logger.String("task_id", taskId.Hex()), logger.String("current_worker", workerId))
+					break
+				} else {
+					log.Error("get task by id and worker fail", logger.String("task_id", taskId.Hex()),
+						logger.String("current_worker", workerId))
+				}
+			}
+			time.Sleep(1 * time.Minute)
+		}
+	}
+	go workerHealthCheck(task.ID, workerId)
 
 	// check task is valid
 	// valid catch up task: current_height < end_height
@@ -176,8 +218,6 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 			if err != nil {
 				log.Error("save docs fail", logger.String("err", err.Error()))
 			} else {
-				log.Info("save Docs success", logger.Int64("height", blockDoc.Height))
-				log.Debug("update taskDoc success", logger.Any("task", taskDoc))
 				task.CurrentHeight = inProcessBlock
 
 				if taskType == document.SyncTaskTypeFollow {
