@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-func MakeValidatorHistoryTask() Task {
-	return NewLockTaskFromEnv(server.CronSaveValidatorHistory, "save_validator_history_lock", func() {
+func MakeValidatorHistoryTask() CronTask {
+	return NewLockTask("save_validator_history", server.CronSaveValidatorHistory, func() {
 		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] begin===================")
 		SaveValidatorHistory()
 		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] end===================")

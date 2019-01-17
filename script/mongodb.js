@@ -22,6 +22,7 @@ db.createCollection("tx_msg");
 db.createCollection("power_change");//explorer
 db.createCollection("uptime_change");
 db.createCollection("sync_conf");
+db.createCollection("cron_task");
 
 
 // create index
@@ -56,6 +57,7 @@ db.tx_msg.createIndex({"hash": 1}, {"unique": true});
 
 // init data
 db.sync_conf.insert({"block_num_per_worker_handle": 100, "max_worker_sleep_time": 1200});
+db.cron_task.createIndex({"key": 1}, {"unique": true});
 
 // drop collection
 // db.account.drop();

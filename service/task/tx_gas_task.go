@@ -116,8 +116,8 @@ func buildTxGas(txs []document.CommonTx) document.TxGas {
 	return txGas
 }
 
-func MakeCalculateTxGasAndGasPriceTask() Task {
-	return NewLockTaskFromEnv(conf.CronCalculateTxGas, "calculate_tx_gas_and_gas_price_lock", func() {
+func MakeCalculateTxGasAndGasPriceTask() CronTask {
+	return NewLockTask("calculate_tx_gas_price", conf.CronCalculateTxGas, func() {
 		logger.Debug("========================task's trigger [CalculateTxGasAndGasPrice] begin===================")
 		calculateTxGasAndGasPrice()
 		logger.Debug("========================task's trigger [CalculateTxGasAndGasPrice] end===================")

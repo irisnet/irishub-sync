@@ -30,9 +30,7 @@ var (
 	// deprecated
 	SyncBlockNumFastSync = 8000 // sync block num each goroutine
 
-	ConsulAddr    = "192.168.150.7:8500"
-	SyncWithDLock = false
-	Bech32        = Bech32AddrPrefix{
+	Bech32 = Bech32AddrPrefix{
 		PrefixAccAddr:  "faa",
 		PrefixAccPub:   "fap",
 		PrefixValAddr:  "fva",
@@ -65,22 +63,6 @@ func init() {
 		ChainId = chainId
 	}
 	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
-
-	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
-	if found {
-		ConsulAddr = consulAddr
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameConsulAddr, ConsulAddr))
-
-	withDLock, found := os.LookupEnv(constant.EnvNameSyncWithDLock)
-	if found {
-		flag, err := strconv.ParseBool(withDLock)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSyncWithDLock, withDLock))
-		}
-		SyncWithDLock = flag
-	}
-	logger.Info("Env Value", logger.Bool(constant.EnvNameSyncWithDLock, SyncWithDLock))
 
 	cronSaveValidatorHistory, found := os.LookupEnv(constant.EnvNameCronSaveValidatorHistory)
 	if found {

@@ -8,8 +8,8 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 )
 
-func MakeUpdateDelegatorTask() Task {
-	return NewLockTaskFromEnv(server.CronUpdateDelegator, "save_update_delegator_lock", func() {
+func MakeUpdateDelegatorTask() CronTask {
+	return NewLockTask("update_delegator_info", server.CronUpdateDelegator, func() {
 		logger.Debug("========================task's trigger [MakeUpdateDelegatorTask] begin===================")
 		updateDelegator()
 		logger.Debug("========================task's trigger [MakeUpdateDelegatorTask] end===================")

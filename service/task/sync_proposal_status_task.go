@@ -27,8 +27,8 @@ func syncProposalStatus() {
 	}
 }
 
-func MakeSyncProposalStatusTask() Task {
-	return NewLockTaskFromEnv(conf.SyncProposalStatus, "sync_proposal_status_lock", func() {
+func MakeSyncProposalStatusTask() CronTask {
+	return NewLockTask("sync_proposal_status", conf.SyncProposalStatus, func() {
 		logger.Debug("========================task's trigger [SyncProposalStatus] begin===================")
 		syncProposalStatus()
 		logger.Debug("========================task's trigger [SyncProposalStatus] end===================")

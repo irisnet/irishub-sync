@@ -15,7 +15,7 @@ var (
 func init() {
 	engine = &SyncEngine{
 		cron:      cron.New(),
-		tasks:     []task.Task{},
+		tasks:     []task.CronTask{},
 		initFuncs: []func(){},
 	}
 
@@ -30,14 +30,14 @@ func init() {
 }
 
 type SyncEngine struct {
-	cron      *cron.Cron  //cron
-	tasks     []task.Task // my timer task
-	initFuncs []func()    // module init fun
+	cron      *cron.Cron      //cron
+	tasks     []task.CronTask // my timer task
+	initFuncs []func()        // module init fun
 }
 
-func (engine *SyncEngine) AddTask(task task.Task) {
+func (engine *SyncEngine) AddTask(task task.CronTask) {
 	engine.tasks = append(engine.tasks, task)
-	engine.cron.AddFunc(task.GetCron(), task.GetCommand())
+	engine.cron.AddFunc(task.GetCron(), task.GetCmd())
 }
 
 func (engine *SyncEngine) Start() {
@@ -67,14 +67,19 @@ func (engine *SyncEngine) Start() {
 	<-fastSyncChan
 	logger.Info("fast sync finished, now cron task can start")
 
+	engine.InitTask()
 	engine.cron.Start()
 }
 
 func (engine *SyncEngine) Stop() {
 	logger.Info("release resource :SyncEngine")
 	engine.cron.Stop()
+}
+
+func (engine *SyncEngine) InitTask() {
+	logger.Info("init cron task info")
 	for _, t := range engine.tasks {
-		t.Release()
+		t.Init()
 	}
 }
 

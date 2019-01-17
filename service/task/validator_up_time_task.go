@@ -71,8 +71,8 @@ func calculateAndSaveValidatorUpTime() {
 	logger.Info("End", logger.String("method", methodName))
 }
 
-func MakeCalculateAndSaveValidatorUpTimeTask() Task {
-	return NewLockTaskFromEnv(conf.CronCalculateUpTime, "calculate_and_save_validator_uptime_lock", func() {
+func MakeCalculateAndSaveValidatorUpTimeTask() CronTask {
+	return NewLockTask("calculate_validator_uptime", conf.CronCalculateUpTime, func() {
 		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] begin===================")
 		calculateAndSaveValidatorUpTime()
 		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] end===================")
