@@ -159,6 +159,11 @@ func updateValidatorsRank(candidates []document.Candidate) {
 }
 
 func updateValidator(valAddress string) {
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("updateValidator panic", logger.Any("ex", err))
+		}
+	}()
 	//var canCollection  document.Candidate
 
 	validator, err := helper.GetValidator(valAddress)

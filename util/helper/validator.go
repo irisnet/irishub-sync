@@ -1,9 +1,11 @@
 package helper
 
 import (
+	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/pkg/errors"
 )
 
 func GetValidators() (validators []types.StakeValidator) {
@@ -50,9 +52,9 @@ func GetValidator(valAddr string) (types.StakeValidator, error) {
 
 	validatorAddr, err = types.ValAddressFromBech32(valAddr)
 
-	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath) //TODO
+	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath)
 	if err != nil || resRaw == nil {
-		return res, err
+		return res, errors.New(fmt.Sprintf("validator not found:%s", valAddr))
 	}
 
 	res = types.MustUnmarshalValidator(cdc, validatorAddr, resRaw)
