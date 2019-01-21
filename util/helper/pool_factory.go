@@ -44,6 +44,7 @@ func init() {
 	pool = &NodePool{
 		gcp.NewObjectPool(ctx, &factory, config),
 	}
+	pool.PreparePool(ctx)
 	//自动搜索可用节点
 	//factory.StartCrawlPeers()
 }

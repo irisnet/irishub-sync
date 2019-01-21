@@ -26,6 +26,7 @@ func ParseFloat(s string, bit ...int) float64 {
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		logger.Error("common.ParseFloat error", logger.String("value", s))
+		return 0
 	}
 
 	if len(bit) > 0 {
@@ -40,6 +41,7 @@ func RoundFloat(num float64, bit int) (i float64) {
 	i, err := strconv.ParseFloat(s, 0)
 	if err != nil {
 		logger.Error("common.RoundFloat error", logger.String("format", format))
+		return 0
 	}
 	return i
 }

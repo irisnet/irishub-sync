@@ -4,10 +4,10 @@
 package helper
 
 import (
-	"encoding/hex"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"time"
+	"fmt"
 )
 
 type Client struct {
@@ -24,12 +24,14 @@ func newClient(addr string) *Client {
 
 // get client from pool
 func GetClient() *Client {
+
 	c, err := pool.BorrowObject(ctx)
 	for err != nil {
 		logger.Error("GetClient failed,will try again after 3 seconds", logger.String("err", err.Error()))
 		time.Sleep(3 * time.Second)
 		c, err = pool.BorrowObject(ctx)
 	}
+
 	logger.Debug("current available connection", logger.Int("Num", pool.GetNumIdle()))
 	logger.Debug("current used connection", logger.Int("Num", pool.GetNumActive()))
 	return c.(*Client)
@@ -51,7 +53,7 @@ func (c *Client) HeartBeat() error {
 	return err
 }
 
+
 func generateId(address string) string {
-	id := []byte(address)
-	return hex.EncodeToString(id)
+	return fmt.Sprintf("peer[%s]", address)
 }
