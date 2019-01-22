@@ -31,7 +31,7 @@
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
   pruneopts = "UT"
-  revision = "7d2daa5bfef28c5e282571bc06416516936115ee"
+  revision = "ed77733ec07dfc8a513741138419b8d9d3de9d2d"
 
 [[projects]]
   digest = "1:386de157f7d19259a7f9c81f26ce011223ce0f090353c1152ffdf730d7d10ac2"
@@ -165,12 +165,12 @@
   version = "v0.5.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:45aad874d3c7d5e8610427c81870fb54970b981692930ec2a319ce4cb89d7a00"
+  digest = "1:a54ada9beb59fdc35b69322979e870ff0b780e03f4dc309c4c8674b94927df75"
   name = "github.com/hashicorp/go-rootcerts"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6bb64b370b90e7ef1fa532be9e591a81c3493e00"
+  revision = "63503fb4e1eca22f9ae0f90b49c5d5538a0e87eb"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
@@ -208,7 +208,7 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:7f736e3dd14c2439ee4d456beeafd441c72e3046e8d047ff8b2839e63c71f9b3"
+  digest = "1:5dfd721a104c65dffed72a7d99379498d1fb0e5cccaced53f22ba2cab2b16dff"
   name = "github.com/irisnet/irishub"
   packages = [
     "app",
@@ -224,12 +224,12 @@
     "crypto/keys/hd",
     "crypto/keys/keyerror",
     "crypto/keys/mintkey",
+    "mock",
+    "mock/baseapp",
     "modules/auth",
     "modules/bank",
-    "modules/bank/simulation",
     "modules/distribution",
     "modules/distribution/keeper",
-    "modules/distribution/simulation",
     "modules/distribution/tags",
     "modules/distribution/types",
     "modules/gov",
@@ -237,9 +237,6 @@
     "modules/guardian",
     "modules/mint",
     "modules/mint/tags",
-    "modules/mock",
-    "modules/mock/baseapp",
-    "modules/mock/simulation",
     "modules/params",
     "modules/params/subspace",
     "modules/service",
@@ -248,11 +245,9 @@
     "modules/stake",
     "modules/stake/keeper",
     "modules/stake/querier",
-    "modules/stake/simulation",
     "modules/stake/tags",
     "modules/stake/types",
     "modules/upgrade",
-    "modules/upgrade/params",
     "server",
     "server/config",
     "store",
@@ -261,8 +256,8 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "3894c521bd7d6b83075262026b6dfaa395808bae"
-  version = "v0.10.0-rc0"
+  revision = "8bcaf7ee5ec424b16d2f7b0a0dccb555c3b152a3"
+  version = "v0.11.0-rc0"
 
 [[projects]]
   branch = "master"
@@ -374,7 +369,7 @@
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = "UT"
-  revision = "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f"
+  revision = "56726106282f1985ea77d5305743db7231b0c0a8"
 
 [[projects]]
   branch = "master"
@@ -390,7 +385,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:08eb8b60450efe841e37512d66ce366a87d187505d7c67b99307a6c1803483a2"
+  digest = "1:f532f2cdb9e9e4a8fad5a7e944482f4dd12650228e4a7a6c8492a0d069ce0690"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -399,7 +394,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1"
+  revision = "bf6a532e95b1f7a62adf0ab5050a5bb2237ad2f4"
 
 [[projects]]
   digest = "1:c4556a44e350b50a490544d9b06e9fba9c286c21d6c0e47f54f3a9214597298c"
@@ -531,7 +526,7 @@
   version = "v0.12.0-iris"
 
 [[projects]]
-  digest = "1:4416561b9d6e7de60334a880810e9d02c348b2549f5a327ccd34e90edac16271"
+  digest = "1:6cdabe9ae8dbe1346d33970fb753a266d4ec9382aeb3435254c7f16dab2cdc5e"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -596,9 +591,9 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "ae55f6ecaab71915ff86bf7303c43f1e91b9dac2"
+  revision = "9505c83f9d41f020b8fc77d411025e8394264554"
   source = "https://github.com/irisnet/tendermint.git"
-  version = "v0.27.3-iris"
+  version = "v0.27.3-iris2"
 
 [[projects]]
   digest = "1:7886f86064faff6f8d08a3eb0e8c773648ff5a2e27730831e2bfbf07467f6666"
@@ -683,14 +678,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4ff5231c36a2154d059285c0aa91b785a94ed78194fbc762b225573d34c53723"
+  digest = "1:07454820bf257abc4d2761a908a70f99dc563790f2412b12383a0f95a16fe64f"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix",
   ]
   pruneopts = "UT"
-  revision = "7fbe1cd0fcc20051e1fcb87fbabec4a1bacaaeba"
+  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -723,7 +718,7 @@
   revision = "383e8b2c3b9e36c4076b235b32537292176bae20"
 
 [[projects]]
-  digest = "1:9edd250a3c46675d0679d87540b30c9ed253b19bd1fd1af08f4f5fb3c79fc487"
+  digest = "1:9ab5a33d8cb5c120602a34d2e985ce17956a4e8c2edce7e6961568f95e40c09a"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -759,8 +754,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "df014850f6dee74ba2fc94874043a9f3f75fbfd8"
-  version = "v1.17.0"
+  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
+  version = "v1.18.0"
 
 [[projects]]
   branch = "v2"
