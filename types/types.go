@@ -118,10 +118,7 @@ var (
 func init() {
 	//TODO
 	//config := types.GetConfig()
-	//config.SetBech32PrefixForAccount(server.Bech32.PrefixAccAddr, server.Bech32.PrefixAccPub)
-	//config.SetBech32PrefixForValidator(server.Bech32.PrefixValAddr, server.Bech32.PrefixValPub)
-	//config.SetBech32PrefixForConsensusNode(server.Bech32.PrefixAccAddr, server.Bech32.PrefixConsPub)
-	//config.Seal()
+	//types.SetNetworkType(types.Testnet)
 
 	cdc = app.MakeLatestCodec()
 }
