@@ -20,6 +20,7 @@ type SubmitSoftwareUpgradeProposal struct {
 	Version      uint64 `json:"version"`
 	Software     string `json:"software"`
 	SwitchHeight uint64 `json:"switch_height"`
+	Threshold    string `json:"threshold"`
 }
 
 type Param struct {
@@ -55,6 +56,7 @@ func NewSubmitSoftwareUpgradeProposal(msg MsgSubmitSoftwareUpgradeProposal) Subm
 		Version:        msg.Version,
 		Software:       msg.Software,
 		SwitchHeight:   msg.SwitchHeight,
+		Threshold:      msg.Threshold.String(),
 	}
 }
 
