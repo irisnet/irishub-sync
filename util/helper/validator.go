@@ -68,8 +68,16 @@ func GetDelegation(delAddr, valAddr string) (res types.Delegation) {
 	)
 	cdc := types.GetCodec()
 
-	delegatorAddr, _ := types.AccAddressFromBech32(delAddr)
-	validatorAddr, _ = types.ValAddressFromBech32(valAddr)
+	delegatorAddr, err := types.AccAddressFromBech32(delAddr)
+	if err != nil {
+		logger.Error("types.AccAddressFromBech32 err ", logger.String("err", err.Error()))
+		return
+	}
+	validatorAddr, err = types.ValAddressFromBech32(valAddr)
+	if err != nil {
+		logger.Error("types.ValAddressFromBech32 err ", logger.String("err", err.Error()))
+		return
+	}
 
 	key := types.GetDelegationKey(delegatorAddr, validatorAddr)
 
