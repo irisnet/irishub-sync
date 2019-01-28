@@ -69,6 +69,15 @@ func (s SubmitProposal) String() string {
 	return string(str)
 }
 
+func (s SubmitSoftwareUpgradeProposal) Type() string {
+	return constant.TxTypeSubmitProposal
+}
+
+func (s SubmitSoftwareUpgradeProposal) String() string {
+	str, _ := json.Marshal(s)
+	return string(str)
+}
+
 func UnmarshalSubmitProposal(str string) (submitProposal SubmitProposal) {
 	json.Unmarshal([]byte(str), &submitProposal)
 	return
