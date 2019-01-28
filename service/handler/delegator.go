@@ -48,7 +48,7 @@ func SaveOrUpdateDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 
 	switch docTx.Type {
 	case constant.TxTypeStakeCreateValidator:
-		modifyDelegator(docTx.From, docTx.From)
+		modifyDelegator(docTx.From, docTx.To)
 		break
 	case constant.TxTypeStakeEditValidator:
 		updateValidator(docTx.From)
