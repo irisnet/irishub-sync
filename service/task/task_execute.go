@@ -13,7 +13,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
 	"os"
-	"sync"
 	"time"
 )
 
@@ -271,16 +270,7 @@ func assertTaskValid(task document.SyncTask, blockNumPerWorkerHandle, blockChain
 }
 
 func parseBlock(b int64, client *helper.Client) (document.Block, error) {
-	var (
-		mutex    sync.Mutex
-		blockDoc document.Block
-	)
-
-	// define functions which should be executed
-	// during parse tx and block
-	funcChain := []handler.Action{
-		handler.SaveTx, handler.SaveAccount, handler.SaveOrUpdateDelegator,
-	}
+	var blockDoc document.Block
 
 	block, err := client.Block(&b)
 	if err != nil {
@@ -294,20 +284,9 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 		}
 	}
 
-	// save or update common_tx, tx_msg, proposal, delegator, candidate, account document
-	// TODO: saveOrUpdate above documents, save block and update sync task should be in a transaction.
-	// TODO  this task will be finished during second refactor plan.
-	if block.BlockMeta.Header.NumTxs > 0 {
-		txs := block.Block.Data.Txs
-		for _, txByte := range txs {
-			docTx := helper.ParseTx(txByte, block.Block)
-			txHash := helper.BuildHex(txByte.Hash())
-			if txHash == "" {
-				logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))
-				continue
-			}
-			handler.Handle(docTx, mutex, funcChain)
-		}
+	err = handler.HandleTx(block.Block)
+	if err != nil {
+		return blockDoc, err
 	}
 
 	// get validatorSet at given height
