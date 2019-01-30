@@ -33,3 +33,24 @@ func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 
 	return nil, nil
 }
+
+func TestParseTx(t *testing.T) {
+	client := GetClient()
+	// release client
+	defer client.Release()
+
+	height := int64(52373)
+	block, err := client.Block(&height)
+
+	if err != nil {
+		logger.Panic(err.Error())
+	}
+
+	if block.BlockMeta.Header.NumTxs > 0 {
+		txs := block.Block.Data.Txs
+		for _, tx := range txs {
+			ParseTx(tx, block.Block)
+		}
+	}
+
+}
