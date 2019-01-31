@@ -22,7 +22,7 @@ func StartExecuteTask() {
 		blockNumPerWorkerHandle int64
 		maxWorkerSleepTime      int64
 	)
-	log := logger.GetLogger("StartCreateTask")
+	log := logger.GetLogger("StartExecuteTask")
 
 	// get sync conf
 	syncConf, err := syncConfModel.GetConf()

@@ -110,7 +110,11 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			syncTasks = createCatchUpTask(followedHeight, blockNumPerWorker, currentBlockHeight)
 
 			invalidFollowTask = followTask
-			log.Info("Create catch up task during follow task exist", logger.Int64("from", followedHeight+1), logger.Int64("to", currentBlockHeight))
+			log.Info("Create catch up task during follow task exist",
+				logger.Int64("from", followedHeight+1),
+				logger.Int64("to", currentBlockHeight),
+				logger.String("invalidFollowTask_id", invalidFollowTask.ID.Hex()),
+				logger.Int64("invalidFollowTask_currentHeight", invalidFollowTask.CurrentHeight))
 		}
 	}
 
@@ -132,9 +136,11 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 
 	if invalidFollowTask.ID.Valid() {
 		op := txn.Op{
-			C:      document.CollectionNameSyncTask,
-			Id:     invalidFollowTask.ID,
-			Assert: txn.DocExists,
+			C:  document.CollectionNameSyncTask,
+			Id: invalidFollowTask.ID,
+			Assert: bson.M{
+				"current_height": invalidFollowTask.CurrentHeight,
+			},
 			Update: bson.M{
 				"$set": bson.M{
 					"status": document.FollowTaskStatusInvalid,
@@ -147,7 +153,7 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 	if len(ops) > 0 {
 		err := store.Txn(ops)
 		if err != nil {
-			log.Error("Create sync task fail", logger.String("err", err.Error()))
+			log.Warn("Create sync task fail", logger.String("err", err.Error()))
 		} else {
 			log.Info("Create sync task success")
 		}
