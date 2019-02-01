@@ -32,24 +32,8 @@ var (
 
 	ConsulAddr    = "192.168.150.7:8500"
 	SyncWithDLock = false
-	Bech32        = Bech32AddrPrefix{
-		PrefixAccAddr:  "faa",
-		PrefixAccPub:   "fap",
-		PrefixValAddr:  "fva",
-		PrefixValPub:   "fvp",
-		PrefixConsAddr: "fca",
-		PrefixConsPub:  "fcp",
-	}
+	Network       = "testnet"
 )
-
-type Bech32AddrPrefix struct {
-	PrefixAccAddr  string
-	PrefixAccPub   string
-	PrefixValAddr  string
-	PrefixValPub   string
-	PrefixConsAddr string
-	PrefixConsPub  string
-}
 
 // get value of env var
 func init() {
@@ -108,43 +92,9 @@ func init() {
 	}
 	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
 
-	loadBe32Prefix()
-}
-
-func loadBe32Prefix() {
-	prefixAccAddr, found := os.LookupEnv(constant.EnvNamePrefixAccAddr)
+	network, found := os.LookupEnv(constant.EnvNameNetwork)
 	if found {
-		Bech32.PrefixAccAddr = prefixAccAddr
+		Network = network
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixAccAddr, Bech32.PrefixAccAddr))
-
-	prefixAccPub, found := os.LookupEnv(constant.EnvNamePrefixAccPub)
-	if found {
-		Bech32.PrefixAccPub = prefixAccPub
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixAccPub, Bech32.PrefixAccPub))
-
-	prefixValAddr, found := os.LookupEnv(constant.EnvNamePrefixValAddr)
-	if found {
-		Bech32.PrefixValAddr = prefixValAddr
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixValAddr, Bech32.PrefixValAddr))
-
-	prefixValPub, found := os.LookupEnv(constant.EnvNamePrefixValPub)
-	if found {
-		Bech32.PrefixValPub = prefixValPub
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixValPub, Bech32.PrefixValPub))
-
-	prefixConsAddr, found := os.LookupEnv(constant.EnvNamePrefixConsAddr)
-	if found {
-		Bech32.PrefixConsAddr = prefixConsAddr
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixConsAddr, Bech32.PrefixConsAddr))
-
-	prefixConsPub, found := os.LookupEnv(constant.EnvNamePrefixConsPub)
-	if found {
-		Bech32.PrefixConsPub = prefixConsPub
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixConsPub, Bech32.PrefixConsPub))
+	logger.Info("Env Value", logger.String(constant.EnvNameNetwork, network))
 }

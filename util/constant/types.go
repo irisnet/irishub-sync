@@ -19,7 +19,6 @@ const (
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
 
-
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"
 	EnvNameDbPassWd   = "DB_PASSWD"
@@ -36,13 +35,7 @@ const (
 	EnvNameWorkerNumCreateTask      = "WORKER_NUM_CREATE_TASK"
 	EnvNameWorkerNumExecuteTask     = "WORKER_NUM_EXECUTE_TASK"
 
-	//bech32Prefix
-	EnvNamePrefixAccAddr  = "PrefixAccAddr"
-	EnvNamePrefixAccPub   = "PrefixAccPub"
-	EnvNamePrefixValAddr  = "PrefixValAddr"
-	EnvNamePrefixValPub   = "PrefixValPub"
-	EnvNamePrefixConsAddr = "PrefixConsAddr"
-	EnvNamePrefixConsPub  = "PrefixConsPub"
+	EnvNameNetwork = "NETWORK"
 
 	EnvLogFileName    = "LOG_FILE_NAME"
 	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
@@ -66,4 +59,6 @@ const (
 	StatusVotingPeriod  = "VotingPeriod"
 	StatusPassed        = "Passed"
 	StatusRejected      = "Rejected"
+
+	NetworkMainnet = "mainnet"
 )
