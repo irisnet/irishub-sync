@@ -825,6 +825,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/go-kit/kit/metrics",
+    "github.com/go-kit/kit/metrics/prometheus",
     "github.com/hashicorp/consul/api",
     "github.com/irisnet/irishub/app",
     "github.com/irisnet/irishub/client/utils",
@@ -833,6 +835,7 @@
     "github.com/irisnet/irishub/modules/bank",
     "github.com/irisnet/irishub/modules/distribution",
     "github.com/irisnet/irishub/modules/distribution/tags",
+    "github.com/irisnet/irishub/modules/distribution/types",
     "github.com/irisnet/irishub/modules/gov",
     "github.com/irisnet/irishub/modules/gov/tags",
     "github.com/irisnet/irishub/modules/slashing",
@@ -842,6 +845,8 @@
     "github.com/irisnet/irishub/types",
     "github.com/jolestar/go-commons-pool",
     "github.com/pkg/errors",
+    "github.com/prometheus/client_golang/prometheus",
+    "github.com/prometheus/client_golang/prometheus/promhttp",
     "github.com/robfig/cron",
     "github.com/stretchr/testify/require",
     "github.com/tendermint/tendermint/abci/types",
