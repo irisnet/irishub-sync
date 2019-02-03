@@ -39,10 +39,5 @@ run script `mongodb.js` in `mongodb` folder to create database before run projec
 - WORKER_NUM_CREATE_TASK: `required` `string` 执行任务创建的线程数（example: `2`）
 - WORKER_NUM_EXECUTE_TASK: `required` `string` 执行任务执行的线程数（example: `30`）
 
-- PrefixAccAddr: `option` `string` 普通用户地址前缀（default: `faa`）
-- PrefixAccPub: `option` `string` 普通用户 public key 前缀（default: `fap`）
-- PrefixConsAddr: `option` `string` 共识用户地址前缀（default: `fca`）
-- PrefixConsPub: `option` `string` 共识用户 public key 前缀（default: `fcp`）
-- PrefixValAddr: `option` `string` 验证人地址前缀（default: `fva`）
-- PrefixValPub: `option` `string` 验证人 public key 前缀（default: `fvp`）
+- NETWORK: `option` `string` 网络类型（example: `testnet,mainnet`）
 - CRON_SAVE_VALIDATOR_HISTORY: `option` `string` 保存验证人历史的定时任务（default: `@daily`）

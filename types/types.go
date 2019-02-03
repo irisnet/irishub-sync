@@ -2,8 +2,10 @@ package types
 
 import (
 	"fmt"
+	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub/app"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
@@ -116,10 +118,9 @@ var (
 
 // 初始化账户地址前缀
 func init() {
-	//TODO
-	//config := types.GetConfig()
-	//types.SetNetworkType(types.Testnet)
-
+	if server.Network == constant.NetworkMainnet {
+		types.SetNetworkType(types.Mainnet)
+	}
 	cdc = app.MakeLatestCodec()
 }
 
