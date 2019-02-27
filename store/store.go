@@ -32,17 +32,17 @@ func Start() {
 		Database:  conf.Database,
 		Username:  conf.User,
 		Password:  conf.Passwd,
-		Direct:    false,
+		Direct:    true,
 		Timeout:   time.Second * 10,
 		PoolLimit: 4096, // Session.SetPoolLimit
 	}
 
 	var err error
 	session, err = mgo.DialWithInfo(dialInfo)
-	session.SetMode(mgo.Monotonic, true)
 	if err != nil {
 		logger.Error(err.Error())
 	}
+	session.SetMode(mgo.Monotonic, true)
 }
 
 func Stop() {
