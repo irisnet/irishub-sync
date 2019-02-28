@@ -124,45 +124,47 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 			}
 		}()
 
-		for {
-			select {
-			case <-healthCheckQuit:
-				logger.Info("get health check quit signal, now exit health check")
-				return
-			default:
-				task, err := syncTaskModel.GetTaskByIdAndWorker(taskId, workerId)
-				if err == nil {
-					blockChainLatestHeight, err := getBlockChainLatestHeight()
+		func() {
+			for {
+				select {
+				case <-healthCheckQuit:
+					logger.Info("get health check quit signal, now exit health check")
+					return
+				default:
+					task, err := syncTaskModel.GetTaskByIdAndWorker(taskId, workerId)
 					if err == nil {
-						if assertTaskValid(task, blockNumPerWorkerHandle, blockChainLatestHeight) {
-							// update task last update time
-							if err := syncTaskModel.UpdateLastUpdateTime(task); err != nil {
-								log.Error("update last update time fail", logger.String("err", err.Error()),
-									logger.String("task_id", task.ID.Hex()))
+						blockChainLatestHeight, err := getBlockChainLatestHeight()
+						if err == nil {
+							if assertTaskValid(task, blockNumPerWorkerHandle, blockChainLatestHeight) {
+								// update task last update time
+								if err := syncTaskModel.UpdateLastUpdateTime(task); err != nil {
+									log.Error("update last update time fail", logger.String("err", err.Error()),
+										logger.String("task_id", task.ID.Hex()))
+								}
+								logger.Info("health check success, now sleep one minute",
+									logger.String("task_id", task.ID.Hex()),
+									logger.String("task_current_worker", task.WorkerId))
+							} else {
+								log.Info("task is invalid, exit health check", logger.String("task_id", taskId.Hex()))
+								return
 							}
-							logger.Info("health check success, now sleep one minute",
-								logger.String("task_id", task.ID.Hex()),
-								logger.String("task_current_worker", task.WorkerId))
 						} else {
-							log.Info("task is invalid, exit health check", logger.String("task_id", taskId.Hex()))
-							break
+							log.Error("get block chain latest height fail", logger.String("err", err.Error()))
 						}
 					} else {
-						log.Error("get block chain latest height fail", logger.String("err", err.Error()))
-					}
-				} else {
-					if err == mgo.ErrNotFound {
-						log.Info("task may be task over by other goroutine, exit health check",
-							logger.String("task_id", taskId.Hex()), logger.String("current_worker", workerId))
-						break
-					} else {
-						log.Error("get task by id and worker fail", logger.String("task_id", taskId.Hex()),
-							logger.String("current_worker", workerId))
+						if err == mgo.ErrNotFound {
+							log.Info("task may be task over by other goroutine, exit health check",
+								logger.String("task_id", taskId.Hex()), logger.String("current_worker", workerId))
+							return
+						} else {
+							log.Error("get task by id and worker fail", logger.String("task_id", taskId.Hex()),
+								logger.String("current_worker", workerId))
+						}
 					}
 				}
 				time.Sleep(1 * time.Minute)
 			}
-		}
+		}()
 	}
 	go workerHealthCheck(task.ID, workerId)
 
