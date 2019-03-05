@@ -42,7 +42,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		logger.Error("get txResult err", logger.String("method", methodName), logger.String("err", err.Error()))
 	}
 	log := result.Log
-	gasUsed := result.GasUsed
+	gasUsed := Min(result.GasUsed, fee.Gas)
 	if len(fee.Amount) > 0 {
 		gasPrice = fee.Amount[0].Amount / float64(fee.Gas)
 		actualFee = store.ActualFee{

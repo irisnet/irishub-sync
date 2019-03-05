@@ -77,3 +77,10 @@ func Map2Struct(srcMap map[string]interface{}, obj interface{}) {
 		logger.Error("map convert to struct failed")
 	}
 }
+
+func Min(x, y int64) int64 {
+	if x < y {
+		return x
+	}
+	return y
+}
