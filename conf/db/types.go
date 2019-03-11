@@ -25,13 +25,11 @@ func init() {
 	if found {
 		User = user
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbUser, User))
 
 	passwd, found := os.LookupEnv(constant.EnvNameDbPassWd)
 	if found {
 		Passwd = passwd
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbPassWd, Passwd))
 
 	database, found := os.LookupEnv(constant.EnvNameDbDataBase)
 	if found {
