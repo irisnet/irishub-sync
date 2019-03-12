@@ -171,7 +171,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeUnjail
+	case itypes.MsgSetWithdrawAddress:
+		msg := msg.(itypes.MsgSetWithdrawAddress)
 
+		docTx.From = msg.DelegatorAddr.String()
+		docTx.To = msg.WithdrawAddr.String()
+		docTx.Type = constant.TxTypeSetWithdrawAddress
+		docTx.Msg = itypes.NewSetWithdrawAddressMsg(msg)
 	case itypes.MsgWithdrawDelegatorReward:
 		msg := msg.(itypes.MsgWithdrawDelegatorReward)
 

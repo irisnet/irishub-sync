@@ -3,8 +3,8 @@
 package helper
 
 import (
+	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/types"
 	"os"
 	"testing"
 )
@@ -15,12 +15,14 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
+func TestParseTx(t *testing.T) {
 	client := GetClient()
 	// release client
 	defer client.Release()
 
-	block, err := client.Client.Block(&blockHeight)
+	var height = int64(103)
+
+	block, err := client.Client.Block(&height)
 
 	if err != nil {
 		logger.Panic(err.Error())
@@ -28,8 +30,8 @@ func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
 
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
-		return txs[0], block.Block
+		tx := ParseTx(txs[0], block.Block)
+		fmt.Println(tx)
 	}
 
-	return nil, nil
 }
