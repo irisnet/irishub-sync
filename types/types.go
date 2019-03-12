@@ -13,6 +13,7 @@ import (
 	"github.com/irisnet/irishub/modules/bank"
 	"github.com/irisnet/irishub/modules/distribution"
 	dtags "github.com/irisnet/irishub/modules/distribution/tags"
+	dtypes "github.com/irisnet/irishub/modules/distribution/types"
 	"github.com/irisnet/irishub/modules/gov"
 	"github.com/irisnet/irishub/modules/gov/tags"
 	"github.com/irisnet/irishub/modules/slashing"
@@ -33,13 +34,13 @@ import (
 type (
 	MsgTransfer = bank.MsgSend
 
-	MsgStakeCreate         = stake.MsgCreateValidator
-	MsgStakeEdit           = stake.MsgEditValidator
-	MsgStakeDelegate       = stake.MsgDelegate
-	MsgStakeBeginUnbonding = stake.MsgBeginUnbonding
-	MsgBeginRedelegate     = stake.MsgBeginRedelegate
-	MsgUnjail              = slashing.MsgUnjail
-	//MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
+	MsgStakeCreate                 = stake.MsgCreateValidator
+	MsgStakeEdit                   = stake.MsgEditValidator
+	MsgStakeDelegate               = stake.MsgDelegate
+	MsgStakeBeginUnbonding         = stake.MsgBeginUnbonding
+	MsgBeginRedelegate             = stake.MsgBeginRedelegate
+	MsgUnjail                      = slashing.MsgUnjail
+	MsgSetWithdrawAddress          = dtypes.MsgSetWithdrawAddress
 	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
 	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
 	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll
