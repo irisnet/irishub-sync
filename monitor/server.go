@@ -1,47 +1,57 @@
 package monitor
 
 import (
-	"encoding/json"
-	"github.com/gorilla/mux"
+	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/monitor/status"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"time"
 )
 
 type Monitor struct {
-	*http.Server
+	providers []MetricsProvider
 }
 
 func NewMonitor() *Monitor {
-	router := getRouter()
-	server := &http.Server{
-		IdleTimeout: 10 * time.Second,
-		Addr:        ":8080",
-		Handler:     router,
+	var providers []MetricsProvider
+	monitor := &Monitor{
+		providers: providers,
 	}
-	return &Monitor{
-		server,
-	}
+	monitor.AddMetricsProvider(status.PrometheusMetrics())
+	return monitor
 }
 
-func (s *Monitor) Start() {
-	logger.Info("#########################start monitor service##########################")
+func (m *Monitor) AddMetricsProvider(provider MetricsProvider) *Monitor {
+	m.providers = append(m.providers, provider)
+	return m
+}
+
+func (m *Monitor) Start() {
+	var startMetris = func() {
+		for {
+			t := time.NewTimer(time.Duration(5) * time.Second)
+			select {
+			case <-t.C:
+				for _, provider := range m.providers {
+					go provider.Report()
+				}
+			}
+		}
+	}
+
+	go startMetris()
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", 8080),
+		Handler: promhttp.Handler(),
+	}
 	go func() {
-		if err := s.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServe(); err == nil {
 			logger.Error("start monitor error", logger.String("error", err.Error()))
 		}
 	}()
 }
 
-func getRouter() *mux.Router {
-	r := mux.NewRouter()
-	s := r.PathPrefix("/monitor").Subrouter()
-	registerNetwork(s)
-	return r
-}
-
-func write(writer http.ResponseWriter, data interface{}) {
-	if bz, err := json.Marshal(data); err == nil {
-		writer.Write(bz)
-	}
+type MetricsProvider interface {
+	Report()
 }
