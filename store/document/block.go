@@ -215,3 +215,25 @@ func (d Block) CalculateValidatorPreCommit(startBlock, endBlock int64) ([]ResVal
 
 	return res, nil
 }
+
+func (d Block) GetMaxBlockHeight() int64 {
+	var result struct {
+		MaxHeight int64 `bson:"max"`
+	}
+
+	q := []bson.M{
+		{
+			"$group": bson.M{
+				"_id": nil,
+				"max": bson.M{"$max": "$height"},
+			},
+		},
+	}
+
+	getMaxBlockHeightFn := func(c *mgo.Collection) error {
+		return c.Pipe(q).One(&result)
+	}
+	store.ExecCollection(d.Name(), getMaxBlockHeightFn)
+
+	return result.MaxHeight
+}
