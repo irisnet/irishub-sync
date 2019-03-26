@@ -39,7 +39,7 @@ func PrometheusMetrics() *Metrics {
 			Namespace: "sync",
 			Subsystem: "status",
 			Name:      "node_status",
-			Help:      "full node status",
+			Help:      "full node status(1:NotReachable,2:CatchingUp,3:Syncing)",
 		}, []string{}),
 	}
 }
