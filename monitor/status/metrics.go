@@ -58,7 +58,11 @@ func (cs *Metrics) Report() {
 	// node height
 	cs.NodeHeight.Set(float64(status.SyncInfo.LatestBlockHeight))
 	// db height
-	cs.DbHeight.Set(float64(document.Block{}.GetMaxBlockHeight()))
+	height, err := document.Block{}.GetMaxBlockHeight()
+	if err != nil {
+		logger.Error("query block exception", logger.String("error", err.Error()))
+	}
+	cs.DbHeight.Set(float64(height))
 	if status.SyncInfo.CatchingUp {
 		cs.NodeStatus.Set(float64(NodeStatusCatchingUp))
 	} else {
