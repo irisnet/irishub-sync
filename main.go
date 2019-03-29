@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/monitor"
 	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/helper"
@@ -33,6 +34,8 @@ func main() {
 	//#########################开启同步服务##########################
 	logger.Info("#########################开启同步服务##########################")
 	engine.Start()
+	// start monitor
+	monitor.NewMonitor().Start()
 	//阻塞直至有信号传入
 	<-c
 }
