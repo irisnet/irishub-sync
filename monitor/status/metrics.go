@@ -45,7 +45,12 @@ func PrometheusMetrics() *Metrics {
 }
 
 func (cs *Metrics) Report() {
-	client := helper.GetClient()
+	client, err := helper.GetClientWithTimeout()
+	if err != nil {
+		logger.Error("rpc node connection exception", logger.String("error", err.Error()))
+		cs.NodeStatus.Set(float64(NodeStatusNotReachable))
+		return
+	}
 	defer func() {
 		client.Release()
 	}()

@@ -28,14 +28,14 @@ func main() {
 	}()
 	//监听指定信号
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	// start monitor
+	go monitor.NewMonitor().Start()
 	//#########################开启数据库服务##########################
 	logger.Info("#########################开启数据库服务##########################")
 	store.Start()
 	//#########################开启同步服务##########################
 	logger.Info("#########################开启同步服务##########################")
 	engine.Start()
-	// start monitor
-	monitor.NewMonitor().Start()
 	//阻塞直至有信号传入
 	<-c
 }
