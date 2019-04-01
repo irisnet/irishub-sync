@@ -7,6 +7,7 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"time"
 )
 
 const (
@@ -45,7 +46,7 @@ func PrometheusMetrics() *Metrics {
 }
 
 func (cs *Metrics) Report() {
-	client, err := helper.GetClientWithTimeout()
+	client, err := helper.GetClientWithTimeout(10 * time.Second)
 	if err != nil {
 		logger.Error("rpc node connection exception", logger.String("error", err.Error()))
 		cs.NodeStatus.Set(float64(NodeStatusNotReachable))

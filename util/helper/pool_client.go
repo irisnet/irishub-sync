@@ -38,7 +38,7 @@ func GetClient() *Client {
 	return c.(*Client)
 }
 
-func GetClientWithTimeout() (*Client, error) {
+func GetClientWithTimeout(timeout time.Duration) (*Client, error) {
 
 	c := make(chan interface{})
 	errCh := make(chan error)
@@ -55,7 +55,7 @@ func GetClientWithTimeout() (*Client, error) {
 		return res.(*Client), nil
 	case res := <-errCh:
 		return nil, res
-	case <-time.After(time.Second * 10):
+	case <-time.After(timeout):
 		return nil, errors.New("rpc node timeout")
 	}
 }
