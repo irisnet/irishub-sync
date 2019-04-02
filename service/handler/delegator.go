@@ -7,7 +7,6 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"sync"
 )
 
 // init delegator for genesis validator
@@ -42,7 +41,7 @@ func InitDelegator() {
 //TxTypeBeginRedelegate
 //	1:update validator(src,dest) (---> CompareAndUpdateValidators)
 //	2:update delegator(src,dest)
-func SaveOrUpdateDelegator(docTx document.CommonTx, mutex sync.Mutex) {
+func SaveOrUpdateDelegator(docTx document.CommonTx) {
 
 	logger.Debug("Start", logger.String("method", "saveDelegator"))
 

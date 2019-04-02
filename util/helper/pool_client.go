@@ -4,10 +4,11 @@
 package helper
 
 import (
+	"errors"
+	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"time"
-	"fmt"
 )
 
 type Client struct {
@@ -37,6 +38,28 @@ func GetClient() *Client {
 	return c.(*Client)
 }
 
+func GetClientWithTimeout(timeout time.Duration) (*Client, error) {
+
+	c := make(chan interface{})
+	errCh := make(chan error)
+	go func() {
+		client, err := pool.BorrowObject(ctx)
+		if err != nil {
+			errCh <- err
+		} else {
+			c <- client
+		}
+	}()
+	select {
+	case res := <-c:
+		return res.(*Client), nil
+	case res := <-errCh:
+		return nil, res
+	case <-time.After(timeout):
+		return nil, errors.New("rpc node timeout")
+	}
+}
+
 // release client
 func (c *Client) Release() {
 	err := pool.ReturnObject(ctx, c)
@@ -52,7 +75,6 @@ func (c *Client) HeartBeat() error {
 	_, err := http.Health()
 	return err
 }
-
 
 func generateId(address string) string {
 	return fmt.Sprintf("peer[%s]", address)

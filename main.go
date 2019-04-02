@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/monitor"
 	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/helper"
@@ -27,6 +28,8 @@ func main() {
 	}()
 	//监听指定信号
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	// start monitor
+	go monitor.NewMonitor().Start()
 	//#########################开启数据库服务##########################
 	logger.Info("#########################开启数据库服务##########################")
 	store.Start()

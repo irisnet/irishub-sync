@@ -25,6 +25,7 @@ db.createCollection("sync_conf");
 db.createCollection("validator_history");
 db.createCollection("mgo_txn");
 db.createCollection("mgo_txn.stash");
+db.createCollection("ex_tx_num_stat");
 
 
 // create index
@@ -56,6 +57,7 @@ db.validator_up_time.createIndex({"val_address": 1}, {"unique": true});
 db.tx_gas.createIndex({"tx_type": 1}, {"unique": true});
 db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
 db.tx_msg.createIndex({"hash": 1}, {"unique": true});
+db.ex_tx_num_stat.createIndex({"date": -1}, {"unique": true});
 
 // init data
 db.sync_conf.insert({"block_num_per_worker_handle": 50, "max_worker_sleep_time": 120});
