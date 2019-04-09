@@ -2,11 +2,9 @@ package handler
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"sort"
 )
 
 // compare validatorSet stored in irishub and validatorSet stored in db
@@ -47,8 +45,6 @@ func CompareAndUpdateValidators() {
 		if err := candidateModel.RemoveCandidates(); err != nil {
 			logger.Error("RemoveCandidates err ", logger.String("method", methodName), logger.String("err", err.Error()))
 		}
-
-		updateValidatorsRank(chainValidators)
 
 		// store latest validators into db
 		if err := candidateModel.SaveAll(chainValidators); err != nil {
@@ -139,42 +135,4 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 	}
 	logger.Info("Validators Set is not changed ")
 	return false
-}
-
-func updateValidatorsRank(candidates []document.Candidate) {
-	sort.SliceStable(candidates, func(i, j int) bool {
-		return candidates[i].Tokens > candidates[j].Tokens
-	})
-
-	var rank int
-	for index, _ := range candidates {
-		rank = index + 1
-		if index >= 1 {
-			if candidates[index-1].Tokens == candidates[index].Tokens {
-				rank = candidates[index-1].Rank
-			}
-		}
-		candidates[index].Rank = rank
-	}
-}
-
-func updateValidator(valAddress string) {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error("updateValidator panic", logger.Any("ex", err))
-		}
-	}()
-	//var canCollection  document.Candidate
-
-	validator, err := helper.GetValidator(valAddress)
-	if err != nil {
-		logger.Error("validator not existed", logger.String("validator", valAddress))
-		return
-	}
-
-	editValidator := BuildValidatorDocument(validator)
-	if err := store.Update(editValidator); err != nil {
-		logger.Error("update candidate error", logger.String("address", valAddress))
-	}
-	logger.Info("Update candidate success", logger.String("Address", valAddress))
 }

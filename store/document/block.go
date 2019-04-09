@@ -10,13 +10,7 @@ import (
 const (
 	CollectionNmBlock = "block"
 
-	Block_Field_Height     = "height"
-	Block_Field_Hash       = "hash"
-	Block_Field_Time       = "time"
-	Block_Field_NumTxs     = "num_txs"
-	Block_Field_Meta       = "meta"
-	Block_Field_Block      = "block"
-	Block_Field_Validators = "validators"
+	Block_Field_Height = "height"
 )
 
 type Block struct {

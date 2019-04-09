@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/service/task"
 	"github.com/robfig/cron"
 	"time"
@@ -19,14 +18,7 @@ func init() {
 		initFuncs: []func(){},
 	}
 
-	engine.AddTask(task.MakeCalculateAndSaveValidatorUpTimeTask())
-	engine.AddTask(task.MakeCalculateTxGasAndGasPriceTask())
 	engine.AddTask(task.MakeSyncProposalStatusTask())
-	engine.AddTask(task.MakeValidatorHistoryTask())
-	engine.AddTask(task.MakeUpdateDelegatorTask())
-
-	// init delegator for genesis validator
-	engine.initFuncs = append(engine.initFuncs, handler.InitDelegator)
 }
 
 type SyncEngine struct {

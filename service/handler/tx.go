@@ -34,9 +34,7 @@ func HandleTx(block *types.Block) error {
 			}
 			batch = append(batch, txOp)
 		}
-		// TODO(deal with by biz system)
 		handleProposal(tx)
-		SaveOrUpdateDelegator(tx)
 	}
 
 	if len(batch) > 0 {
