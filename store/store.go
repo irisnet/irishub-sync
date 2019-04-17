@@ -16,14 +16,7 @@ import (
 	"gopkg.in/mgo.v2/txn"
 )
 
-var (
-	session *mgo.Session
-	docs    []Docs
-)
-
-func RegisterDocs(d Docs) {
-	docs = append(docs, d)
-}
+var session *mgo.Session
 
 func Start() {
 	addrs := strings.Split(conf.Addrs, ",")

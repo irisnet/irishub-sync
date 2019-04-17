@@ -10,17 +10,8 @@ import (
 const (
 	CollectionNmProposal = "proposal"
 
-	Proposal_Field_ProposalId      = "proposal_id"
-	Proposal_Field_Title           = "title"
-	Proposal_Field_Type            = "type"
-	Proposal_Field_Description     = "description"
-	Proposal_Field_Status          = "status"
-	Proposal_Field_SubmitTime      = "submit_time"
-	Proposal_Field_DepositEndTime  = "deposit_end_time"
-	Proposal_Field_VotingStartTime = "voting_start_time"
-	Proposal_Field_VotingEndTime   = "voting_end_time"
-	Proposal_Field_TotalDeposit    = "total_deposit"
-	Proposal_Field_Votes           = "votes"
+	Proposal_Field_ProposalId = "proposal_id"
+	Proposal_Field_Status     = "status"
 )
 
 type Proposal struct {

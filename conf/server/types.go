@@ -10,25 +10,15 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = []string{"tcp://192.168.150.7:30657"}
-	ChainId              = "rainbow-dev"
+	BlockChainMonitorUrl = []string{"tcp://35.201.147.145:30657"}
+	ChainId              = "fuxi"
 
 	WorkerNumCreateTask  = 2
 	WorkerNumExecuteTask = 60
 
-	InitConnectionNum        = 50              // fast init num of tendermint client pool
-	MaxConnectionNum         = 100             // max size of tendermint client pool
-	CronWatchBlock           = "*/1 * * * * *" // every 1 seconds
-	CronCalculateUpTime      = "0 */1 * * * *" // every minute
-	CronCalculateTxGas       = "0 */5 * * * *" // every five minute
-	SyncProposalStatus       = "0 */1 * * * *" // every minute
-	CronSaveValidatorHistory = "@daily"        // every day
-	CronUpdateDelegator      = "0/5 * * * * *" // every ten minute
-
-	// deprecated
-	SyncMaxGoroutine = 60 // max go routine in server
-	// deprecated
-	SyncBlockNumFastSync = 8000 // sync block num each goroutine
+	InitConnectionNum  = 50              // fast init num of tendermint client pool
+	MaxConnectionNum   = 100             // max size of tendermint client pool
+	SyncProposalStatus = "0 */1 * * * *" // every minute
 
 	ConsulAddr    = "192.168.150.7:8500"
 	SyncWithDLock = false
@@ -65,12 +55,6 @@ func init() {
 		SyncWithDLock = flag
 	}
 	logger.Info("Env Value", logger.Bool(constant.EnvNameSyncWithDLock, SyncWithDLock))
-
-	cronSaveValidatorHistory, found := os.LookupEnv(constant.EnvNameCronSaveValidatorHistory)
-	if found {
-		CronSaveValidatorHistory = cronSaveValidatorHistory
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
 
 	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
 	if found {
