@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = []string{"tcp://irisnet-rpc.dev.rainbow.one:26657"}
+	BlockChainMonitorUrl = []string{"tcp://35.201.147.145:30657"}
 	ChainId              = "fuxi"
 
 	WorkerNumCreateTask  = 2
