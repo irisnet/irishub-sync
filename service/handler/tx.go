@@ -34,6 +34,7 @@ func HandleTx(block *types.Block, blockWithTags document.Block) error {
 			}
 			batch = append(batch, txOp)
 		}
+		//TODO: return txOps and save it
 		handleProposal(tx)
 		txOps := handleTokenFlow(blockWithTags, tx)
 		batch = append(batch, txOps...)

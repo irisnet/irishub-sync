@@ -26,6 +26,7 @@ db.createCollection("ex_tx_num_stat");
 
 
 // create index
+db.token_flow.createIndex({"block_height": -1});
 db.account.createIndex({"address": 1}, {"unique": true});
 db.block.createIndex({"height": -1}, {"unique": true});
 

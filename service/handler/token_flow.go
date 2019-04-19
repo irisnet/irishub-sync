@@ -18,7 +18,7 @@ func handleTokenFlow(blockWithtags document.Block, tx document.CommonTx) []txn.O
 				tokenFlow.BlockHeight = blockWithtags.Height
 				tokenFlow.BlockHash = blockWithtags.Hash
 				txOp := txn.Op{
-					C:      document.CollectionNmCommonTokenFlow,
+					C:      document.CollectionNmTokenFlow,
 					Id:     bson.NewObjectId(),
 					Insert: tokenFlow,
 				}
@@ -29,8 +29,8 @@ func handleTokenFlow(blockWithtags document.Block, tx document.CommonTx) []txn.O
 	return result
 }
 
-func parseTagsAndTx(tx document.CommonTx, tagStr string) (document.CommonTokenFlow, bool) {
-	var result document.CommonTokenFlow
+func parseTagsAndTx(tx document.CommonTx, tagStr string) (document.TokenFlow, bool) {
+	var result document.TokenFlow
 	fromToValue := strings.Split(tagStr, "::")
 	if len(fromToValue) != 6 {
 		return result, false

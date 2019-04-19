@@ -3,10 +3,10 @@ package document
 import "github.com/irisnet/irishub-sync/store"
 
 const (
-	CollectionNmCommonTokenFlow = "token_flow"
+	CollectionNmTokenFlow = "token_flow"
 )
 
-type CommonTokenFlow struct {
+type TokenFlow struct {
 	BlockHeight int64      `bson:"block_height"`
 	BlockHash   string     `bson:"block_hash"`
 	TxHash      string     `bson:"tx_hash"`
