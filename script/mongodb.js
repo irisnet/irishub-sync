@@ -23,7 +23,6 @@ db.createCollection("mgo_txn");
 db.createCollection("mgo_txn.stash");
 db.createCollection("ex_tx_num_stat");
 
-Flow
 
 
 // create index
