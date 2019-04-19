@@ -9,7 +9,7 @@ import (
 	"gopkg.in/mgo.v2/txn"
 )
 
-func HandleTx(block *types.Block) error {
+func HandleTx(block *types.Block, blockWithTags document.Block) error {
 	var batch []txn.Op
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
@@ -35,6 +35,8 @@ func HandleTx(block *types.Block) error {
 			batch = append(batch, txOp)
 		}
 		handleProposal(tx)
+		txOps := handleTokenFlow(blockWithTags, tx)
+		batch = append(batch, txOps...)
 	}
 
 	if len(batch) > 0 {

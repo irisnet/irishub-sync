@@ -1,13 +1,14 @@
 package db
 
 import (
+	"os"
+
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/util/constant"
-	"os"
 )
 
 var (
-	Addrs    = "192.168.150.7:30000"
+	Addrs    = "10.1.4.166:27017"
 	User     = "iris"
 	Passwd   = "irispassword"
 	Database = "sync-iris"

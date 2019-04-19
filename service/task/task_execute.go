@@ -2,6 +2,9 @@ package task
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	serverConf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/service/handler"
@@ -12,8 +15,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
-	"os"
-	"time"
 )
 
 func StartExecuteTask() {
@@ -284,11 +285,6 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 		}
 	}
 
-	err = handler.HandleTx(block.Block)
-	if err != nil {
-		return blockDoc, err
-	}
-
 	// get validatorSet at given height
 	var validators []*types.Validator
 	res, err := client.Validators(&b)
@@ -298,7 +294,13 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 		validators = res.Validators
 	}
 
-	return handler.ParseBlock(block.BlockMeta, block.Block, validators), nil
+	blockWithTags := handler.ParseBlock(block.BlockMeta, block.Block, validators)
+	err = handler.HandleTx(block.Block, blockWithTags)
+	if err != nil {
+		return blockDoc, err
+	}
+
+	return blockWithTags, nil
 }
 
 // assert task worker unchanged
