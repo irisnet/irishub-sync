@@ -92,7 +92,7 @@ func (f *PoolFactory) ValidateObject(ctx context.Context, object *gcp.PooledObje
 		value, ok := f.peersMap.Load(c.Id)
 		if ok {
 			endPoint := value.(EndPoint)
-			endPoint.Available = true
+			endPoint.Available = false
 			f.peersMap.Store(c.Id, endPoint)
 		}
 		return false

@@ -85,7 +85,7 @@ func buildTxGas(txs []document.CommonTx) document.TxGas {
 			minGasUsed = v.GasUsed
 		}
 		if v.GasUsed > maxGasUsed {
-			minGasUsed = v.GasUsed
+			maxGasUsed = v.GasUsed
 		}
 		totalGasUsed += float64(v.GasUsed)
 

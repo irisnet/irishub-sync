@@ -1,39 +1,49 @@
 package handler
 
 import (
-	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	"sync"
+	"github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/util/helper"
+	"gopkg.in/mgo.v2/bson"
+	"gopkg.in/mgo.v2/txn"
 )
 
-// save Tx document into collection
-func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
-	var (
-		methodName = "SaveTx"
-	)
-	logger.Debug("Start", logger.String("method", methodName))
-
-	// save common docTx document
-	saveCommonTx := func(commonTx document.CommonTx) {
-		//save tx
-		err := store.Save(commonTx)
-		if err != nil {
-			logger.Error("Save commonTx failed", logger.Any("Tx", commonTx), logger.String("err", err.Error()))
+func HandleTx(block *types.Block) error {
+	var batch []txn.Op
+	for _, txByte := range block.Txs {
+		tx := helper.ParseTx(txByte, block)
+		txOp := txn.Op{
+			C:      document.CollectionNmCommonTx,
+			Id:     bson.NewObjectId(),
+			Insert: tx,
 		}
-		//save tx_msg
-		msg := commonTx.Msg
+		batch = append(batch, txOp)
+
+		msg := tx.Msg
 		if msg != nil {
 			txMsg := document.TxMsg{
-				Hash:    docTx.TxHash,
+				Hash:    tx.TxHash,
 				Type:    msg.Type(),
 				Content: msg.String(),
 			}
-			store.Save(txMsg)
+			txOp := txn.Op{
+				C:      document.CollectionNmTxMsg,
+				Id:     bson.NewObjectId(),
+				Insert: txMsg,
+			}
+			batch = append(batch, txOp)
 		}
-		handleProposal(commonTx)
+		// TODO(deal with by biz system)
+		handleProposal(tx)
+		SaveOrUpdateDelegator(tx)
 	}
 
-	saveCommonTx(docTx)
-	logger.Debug("End", logger.String("method", methodName))
+	if len(batch) > 0 {
+		err := store.Txn(batch)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
