@@ -65,9 +65,6 @@ func (engine *SyncEngine) Start() {
 func (engine *SyncEngine) Stop() {
 	logger.Info("release resource :SyncEngine")
 	engine.cron.Stop()
-	for _, t := range engine.tasks {
-		t.Release()
-	}
 }
 
 func New() *SyncEngine {
