@@ -1,6 +1,10 @@
 package document
 
-import "github.com/irisnet/irishub-sync/store"
+import (
+	"time"
+
+	"github.com/irisnet/irishub-sync/store"
+)
 
 const (
 	CollectionNmTokenFlow = "token_flow"
@@ -18,5 +22,5 @@ type TokenFlow struct {
 	TxType      string     `bson:"tx_type"`
 	FlowType    string     `bson:"flow_type"`
 	Status      string     `bson:"status"`
-	Timestamp   string     `bson:"timestamp"`
+	Timestamp   time.Time  `bson:"timestamp"`
 }
