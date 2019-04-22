@@ -25,8 +25,6 @@ const (
 
 	EnvNameSerNetworkFullNode   = "SER_BC_FULL_NODE"
 	EnvNameSerNetworkChainId    = "SER_BC_CHAIN_ID"
-	EnvNameConsulAddr           = "CONSUL_ADDR"
-	EnvNameSyncWithDLock        = "SYNC_WITH_DLOCK"
 	EnvNameWorkerNumCreateTask  = "WORKER_NUM_CREATE_TASK"
 	EnvNameWorkerNumExecuteTask = "WORKER_NUM_EXECUTE_TASK"
 
