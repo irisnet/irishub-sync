@@ -9,6 +9,7 @@
 // )
 
 // create collections
+db.createCollection("token_flow");
 db.createCollection("block");
 db.createCollection("stake_role_candidate");
 db.createCollection("sync_task");
@@ -23,7 +24,9 @@ db.createCollection("mgo_txn.stash");
 db.createCollection("ex_tx_num_stat");
 
 
+
 // create index
+db.token_flow.createIndex({"block_height": -1});
 db.account.createIndex({"address": 1}, {"unique": true});
 db.block.createIndex({"height": -1}, {"unique": true});
 
@@ -74,13 +77,3 @@ db.sync_conf.insert({"block_num_per_worker_handle": 100, "max_worker_sleep_time"
 // db.uptime_change.remove({});
 // db.mgo_txn.remove({});
 // db.mgo_txn.stash.remove({});
-
-
-
-
-
-
-
-
-
-

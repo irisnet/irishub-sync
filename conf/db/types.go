@@ -1,9 +1,10 @@
 package db
 
 import (
+	"os"
+
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/util/constant"
-	"os"
 )
 
 var (
