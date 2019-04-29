@@ -20,9 +20,7 @@ var (
 	MaxConnectionNum   = 100             // max size of tendermint client pool
 	SyncProposalStatus = "0 */1 * * * *" // every minute
 
-	ConsulAddr    = "192.168.150.7:8500"
-	SyncWithDLock = false
-	Network       = "testnet"
+	Network = "testnet"
 )
 
 // get value of env var
@@ -39,22 +37,6 @@ func init() {
 		ChainId = chainId
 	}
 	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
-
-	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
-	if found {
-		ConsulAddr = consulAddr
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameConsulAddr, ConsulAddr))
-
-	withDLock, found := os.LookupEnv(constant.EnvNameSyncWithDLock)
-	if found {
-		flag, err := strconv.ParseBool(withDLock)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSyncWithDLock, withDLock))
-		}
-		SyncWithDLock = flag
-	}
-	logger.Info("Env Value", logger.Bool(constant.EnvNameSyncWithDLock, SyncWithDLock))
 
 	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
 	if found {
