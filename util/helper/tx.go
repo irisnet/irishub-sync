@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
+func ParseTx(txBytes itypes.Tx, block *itypes.Block) (document.CommonTx, []string) {
 	var (
 		authTx     itypes.StdTx
 		methodName = "ParseTx"
@@ -27,7 +27,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &authTx)
 	if err != nil {
 		logger.Error(err.Error())
-		return docTx
+		return docTx, nil
 	}
 
 	height := block.Height
@@ -54,10 +54,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		actualFee = store.ActualFee{}
 	}
 
+	// get accounts from result tag
+	accounts := getAccountFromTags(result)
+
 	msgs := authTx.GetMsgs()
 	if len(msgs) <= 0 {
 		logger.Error("can't get msgs", logger.String("method", methodName))
-		return docTx
+		return docTx, nil
 	}
 	msg := msgs[0]
 
@@ -84,7 +87,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = msg.Outputs[0].Address.String()
 		docTx.Amount = itypes.ParseCoins(msg.Inputs[0].Coins.String())
 		docTx.Type = constant.TxTypeTransfer
-		return docTx
+		return docTx, accounts
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
 
@@ -110,7 +113,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Description: valDes,
 		}
 
-		return docTx
+		return docTx, accounts
 	case itypes.MsgStakeEdit:
 		msg := msg.(itypes.MsgStakeEdit)
 
@@ -130,7 +133,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Description: valDes,
 		}
 
-		return docTx
+		return docTx, accounts
 	case itypes.MsgStakeDelegate:
 		msg := msg.(itypes.MsgStakeDelegate)
 
@@ -139,7 +142,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Amount = []store.Coin{itypes.ParseCoin(msg.Delegation.String())}
 		docTx.Type = constant.TxTypeStakeDelegate
 
-		return docTx
+		return docTx, accounts
 	case itypes.MsgStakeBeginUnbonding:
 		msg := msg.(itypes.MsgStakeBeginUnbonding)
 
@@ -152,7 +155,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		}
 		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeStakeBeginUnbonding
-		return docTx
+		return docTx, accounts
 	case itypes.MsgBeginRedelegate:
 		msg := msg.(itypes.MsgBeginRedelegate)
 
@@ -165,7 +168,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeBeginRedelegate
 		docTx.Msg = itypes.NewBeginRedelegate(msg)
-		return docTx
+		return docTx, accounts
 	case itypes.MsgUnjail:
 		msg := msg.(itypes.MsgUnjail)
 
@@ -242,7 +245,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 				}
 			}
 		}
-		return docTx
+		return docTx, accounts
 	case itypes.MsgSubmitSoftwareUpgradeProposal:
 		msg := msg.(itypes.MsgSubmitSoftwareUpgradeProposal)
 
@@ -263,7 +266,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 				}
 			}
 		}
-		return docTx
+		return docTx, accounts
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
 
@@ -272,7 +275,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Type = constant.TxTypeDeposit
 		docTx.Msg = itypes.NewDeposit(msg)
 		docTx.ProposalId = msg.ProposalID
-		return docTx
+		return docTx, accounts
 	case itypes.MsgVote:
 		msg := msg.(itypes.MsgVote)
 
@@ -281,13 +284,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Type = constant.TxTypeVote
 		docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
-		return docTx
+		return docTx, accounts
 
 	default:
 		logger.Warn("unknown msg type")
 	}
 
-	return docTx
+	return docTx, accounts
 }
 
 func parseTags(result itypes.ResponseDeliverTx) map[string]string {
@@ -299,6 +302,26 @@ func parseTags(result itypes.ResponseDeliverTx) map[string]string {
 	}
 	return tags
 }
+
+// get account from tags, will remove duplicate account
+func getAccountFromTags(result itypes.ResponseDeliverTx) []string {
+	var (
+		accounts []string
+	)
+	accountExistMap := make(map[string]bool)
+	bech32AccountAddrPrefix := itypes.Bech32AccountAddrPrefix
+	for _, tag := range result.Tags {
+		if value := string(tag.Value); strings.HasPrefix(value, bech32AccountAddrPrefix) {
+			if !accountExistMap[value] {
+				accountExistMap[value] = true
+				accounts = append(accounts, value)
+			}
+		}
+	}
+
+	return accounts
+}
+
 func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))
 }

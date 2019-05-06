@@ -6,99 +6,40 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"sync"
-	"time"
 )
 
-// save account
-func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
-	var (
-		address    string
-		updateTime time.Time
-		height     int64
-		methodName = "SaveAccount: "
-	)
-	logger.Debug("Start", logger.String("method", methodName))
-
-	// save account
-	fun := func(address string, updateTime time.Time, height int64) {
-		account := document.Account{
-			Address: address,
-			Time:    updateTime,
-			Height:  height,
-		}
-
-		err := store.Save(account)
-
-		if err != nil && err.Error() != "Record exists" {
-			logger.Error("account Record exists", logger.String("address", account.Address))
-		}
-	}
-
-	txType := GetTxType(docTx)
-	if len(txType) == 0 {
-		logger.Error("Tx is valid", logger.Any("Tx", docTx))
+// update account info
+func UpdateAccountInfo(accounts []string, blockTime int64) {
+	if len(accounts) == 0 {
 		return
 	}
+	for _, v := range accounts {
+		coins, accountNumber := helper.QueryAccountInfo(v)
+		coinIris := getCoinIrisFromCoins(coins)
+		account := document.Account{
+			Address:          v,
+			AccountNumber:    accountNumber,
+			CoinIris:         coinIris,
+			CoinIrisUpdateAt: blockTime,
+		}
 
-	switch txType {
-	case constant.TxTypeTransfer, constant.TxTypeStakeDelegate,
-		constant.TxTypeStakeBeginUnbonding, constant.TxTypeStakeCompleteUnbonding:
-		updateTime = docTx.Time
-		height = docTx.Height
-
-		fun(docTx.From, updateTime, height)
-		fun(docTx.To, updateTime, height)
-		break
-	case constant.TxTypeStakeCreateValidator, constant.TxTypeStakeEditValidator:
-		address = docTx.From
-		updateTime = docTx.Time
-		height = docTx.Height
-
-		fun(address, updateTime, height)
-		break
+		if err := store.Upsert(account); err != nil {
+			logger.Error("upsert account info fail", logger.String("addr", v),
+				logger.String("err", err.Error()))
+		}
 	}
-
-	logger.Debug("End", logger.String("method", methodName))
 }
 
-// update account balance
-func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
-	var (
-		methodName = "UpdateBalance: "
-	)
-	logger.Debug("Start", logger.String("method", methodName))
-
-	fun := func(address string) {
-		account, err := document.QueryAccount(address)
-		if err != nil {
-			logger.Error("QueryAccount failed", logger.String("address", address), logger.String("err", err.Error()))
-			return
-		}
-
-		// query balance of account
-		account.Amount = helper.QueryAccountBalance(address)
-		if err := store.Update(account); err != nil {
-			logger.Error("updateAccountBalance failed", logger.String("address", account.Address), logger.String("err", err.Error()))
+func getCoinIrisFromCoins(coins store.Coins) store.Coin {
+	if len(coins) > 0 {
+		for _, v := range coins {
+			if v.Denom == constant.IrisAttoUnit {
+				return store.Coin{
+					Denom:  v.Denom,
+					Amount: v.Amount,
+				}
+			}
 		}
 	}
-
-	txType := GetTxType(docTx)
-	if txType == "" {
-		logger.Error("Tx is valid", logger.Any("Tx", docTx))
-		return
-	}
-
-	switch txType {
-	case constant.TxTypeTransfer, constant.TxTypeStakeDelegate,
-		constant.TxTypeStakeBeginUnbonding, constant.TxTypeStakeCompleteUnbonding:
-		fun(docTx.From)
-		fun(docTx.To)
-		break
-	case constant.TxTypeStakeCreateValidator, constant.TxTypeStakeEditValidator:
-		fun(docTx.From)
-		break
-	}
-
-	logger.Debug("End", logger.String("method", methodName))
+	return store.Coin{}
 }

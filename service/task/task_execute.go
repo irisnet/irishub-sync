@@ -45,6 +45,7 @@ func StartExecuteTask() {
 	chanLimit := make(chan bool, serverConf.WorkerNumExecuteTask)
 
 	for {
+		time.Sleep(time.Duration(1) * time.Second)
 		chanLimit <- true
 		go executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime, chanLimit)
 	}

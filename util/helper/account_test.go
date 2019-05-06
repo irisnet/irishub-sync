@@ -24,7 +24,7 @@ func TestQueryAccountBalance(t *testing.T) {
 		{
 			name: "test balance not nil",
 			args: args{
-				address: "faa1r0ljqhd7vwrpwh8h8fa5luh89nljrnkqcdgfr0",
+				address: "faa1eqvkfthtrr93g4p9qspp54w6dtjtrn279vcmpn",
 			},
 		},
 		//{
@@ -36,8 +36,9 @@ func TestQueryAccountBalance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := QueryAccountBalance(tt.args.address)
-			logger.Info(ToJson(got))
+			res, accNumber := QueryAccountInfo(tt.args.address)
+			logger.Info("accNum info", logger.Uint64("accNumber", accNumber))
+			logger.Info(ToJson(res))
 		})
 	}
 }

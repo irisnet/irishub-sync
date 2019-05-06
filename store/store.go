@@ -118,6 +118,16 @@ func Update(h Docs) error {
 	return ExecCollection(h.Name(), update)
 }
 
+func Upsert(h Docs) error {
+	fn := func(c *mgo.Collection) error {
+		selector := h.PkKvPair()
+		_, err := c.Upsert(selector, h)
+		return err
+	}
+
+	return ExecCollection(h.Name(), fn)
+}
+
 func Delete(h Docs) error {
 	remove := func(c *mgo.Collection) error {
 		key := h.PkKvPair()
