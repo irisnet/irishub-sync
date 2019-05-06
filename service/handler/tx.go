@@ -53,7 +53,7 @@ func HandleTx(block *types.Block) error {
 	// update account balance
 	// don't use goroutine for this method, sync already use multiple goroutine to execute task,
 	// if task goroutine contain other goroutine, the number of goroutine will out of control
-	UpdateAccountInfo(accountsInBlock, block.Time.UnixNano())
+	UpdateAccountInfo(accountsInBlock, block.Time.Unix())
 
 	return nil
 }
