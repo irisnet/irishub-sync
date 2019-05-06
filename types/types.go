@@ -91,10 +91,11 @@ var (
 	MustUnmarshalDelegation = staketypes.MustUnmarshalDelegation
 	MustUnmarshalUBD        = staketypes.MustUnmarshalUBD
 
-	Bech32ifyValPub      = types.Bech32ifyValPub
-	RegisterCodec        = types.RegisterCodec
-	AccAddressFromBech32 = types.AccAddressFromBech32
-	BondStatusToString   = types.BondStatusToString
+	Bech32ifyValPub         = types.Bech32ifyValPub
+	Bech32AccountAddrPrefix string
+	RegisterCodec           = types.RegisterCodec
+	AccAddressFromBech32    = types.AccAddressFromBech32
+	BondStatusToString      = types.BondStatusToString
 
 	NewDecFromStr = types.NewDecFromStr
 
@@ -122,6 +123,7 @@ func init() {
 	if server.Network == constant.NetworkMainnet {
 		types.SetNetworkType(types.Mainnet)
 	}
+	Bech32AccountAddrPrefix = types.GetConfig().GetBech32AccountAddrPrefix()
 	cdc = app.MakeLatestCodec()
 }
 
