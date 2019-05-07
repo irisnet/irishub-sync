@@ -11,18 +11,16 @@ import (
 
 func HandleTx(block *types.Block) error {
 	var (
-		batch           []txn.Op
-		accountsInBlock []string
+		batch []txn.Op
 	)
 	for _, txByte := range block.Txs {
-		tx, accountsInTx := helper.ParseTx(txByte, block)
+		tx := helper.ParseTx(txByte, block)
 		txOp := txn.Op{
 			C:      document.CollectionNmCommonTx,
 			Id:     bson.NewObjectId(),
 			Insert: tx,
 		}
 		batch = append(batch, txOp)
-		accountsInBlock = append(accountsInBlock, accountsInTx...)
 
 		msg := tx.Msg
 		if msg != nil {
@@ -41,6 +39,8 @@ func HandleTx(block *types.Block) error {
 		// TODO(deal with by biz system)
 		handleProposal(tx)
 		SaveOrUpdateDelegator(tx)
+		SaveOrUpdateAccountDelegationInfo(tx)
+		SaveOrUpdateAccountUnbondingDelegationInfo(tx)
 	}
 
 	if len(batch) > 0 {
@@ -49,11 +49,6 @@ func HandleTx(block *types.Block) error {
 			return err
 		}
 	}
-
-	// update account balance
-	// don't use goroutine for this method, sync already use multiple goroutine to execute task,
-	// if task goroutine contain other goroutine, the number of goroutine will out of control
-	UpdateAccountInfo(accountsInBlock, block.Time.Unix())
 
 	return nil
 }

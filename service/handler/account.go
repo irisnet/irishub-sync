@@ -27,12 +27,49 @@ func SaveOrUpdateAccountBalanceInfo(accounts []string, height, timestamp int64) 
 	}
 }
 
-func SaveOrUpdateAccountDelegationInfo() {
+func SaveOrUpdateAccountDelegationInfo(docTx document.CommonTx) {
+	var (
+		delegator    string
+		accountModel document.Account
+	)
+	switch docTx.Type {
+	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding, constant.TxTypeBeginRedelegate:
+		delegator = docTx.From
+	}
+	if delegator == "" {
+		return
+	}
+	delegations := helper.GetDelegations(delegator)
+	delegation := store.Coin{
+		Denom:  constant.IrisAttoUnit,
+		Amount: helper.CalculateDelegatorDelegationTokens(delegations),
+	}
 
+	if err := accountModel.UpsertDelegationInfo(delegator, delegation, docTx.Height, docTx.Time.Unix()); err != nil {
+		logger.Error("update account delegation info fail", logger.Int64("height", docTx.Height),
+			logger.String("address", delegator), logger.String("err", err.Error()))
+	}
 }
 
-func SaveOrUpdateAccountUnbondingDelegationInfo() {
+func SaveOrUpdateAccountUnbondingDelegationInfo(docTx document.CommonTx) {
+	var (
+		delegator    string
+		accountModel document.Account
+	)
+	switch docTx.Type {
+	case constant.TxTypeStakeBeginUnbonding, constant.TxTypeBeginRedelegate:
+		delegator = docTx.From
+	}
+	unbondingDelegations := helper.GetUnbondingDelegations(delegator)
+	unbondingDelegation := store.Coin{
+		Denom:  constant.IrisAttoUnit,
+		Amount: helper.CalculateDelegatorUnbondingDelegationTokens(unbondingDelegations),
+	}
 
+	if err := accountModel.UpsertUnbondingDelegationInfo(delegator, unbondingDelegation, docTx.Height, docTx.Time.Unix()); err != nil {
+		logger.Error("update account unbonding delegation info fail", logger.Int64("height", docTx.Height),
+			logger.String("address", delegator), logger.String("err", err.Error()))
+	}
 }
 
 func getCoinIrisFromCoins(coins store.Coins) store.Coin {

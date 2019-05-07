@@ -14,7 +14,6 @@ const (
 	TxTypeWithdrawDelegatorReward     = "WithdrawDelegatorReward"
 	TxTypeWithdrawDelegatorRewardsAll = "WithdrawDelegatorRewardsAll"
 	TxTypeWithdrawValidatorRewardsAll = "WithdrawValidatorRewardsAll"
-	TxTypeStakeCompleteUnbonding      = "CompleteUnbonding"
 	TxTypeSubmitProposal              = "SubmitProposal"
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
