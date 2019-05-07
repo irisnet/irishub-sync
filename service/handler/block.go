@@ -5,7 +5,25 @@ import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
+	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
+	"strings"
+)
+
+var (
+	assetDetailTriggers = map[string]bool{
+		"stakeEndBlocker":   true,
+		"slashBeginBlocker": true,
+		"slashEndBlocker":   true,
+		"govEndBlocker":     true,
+	}
+
+	bech32AccountAddrPrefix = itypes.Bech32AccountAddrPrefix
+)
+
+const (
+	triggerTxHashLength = 64
+	separator           = "::" // tag value separator
 )
 
 func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) document.Block {
@@ -107,6 +125,10 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	docBlock.Validators = vals
 	docBlock.Result = parseBlockResult(docBlock.Height)
 
+	// save or update account balance info by parse block coin flow
+	accounts := getAccountsFromCoinFlow(docBlock.Result.EndBlock.Tags, docBlock.Height)
+	SaveOrUpdateAccountBalanceInfo(accounts, docBlock.Height, docBlock.Time.Unix())
+
 	return docBlock
 }
 
@@ -183,4 +205,39 @@ func parseTags(tags []types.TmKVPair) (response []document.KvPair) {
 		response = append(response, document.KvPair{Key: key, Value: value})
 	}
 	return response
+}
+
+// get accounts from coin flow which in block result
+func getAccountsFromCoinFlow(endBlockTags []document.KvPair, height int64) []string {
+	var (
+		accounts []string
+	)
+	accountExistMap := make(map[string]bool)
+
+	getDistinctAccount := func(address string) {
+		if strings.HasPrefix(address, bech32AccountAddrPrefix) && !accountExistMap[address] {
+			accountExistMap[address] = true
+			accounts = append(accounts, address)
+		}
+	}
+
+	for _, t := range endBlockTags {
+		tagKey := string(t.Key)
+		tagValue := string(t.Value)
+
+		if assetDetailTriggers[tagKey] || len(tagKey) == triggerTxHashLength {
+			values := strings.Split(tagValue, separator)
+			if len(values) != 6 {
+				logger.Warn("struct of iris coin flow changed in block result, skip parse this block coin flow",
+					logger.Int64("height", height), logger.String("tagKey", tagKey))
+				continue
+			}
+
+			// parse coin flow address from and to, from: value[0], to: value[1]
+			getDistinctAccount(values[0])
+			getDistinctAccount(values[1])
+		}
+	}
+
+	return accounts
 }
