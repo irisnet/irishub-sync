@@ -19,7 +19,7 @@ func TestParseTx(t *testing.T) {
 	// release client
 	defer client.Release()
 
-	var height = int64(317356)
+	var height = int64(444799)
 
 	block, err := client.Client.Block(&height)
 
@@ -29,9 +29,9 @@ func TestParseTx(t *testing.T) {
 
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
-		tx, accounts := ParseTx(txs[0], block.Block)
+		tx := ParseTx(txs[0], block.Block)
 		txBytes, _ := json.MarshalIndent(tx, "", "\t")
-		t.Logf("tx is %v, accounts is %v\n", string(txBytes), accounts)
+		t.Logf("tx is %v\n", string(txBytes))
 	}
 
 }

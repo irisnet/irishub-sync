@@ -285,6 +285,13 @@ func assertTaskValid(task document.SyncTask, blockNumPerWorkerHandle, blockChain
 func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 	var blockDoc document.Block
 
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("parse block fail", logger.Int64("blockHeight", b),
+				logger.Any("err", err))
+		}
+	}()
+
 	block, err := client.Block(&b)
 	if err != nil {
 		// there is possible parse block fail when in iterator

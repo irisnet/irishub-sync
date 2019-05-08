@@ -52,7 +52,11 @@ func (d Account) getAccountByPK() (Account, error) {
 	var (
 		res Account
 	)
-	if err := store.Find(d.Name(), d.PkKvPair()).One(&res); err != nil {
+	find := func(c *mgo.Collection) error {
+		return c.Find(d.PkKvPair()).One(&res)
+	}
+
+	if err := store.ExecCollection(d.Name(), find); err != nil {
 		if err == mgo.ErrNotFound {
 			return res, nil
 		} else {
@@ -69,7 +73,6 @@ func (d Account) UpsertBalanceInfo(address string, balance store.Coin, accountNu
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
 	} else {
-		account.Address = address
 		account.AccountNumber = accountNumber
 		account.CoinIris = balance
 		account.CoinIrisUpdateHeight = height
@@ -79,6 +82,7 @@ func (d Account) UpsertBalanceInfo(address string, balance store.Coin, accountNu
 
 		if account.Address == "" {
 			// record not exist
+			account.Address = address
 			account.Total = balance
 			return d.Save(account)
 		} else {
@@ -98,7 +102,6 @@ func (d Account) UpsertDelegationInfo(address string, delegation store.Coin, hei
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
 	} else {
-		account.Address = address
 		account.Delegation = delegation
 		account.DelegationUpdateHeight = height
 		account.DelegationUpdateAt = timestamp
@@ -106,6 +109,7 @@ func (d Account) UpsertDelegationInfo(address string, delegation store.Coin, hei
 		account.TotalUpdateAt = timestamp
 		if account.Address == "" {
 			// record not exist
+			account.Address = address
 			account.Total = delegation
 			return d.Save(account)
 		} else {
@@ -125,7 +129,7 @@ func (d Account) UpsertUnbondingDelegationInfo(address string, unbondingDelegati
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
 	} else {
-		account.Address = address
+
 		account.UnbondingDelegation = unbondingDelegation
 		account.UnbondingDelegationUpdateHeight = height
 		account.UnbondingDelegationUpdateAt = timestamp
@@ -133,6 +137,7 @@ func (d Account) UpsertUnbondingDelegationInfo(address string, unbondingDelegati
 		account.TotalUpdateAt = timestamp
 		if account.Address == "" {
 			// record not exist
+			account.Address = address
 			account.Total = unbondingDelegation
 			return d.Save(account)
 		} else {
