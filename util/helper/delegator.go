@@ -4,6 +4,7 @@ import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub/modules/stake"
+	sdktypes "github.com/irisnet/irishub/types"
 )
 
 const (
@@ -20,7 +21,8 @@ func GetDelegations(delegator string) []types.Delegation {
 
 	addr, err := types.AccAddressFromBech32(delegator)
 	if err != nil {
-		logger.Error("get addr from hex failed", logger.String("err", err.Error()))
+		logger.Error("get addr from hex failed", logger.String("address", delegator),
+			logger.String("err", err.Error()))
 		return nil
 	}
 
@@ -55,7 +57,8 @@ func GetUnbondingDelegations(delegator string) []types.UnbondingDelegation {
 
 	addr, err := types.AccAddressFromBech32(delegator)
 	if err != nil {
-		logger.Error("get addr from hex failed", logger.Any("err", err))
+		logger.Error("get addr from hex failed", logger.String("address", delegator),
+			logger.String("err", err.Error()))
 		return nil
 	}
 
@@ -85,6 +88,7 @@ func CalculateDelegatorDelegationTokens(delegations []types.Delegation) float64 
 	var (
 		token types.Dec
 	)
+	token = sdktypes.ZeroDec()
 	if len(delegations) > 0 {
 		for _, v := range delegations {
 			validatorAddr := v.ValidatorAddr.String()
@@ -105,6 +109,7 @@ func CalculateDelegatorUnbondingDelegationTokens(unbondingDelegations []types.Un
 	var (
 		token types.Int
 	)
+	token = sdktypes.ZeroInt()
 
 	if len(unbondingDelegations) > 0 {
 		for _, v := range unbondingDelegations {

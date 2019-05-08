@@ -60,6 +60,9 @@ func SaveOrUpdateAccountUnbondingDelegationInfo(docTx document.CommonTx) {
 	case constant.TxTypeStakeBeginUnbonding, constant.TxTypeBeginRedelegate:
 		delegator = docTx.From
 	}
+	if delegator == "" {
+		return
+	}
 	unbondingDelegations := helper.GetUnbondingDelegations(delegator)
 	unbondingDelegation := store.Coin{
 		Denom:  constant.IrisAttoUnit,
