@@ -51,27 +51,25 @@ func SaveOrUpdateAccountDelegationInfo(docTx document.CommonTx) {
 	}
 }
 
-func SaveOrUpdateAccountUnbondingDelegationInfo(docTx document.CommonTx) {
+func SaveOrUpdateAccountUnbondingDelegationInfo(accounts []string, height, timestamp int64) {
 	var (
-		delegator    string
 		accountModel document.Account
 	)
-	switch docTx.Type {
-	case constant.TxTypeStakeBeginUnbonding, constant.TxTypeBeginRedelegate:
-		delegator = docTx.From
-	}
-	if delegator == "" {
+
+	if len(accounts) == 0 {
 		return
 	}
-	unbondingDelegations := helper.GetUnbondingDelegations(delegator)
-	unbondingDelegation := store.Coin{
-		Denom:  constant.IrisAttoUnit,
-		Amount: helper.CalculateDelegatorUnbondingDelegationTokens(unbondingDelegations),
-	}
+	for _, v := range accounts {
+		unbondingDelegations := helper.GetUnbondingDelegations(v)
+		unbondingDelegation := store.Coin{
+			Denom:  constant.IrisAttoUnit,
+			Amount: helper.CalculateDelegatorUnbondingDelegationTokens(unbondingDelegations),
+		}
 
-	if err := accountModel.UpsertUnbondingDelegationInfo(delegator, unbondingDelegation, docTx.Height, docTx.Time.Unix()); err != nil {
-		logger.Error("update account unbonding delegation info fail", logger.Int64("height", docTx.Height),
-			logger.String("address", delegator), logger.String("err", err.Error()))
+		if err := accountModel.UpsertUnbondingDelegationInfo(v, unbondingDelegation, height, timestamp); err != nil {
+			logger.Error("update account unbonding delegation info fail", logger.Int64("height", height),
+				logger.String("address", v), logger.String("err", err.Error()))
+		}
 	}
 }
 
