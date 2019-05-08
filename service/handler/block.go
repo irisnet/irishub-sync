@@ -24,6 +24,7 @@ var (
 const (
 	triggerTxHashLength = 64
 	separator           = "::" // tag value separator
+	unDelegationSubject = "Undelegation"
 )
 
 func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) document.Block {
@@ -125,9 +126,11 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	docBlock.Validators = vals
 	docBlock.Result = parseBlockResult(docBlock.Height)
 
-	// save or update account balance info by parse block coin flow
-	accounts := getAccountsFromCoinFlow(docBlock.Result.EndBlock.Tags, docBlock.Height)
-	SaveOrUpdateAccountBalanceInfo(accounts, docBlock.Height, docBlock.Time.Unix())
+	// save or update account balance info and unbonding delegation info by parse block coin flow
+	accsBalanceNeedUpdated, accsUnbondingDelegationNeedUpdated := getAccountsFromCoinFlow(
+		docBlock.Result.EndBlock.Tags, docBlock.Height)
+	SaveOrUpdateAccountBalanceInfo(accsBalanceNeedUpdated, docBlock.Height, docBlock.Time.Unix())
+	SaveOrUpdateAccountUnbondingDelegationInfo(accsUnbondingDelegationNeedUpdated, docBlock.Height, docBlock.Time.Unix())
 
 	return docBlock
 }
@@ -207,17 +210,27 @@ func parseTags(tags []types.TmKVPair) (response []document.KvPair) {
 	return response
 }
 
-// get accounts from coin flow which in block result
-func getAccountsFromCoinFlow(endBlockTags []document.KvPair, height int64) []string {
+// parse accounts from coin flow which in block result
+// return two kind accounts
+// 1. accounts which balance info need updated
+// 2. accounts which unbondingDelegation info need updated
+func getAccountsFromCoinFlow(endBlockTags []document.KvPair, height int64) ([]string, []string) {
 	var (
-		accounts []string
+		accsBalanceNeedUpdated, accsUnbondingDelegationNeedUpdated []string
 	)
-	accountExistMap := make(map[string]bool)
+	balanceAccountExistMap := make(map[string]bool)
+	unbondingDelegationAccountExistMap := make(map[string]bool)
 
-	getDistinctAccount := func(address string) {
-		if strings.HasPrefix(address, bech32AccountAddrPrefix) && !accountExistMap[address] {
-			accountExistMap[address] = true
-			accounts = append(accounts, address)
+	getDistinctAccsBalanceNeedUpdated := func(address string) {
+		if strings.HasPrefix(address, bech32AccountAddrPrefix) && !balanceAccountExistMap[address] {
+			balanceAccountExistMap[address] = true
+			accsBalanceNeedUpdated = append(accsBalanceNeedUpdated, address)
+		}
+	}
+	getDistinctAccsUnbondingDelegationNeedUpdated := func(address string) {
+		if strings.HasPrefix(address, bech32AccountAddrPrefix) && !unbondingDelegationAccountExistMap[address] {
+			unbondingDelegationAccountExistMap[address] = true
+			accsUnbondingDelegationNeedUpdated = append(accsUnbondingDelegationNeedUpdated, address)
 		}
 	}
 
@@ -234,10 +247,18 @@ func getAccountsFromCoinFlow(endBlockTags []document.KvPair, height int64) []str
 			}
 
 			// parse coin flow address from and to, from: value[0], to: value[1]
-			getDistinctAccount(values[0])
-			getDistinctAccount(values[1])
+			from := values[0]
+			to := values[1]
+			getDistinctAccsBalanceNeedUpdated(from)
+			getDistinctAccsBalanceNeedUpdated(to)
+
+			// unbondingDelegation tx complete, need to update account unbondingDelegation info
+			if values[3] == unDelegationSubject {
+				getDistinctAccsUnbondingDelegationNeedUpdated(from)
+				getDistinctAccsUnbondingDelegationNeedUpdated(to)
+			}
 		}
 	}
 
-	return accounts
+	return accsBalanceNeedUpdated, accsUnbondingDelegationNeedUpdated
 }
