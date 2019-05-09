@@ -42,7 +42,7 @@ func Start() {
 	if err != nil {
 		logger.Error(err.Error())
 	}
-	session.SetMode(mgo.Monotonic, true)
+	session.SetMode(mgo.Primary, true)
 }
 
 func Stop() {
