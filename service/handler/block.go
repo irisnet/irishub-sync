@@ -27,7 +27,8 @@ const (
 	unDelegationSubject = "Undelegation"
 )
 
-func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) document.Block {
+func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator,
+	accsBalanceNeedUpdatedByParseTxs []string) document.Block {
 	cdc := types.GetCodec()
 
 	hexFunc := func(bytes []byte) string {
@@ -129,7 +130,10 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	// save or update account balance info and unbonding delegation info by parse block coin flow
 	accsBalanceNeedUpdated, accsUnbondingDelegationNeedUpdated := getAccountsFromCoinFlow(
 		docBlock.Result.EndBlock.Tags, docBlock.Height)
+
+	accsBalanceNeedUpdated = helper.DistinctStringSlice(append(accsBalanceNeedUpdated, accsBalanceNeedUpdatedByParseTxs...))
 	SaveOrUpdateAccountBalanceInfo(accsBalanceNeedUpdated, docBlock.Height, docBlock.Time.Unix())
+
 	SaveOrUpdateAccountUnbondingDelegationInfo(accsUnbondingDelegationNeedUpdated, docBlock.Height, docBlock.Time.Unix())
 
 	return docBlock

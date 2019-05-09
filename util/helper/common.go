@@ -84,3 +84,18 @@ func Min(x, y int64) int64 {
 	}
 	return y
 }
+
+func DistinctStringSlice(slice []string) []string {
+	var res []string
+	elementExistMap := make(map[string]bool)
+	if len(slice) > 0 {
+		for _, v := range slice {
+			if !elementExistMap[v] {
+				res = append(res, v)
+				elementExistMap[v] = true
+			}
+		}
+	}
+
+	return res
+}
