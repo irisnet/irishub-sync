@@ -14,7 +14,6 @@ const (
 	TxTypeWithdrawDelegatorReward     = "WithdrawDelegatorReward"
 	TxTypeWithdrawDelegatorRewardsAll = "WithdrawDelegatorRewardsAll"
 	TxTypeWithdrawValidatorRewardsAll = "WithdrawValidatorRewardsAll"
-	TxTypeStakeCompleteUnbonding      = "CompleteUnbonding"
 	TxTypeSubmitProposal              = "SubmitProposal"
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
@@ -61,4 +60,7 @@ const (
 	StatusRejected      = "Rejected"
 
 	NetworkMainnet = "mainnet"
+
+	// define coin unit
+	IrisAttoUnit = "iris-atto"
 )

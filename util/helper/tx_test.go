@@ -3,8 +3,7 @@
 package helper
 
 import (
-	"fmt"
-	"github.com/irisnet/irishub-sync/logger"
+	"encoding/json"
 	"os"
 	"testing"
 )
@@ -20,39 +19,19 @@ func TestParseTx(t *testing.T) {
 	// release client
 	defer client.Release()
 
-	var height = int64(103)
+	var height = int64(444799)
 
 	block, err := client.Client.Block(&height)
 
 	if err != nil {
-		logger.Panic(err.Error())
+		t.Fatal(err)
 	}
 
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
 		tx := ParseTx(txs[0], block.Block)
-		fmt.Println(tx)
-	}
-
-}
-
-func TestParseTx(t *testing.T) {
-	client := GetClient()
-	// release client
-	defer client.Release()
-
-	height := int64(52373)
-	block, err := client.Block(&height)
-
-	if err != nil {
-		logger.Panic(err.Error())
-	}
-
-	if block.BlockMeta.Header.NumTxs > 0 {
-		txs := block.Block.Data.Txs
-		for _, tx := range txs {
-			ParseTx(tx, block.Block)
-		}
+		txBytes, _ := json.MarshalIndent(tx, "", "\t")
+		t.Logf("tx is %v\n", string(txBytes))
 	}
 
 }

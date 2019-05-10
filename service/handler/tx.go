@@ -4,13 +4,24 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
+	"strings"
 )
 
-func HandleTx(block *types.Block) error {
-	var batch []txn.Op
+func HandleTx(block *types.Block) ([]string, error) {
+	var (
+		batch                  []txn.Op
+		accsBalanceNeedUpdated []string
+	)
+	getAccsBalanceNeedUpdated := func(addr string) {
+		if strings.HasPrefix(addr, types.Bech32AccountAddrPrefix) {
+			accsBalanceNeedUpdated = append(accsBalanceNeedUpdated, addr)
+		}
+	}
+
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
 		txOp := txn.Op{
@@ -37,13 +48,25 @@ func HandleTx(block *types.Block) error {
 		// TODO(deal with by biz system)
 		handleProposal(tx)
 		SaveOrUpdateDelegator(tx)
+		SaveOrUpdateAccountDelegationInfo(tx)
+
+		switch tx.Type {
+		case constant.TxTypeStakeBeginUnbonding:
+			accounts := []string{tx.From}
+			SaveOrUpdateAccountUnbondingDelegationInfo(accounts, tx.Height, tx.Time.Unix())
+		}
+
+		// get accounts which balance need updated by parse tx
+		getAccsBalanceNeedUpdated(tx.From)
+		getAccsBalanceNeedUpdated(tx.To)
 	}
 
 	if len(batch) > 0 {
 		err := store.Txn(batch)
 		if err != nil {
-			return err
+			return accsBalanceNeedUpdated, err
 		}
 	}
-	return nil
+
+	return accsBalanceNeedUpdated, nil
 }
