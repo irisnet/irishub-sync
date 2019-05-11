@@ -46,4 +46,7 @@ const (
 	StatusRejected      = "Rejected"
 
 	NetworkMainnet = "mainnet"
+
+	// define coin unit
+	IrisAttoUnit = "iris-atto"
 )

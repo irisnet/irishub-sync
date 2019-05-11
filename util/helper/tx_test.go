@@ -3,8 +3,7 @@
 package helper
 
 import (
-	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/types"
+	"encoding/json"
 	"os"
 	"testing"
 )
@@ -15,42 +14,24 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func buildTxByte(blockHeight int64) (types.Tx, *types.Block) {
-	client := GetClient()
-	// release client
-	defer client.Release()
-
-	block, err := client.Client.Block(&blockHeight)
-
-	if err != nil {
-		logger.Panic(err.Error())
-	}
-
-	if block.BlockMeta.Header.NumTxs > 0 {
-		txs := block.Block.Data.Txs
-		return txs[0], block.Block
-	}
-
-	return nil, nil
-}
-
 func TestParseTx(t *testing.T) {
 	client := GetClient()
 	// release client
 	defer client.Release()
 
-	height := int64(52373)
-	block, err := client.Block(&height)
+	var height = int64(317356)
+
+	block, err := client.Client.Block(&height)
 
 	if err != nil {
-		logger.Panic(err.Error())
+		t.Fatal(err)
 	}
 
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
-		for _, tx := range txs {
-			ParseTx(tx, block.Block)
-		}
+		tx, accounts := ParseTx(txs[0], block.Block)
+		txBytes, _ := json.MarshalIndent(tx, "", "\t")
+		t.Logf("tx is %v, accounts is %v\n", string(txBytes), accounts)
 	}
 
 }

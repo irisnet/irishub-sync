@@ -10,13 +10,13 @@ import (
 )
 
 // query account balance from sdk store
-func QueryAccountBalance(address string) store.Coins {
+func QueryAccountInfo(address string) (store.Coins, uint64) {
 	cdc := types.GetCodec()
 
 	addr, err := types.AccAddressFromBech32(address)
 	if err != nil {
 		logger.Error("get addr from hex failed", logger.Any("err", err))
-		return nil
+		return nil, 0
 	}
 
 	res, err := Query(types.AddressStoreKey(addr), "acc",
@@ -24,22 +24,22 @@ func QueryAccountBalance(address string) store.Coins {
 
 	if err != nil {
 		logger.Error("Query balance from tendermint failed", logger.Any("err", err))
-		return nil
+		return nil, 0
 	}
 
 	// balance is empty
 	if len(res) <= 0 {
-		return nil
+		return nil, 0
 	}
 
 	decoder := types.GetAccountDecoder(cdc)
 	account, err := decoder(res)
 	if err != nil {
 		logger.Error("decode account failed", logger.Any("err", err))
-		return nil
+		return nil, 0
 	}
 
-	return types.ParseCoins(account.GetCoins().String())
+	return types.ParseCoins(account.GetCoins().String()), account.GetAccountNumber()
 }
 
 func ValAddrToAccAddr(address string) (accAddr string) {

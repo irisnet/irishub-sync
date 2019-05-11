@@ -34,6 +34,7 @@ func StartCreateTask() {
 	chanLimit := make(chan bool, serverConf.WorkerNumCreateTask)
 
 	for {
+		time.Sleep(time.Duration(1) * time.Second)
 		chanLimit <- true
 		go createTask(blockNumPerWorkerHandle, chanLimit)
 	}
