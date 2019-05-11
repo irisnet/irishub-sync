@@ -43,7 +43,7 @@ func buildDocData(blockHeight int64) document.CommonTx {
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
 		txByte := txs[0]
-		docTx := helper.ParseTx(txByte, block.Block)
+		docTx,_ := helper.ParseTx(txByte, block.Block)
 
 		return docTx
 
