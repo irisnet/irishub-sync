@@ -109,7 +109,7 @@ func Test_parseBlock(t *testing.T) {
 			name: "test parse block",
 			args: args{
 				client: client,
-				b:      107061,
+				b:      447787,
 			},
 		},
 	}

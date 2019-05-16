@@ -116,35 +116,55 @@ func (d SyncTask) QueryAll(status []string, taskType string) ([]SyncTask, error)
 	return syncTasks, nil
 }
 
+// get executable task
+// 1. tasks which status eq unhandled
+// 2. tasks which status eq underway and lastUpdateTime<now-maxWorkerSleepTime
+// filter executable tasks in application to avoid query db use or condition,
+// we can get results by execute query condition in db, but this query statement is bad sql,
+// it will scan all documents
+// ```
+// 	q := bson.M{
+//		"$or": []bson.M{
+//			{
+//				"status": SyncTaskStatusUnHandled,
+//			},
+//			{
+//				"status": SyncTaskStatusUnderway,
+//				"last_update_time": bson.M{
+//					"$lt": t,
+//				},
+//			},
+//		},
+//	}
+// ```
 func (d SyncTask) GetExecutableTask(maxWorkerSleepTime int64) ([]SyncTask, error) {
 	var tasks []SyncTask
-
 	t := time.Now().Add(time.Duration(-maxWorkerSleepTime) * time.Second).Unix()
+
 	q := bson.M{
-		"$or": []bson.M{
-			{
-				"status": SyncTaskStatusUnHandled,
-			},
-			{
-				"status": SyncTaskStatusUnderway,
-				"last_update_time": bson.M{
-					"$lt": t,
-				},
-			},
+		"status": bson.M{
+			"$in": []string{SyncTaskStatusUnHandled, SyncTaskStatusUnderway},
 		},
 	}
-
 	fn := func(c *mgo.Collection) error {
-		return c.Find(q).Sort("-status", "start_height").All(&tasks)
+		return c.Find(q).Sort("-status").Limit(1000).All(&tasks)
 	}
 
-	err := store.ExecCollection(d.Name(), fn)
-
-	if err != nil {
+	if err := store.ExecCollection(d.Name(), fn); err != nil {
 		return tasks, err
+	} else {
+		var executableTasks []SyncTask
+		if len(tasks) > 0 {
+			for _, v := range tasks {
+				if v.Status == SyncTaskStatusUnderway && v.LastUpdateTime >= t {
+					continue
+				} else {
+					executableTasks = append(executableTasks, v)
+				}
+			}
+		}
+		return executableTasks, nil
 	}
-
-	return tasks, nil
 }
 
 func (d SyncTask) GetTaskById(id bson.ObjectId) (SyncTask, error) {
