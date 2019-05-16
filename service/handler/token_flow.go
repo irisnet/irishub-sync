@@ -49,7 +49,7 @@ func parseTagsAndTx(tx document.CommonTx, tagStr string) (document.TokenFlow, bo
 		panic(err.Error())
 	}
 	result.Timestamp = t
-	result.Fee = tx.Fee
+	result.ActualFee = tx.ActualFee
 	result.Status = tx.Status
 	result.TxType = tx.Type
 	return result, true
