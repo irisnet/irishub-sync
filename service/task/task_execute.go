@@ -35,8 +35,8 @@ func StartExecuteTask() {
 		log.Fatal("blockNumPerWorkerHandle should greater than 0")
 	}
 	maxWorkerSleepTime = syncConf.MaxWorkerSleepTime
-	if maxWorkerSleepTime <= 0 {
-		log.Fatal("maxWorkerSleepTime should greater than 0")
+	if maxWorkerSleepTime <= 60 {
+		log.Fatal("maxWorkerSleepTime should greater than 60 second")
 	}
 
 	log.Info("Start execute task", logger.Any("sync conf", syncConf))
