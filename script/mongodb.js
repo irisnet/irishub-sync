@@ -34,7 +34,7 @@ db.stake_role_candidate.createIndex({"address": 1}, {"unique": true});
 db.stake_role_candidate.createIndex({"pub_key": 1});
 
 db.sync_task.createIndex({"start_height": 1, "end_height": 1}, {"unique": true});
-db.sync_task.createIndex({"status": 1});
+db.sync_task.createIndex({"status": 1}, {"background": true});
 
 db.tx_common.createIndex({"height": -1});
 db.tx_common.createIndex({"time": -1});
