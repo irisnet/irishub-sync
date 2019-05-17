@@ -36,6 +36,7 @@ func StartCreateTask() {
 	for {
 		chanLimit <- true
 		go createTask(blockNumPerWorkerHandle, chanLimit)
+		time.Sleep(time.Duration(1) * time.Minute)
 	}
 }
 

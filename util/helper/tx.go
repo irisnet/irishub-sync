@@ -299,6 +299,7 @@ func parseTags(result itypes.ResponseDeliverTx) map[string]string {
 	}
 	return tags
 }
+
 func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))
 }
