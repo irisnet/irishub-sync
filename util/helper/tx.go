@@ -85,6 +85,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Amount = itypes.ParseCoins(msg.Inputs[0].Coins.String())
 		docTx.Type = constant.TxTypeTransfer
 		return docTx
+	case itypes.MsgBurn:
+		msg := msg.(itypes.MsgBurn)
+		docTx.From = msg.Owner.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.Coins.String())
+		docTx.Type = constant.TxTypeBurn
+		return docTx
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
 

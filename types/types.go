@@ -33,6 +33,7 @@ import (
 
 type (
 	MsgTransfer = bank.MsgSend
+	MsgBurn     = bank.MsgBurn
 
 	MsgStakeCreate                 = stake.MsgCreateValidator
 	MsgStakeEdit                   = stake.MsgEditValidator
@@ -63,7 +64,7 @@ type (
 	AccAddress = types.AccAddress
 	ValAddress = types.ValAddress
 	Dec        = types.Dec
-	Int = types.Int
+	Int        = types.Int
 	Validator  = tm.Validator
 	Tx         = tm.Tx
 	Block      = tm.Block
