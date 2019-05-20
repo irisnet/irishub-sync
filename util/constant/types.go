@@ -4,6 +4,7 @@ package constant
 
 const (
 	TxTypeTransfer                    = "Transfer"
+	TxTypeBurn                        = "Burn"
 	TxTypeStakeCreateValidator        = "CreateValidator"
 	TxTypeStakeEditValidator          = "EditValidator"
 	TxTypeStakeDelegate               = "Delegate"
