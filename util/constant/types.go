@@ -19,6 +19,10 @@ const (
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
 
+	TxMsgTypeSubmitProposal                = "SubmitProposal"
+	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
+	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
+
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"
 	EnvNameDbPassWd   = "DB_PASSWD"

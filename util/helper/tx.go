@@ -239,16 +239,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewSubmitProposal(msg)
 
 		//query proposal_id
-		for _, tag := range result.Tags {
-			key := string(tag.Key)
-			if key == itypes.TagGovProposalID {
-				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
-				if err == nil {
-					docTx.ProposalId = uint64(proposalId)
-					break
-				}
-			}
+		proposalId, err := getProposalIdFromTags(result.Tags)
+		if err != nil {
+			logger.Error("can't get proposal id from tags", logger.String("txHash", docTx.TxHash),
+				logger.String("err", err.Error()))
 		}
+		docTx.ProposalId = proposalId
+
 		return docTx
 	case itypes.MsgSubmitSoftwareUpgradeProposal:
 		msg := msg.(itypes.MsgSubmitSoftwareUpgradeProposal)
@@ -260,16 +257,30 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewSubmitSoftwareUpgradeProposal(msg)
 
 		//query proposal_id
-		for _, tag := range result.Tags {
-			key := string(tag.Key)
-			if key == itypes.TagGovProposalID {
-				proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0)
-				if err == nil {
-					docTx.ProposalId = uint64(proposalId)
-					break
-				}
-			}
+		proposalId, err := getProposalIdFromTags(result.Tags)
+		if err != nil {
+			logger.Error("can't get proposal id from tags", logger.String("txHash", docTx.TxHash),
+				logger.String("err", err.Error()))
 		}
+		docTx.ProposalId = proposalId
+
+		return docTx
+	case itypes.MsgSubmitTaxUsageProposal:
+		msg := msg.(itypes.MsgSubmitTaxUsageProposal)
+
+		docTx.From = msg.Proposer.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
+		docTx.Type = constant.TxTypeSubmitProposal
+		docTx.Msg = itypes.NewSubmitTaxUsageProposal(msg)
+
+		//query proposal_id
+		proposalId, err := getProposalIdFromTags(result.Tags)
+		if err != nil {
+			logger.Error("can't get proposal id from tags", logger.String("txHash", docTx.TxHash),
+				logger.String("err", err.Error()))
+		}
+		docTx.ProposalId = proposalId
 		return docTx
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
@@ -305,6 +316,22 @@ func parseTags(result itypes.ResponseDeliverTx) map[string]string {
 		tags[key] = value
 	}
 	return tags
+}
+
+// get proposalId from tags
+func getProposalIdFromTags(tags []itypes.TmKVPair) (uint64, error) {
+	//query proposal_id
+	for _, tag := range tags {
+		key := string(tag.Key)
+		if key == itypes.TagGovProposalID {
+			if proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0); err != nil {
+				return 0, err
+			} else {
+				return uint64(proposalId), nil
+			}
+		}
+	}
+	return 0, nil
 }
 
 func BuildHex(bytes []byte) string {

@@ -52,6 +52,7 @@ type (
 	MsgDeposit                       = gov.MsgDeposit
 	MsgSubmitProposal                = gov.MsgSubmitProposal
 	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
+	MsgSubmitTaxUsageProposal        = gov.MsgSubmitTxTaxUsageProposal
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote

@@ -23,6 +23,13 @@ type SubmitSoftwareUpgradeProposal struct {
 	Threshold    string `json:"threshold"`
 }
 
+type SubmitTaxUsageProposal struct {
+	SubmitProposal
+	Usage       string `json:"usage"`
+	DestAddress string `json:"dest_address"`
+	Percent     string `json:"percent"`
+}
+
 type Param struct {
 	Subspace string `json:"subspace"`
 	Key      string `json:"key"`
@@ -60,8 +67,18 @@ func NewSubmitSoftwareUpgradeProposal(msg MsgSubmitSoftwareUpgradeProposal) Subm
 	}
 }
 
+func NewSubmitTaxUsageProposal(msg MsgSubmitTaxUsageProposal) SubmitTaxUsageProposal {
+	submitProposal := NewSubmitProposal(msg.MsgSubmitProposal)
+	return SubmitTaxUsageProposal{
+		SubmitProposal: submitProposal,
+		Usage:          msg.Usage.String(),
+		DestAddress:    msg.DestAddress.String(),
+		Percent:        msg.Percent.String(),
+	}
+}
+
 func (s SubmitProposal) Type() string {
-	return constant.TxTypeSubmitProposal
+	return constant.TxMsgTypeSubmitProposal
 }
 
 func (s SubmitProposal) String() string {
@@ -70,10 +87,19 @@ func (s SubmitProposal) String() string {
 }
 
 func (s SubmitSoftwareUpgradeProposal) Type() string {
-	return constant.TxTypeSubmitProposal
+	return constant.TxMsgTypeSubmitSoftwareUpgradeProposal
 }
 
 func (s SubmitSoftwareUpgradeProposal) String() string {
+	str, _ := json.Marshal(s)
+	return string(str)
+}
+
+func (s SubmitTaxUsageProposal) Type() string {
+	return constant.TxMsgTypeSubmitTaxUsageProposal
+}
+
+func (s SubmitTaxUsageProposal) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
 }
