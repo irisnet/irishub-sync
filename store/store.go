@@ -35,7 +35,7 @@ func Start() {
 	if err != nil {
 		logger.Error(err.Error())
 	}
-	session.SetMode(mgo.Primary, true)
+	session.SetMode(mgo.PrimaryPreferred, true)
 }
 
 func Stop() {

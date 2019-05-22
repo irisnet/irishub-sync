@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	serverConf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
@@ -46,12 +47,13 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 		syncTasks         []document.SyncTask
 		ops               []txn.Op
 		invalidFollowTask document.SyncTask
+		logMsg            string
 	)
-	log := logger.GetLogger("createTask")
+	log := logger.GetLogger("CreateTask")
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Error("Create sync task failed", logger.Any("err", err))
+			log.Error("Create task failed", logger.Any("err", err))
 		}
 		<-chanLimit
 	}()
@@ -64,25 +66,27 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			document.SyncTaskStatusUnderway,
 		}, document.SyncTaskTypeFollow)
 	if err != nil {
-		log.Error("Query sync task failed", logger.String("err", err.Error()))
+		log.Error("Query task failed", logger.String("err", err.Error()))
+		return
 	}
 	if len(validFollowTasks) == 0 {
 		// get max end_height from sync_task
 		maxEndHeight, err := syncTaskModel.GetMaxBlockHeight()
 		if err != nil {
-			log.Error("Get max end_block failed", logger.String("err", err.Error()))
+			log.Error("Get task max endBlock failed", logger.String("err", err.Error()))
 			return
 		}
 
-		currentBlockHeight, err := getBlockChainLatestHeight()
+		blockChainLatestHeight, err := getBlockChainLatestHeight()
 		if err != nil {
-			log.Error("Get current block height failed", logger.String("err", err.Error()))
+			log.Error("Get blockchain latest height failed", logger.String("err", err.Error()))
 			return
 		}
 
-		if maxEndHeight+blockNumPerWorker <= currentBlockHeight {
-			syncTasks = createCatchUpTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
-			log.Info("Create catch up task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
+		if maxEndHeight+blockNumPerWorker <= blockChainLatestHeight {
+			syncTasks = createCatchUpTask(maxEndHeight, blockNumPerWorker, blockChainLatestHeight)
+			logMsg = fmt.Sprintf("Create catch up task during follow task not exist, from: %v, to: %v",
+				maxEndHeight+1, blockChainLatestHeight)
 		} else {
 			finished, err := assertAllCatchUpTaskFinished()
 			if err != nil {
@@ -90,8 +94,9 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 				return
 			}
 			if finished {
-				syncTasks = createFollowTask(maxEndHeight, blockNumPerWorker, currentBlockHeight)
-				log.Info("Create follow task during follow task not exist", logger.Int64("from", maxEndHeight+1), logger.Int64("to", currentBlockHeight))
+				syncTasks = createFollowTask(maxEndHeight, blockNumPerWorker, blockChainLatestHeight)
+				logMsg = fmt.Sprintf("Create follow task during follow task not exist, from: %v, blockChainLatestHeight: %v",
+					maxEndHeight+1, blockChainLatestHeight)
 			}
 		}
 	} else {
@@ -101,21 +106,18 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			followedHeight = followTask.StartHeight - 1
 		}
 
-		currentBlockHeight, err := getBlockChainLatestHeight()
+		blockChainLatestHeight, err := getBlockChainLatestHeight()
 		if err != nil {
-			log.Error("Get current block height failed", logger.String("err", err.Error()))
+			log.Error("Get blockchain latest height failed", logger.String("err", err.Error()))
 			return
 		}
 
-		if followedHeight+blockNumPerWorker <= currentBlockHeight {
-			syncTasks = createCatchUpTask(followedHeight, blockNumPerWorker, currentBlockHeight)
-
+		if followedHeight+blockNumPerWorker <= blockChainLatestHeight {
+			syncTasks = createCatchUpTask(followedHeight, blockNumPerWorker, blockChainLatestHeight)
 			invalidFollowTask = followTask
-			log.Info("Create catch up task during follow task exist",
-				logger.Int64("from", followedHeight+1),
-				logger.Int64("to", currentBlockHeight),
-				logger.String("invalidFollowTask_id", invalidFollowTask.ID.Hex()),
-				logger.Int64("invalidFollowTask_currentHeight", invalidFollowTask.CurrentHeight))
+			logMsg = fmt.Sprintf("Create catch up task during follow task exis, "+
+				"from: %v, to: %v, invalidFollowTaskId: %v, invalidFollowTaskCurrentHeight: %v",
+				followedHeight+1, blockChainLatestHeight, invalidFollowTask.ID.Hex(), invalidFollowTask.CurrentHeight)
 		}
 	}
 
@@ -140,11 +142,13 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 			C:  document.CollectionNameSyncTask,
 			Id: invalidFollowTask.ID,
 			Assert: bson.M{
-				"current_height": invalidFollowTask.CurrentHeight,
+				"current_height":   invalidFollowTask.CurrentHeight,
+				"last_update_time": invalidFollowTask.LastUpdateTime,
 			},
 			Update: bson.M{
 				"$set": bson.M{
-					"status": document.FollowTaskStatusInvalid,
+					"status":           document.FollowTaskStatusInvalid,
+					"last_update_time": time.Now().Unix(),
 				},
 			},
 		}
@@ -154,14 +158,14 @@ func createTask(blockNumPerWorker int64, chanLimit chan bool) {
 	if len(ops) > 0 {
 		err := store.Txn(ops)
 		if err != nil {
-			log.Warn("Create sync task fail", logger.String("err", err.Error()))
+			log.Warn("Create task fail", logger.String("err", err.Error()))
 		} else {
-			log.Info("Create sync task success")
+			log.Info(fmt.Sprintf("Create task success, %v", logMsg))
 		}
 	}
 }
 
-// get current block height
+// get blockchain latest height
 func getBlockChainLatestHeight() (int64, error) {
 	client := helper.GetClient()
 	defer func() {
@@ -176,12 +180,12 @@ func getBlockChainLatestHeight() (int64, error) {
 	return currentBlockHeight, nil
 }
 
-func createCatchUpTask(maxEndHeight, blockNumPerWorker, currentBlockHeight int64) []document.SyncTask {
+func createCatchUpTask(maxEndHeight, blockNumPerWorker, blockChainLatestHeight int64) []document.SyncTask {
 	var (
 		syncTasks []document.SyncTask
 	)
 
-	for maxEndHeight+blockNumPerWorker <= currentBlockHeight {
+	for maxEndHeight+blockNumPerWorker <= blockChainLatestHeight {
 		syncTask := document.SyncTask{
 			StartHeight:    maxEndHeight + 1,
 			EndHeight:      maxEndHeight + blockNumPerWorker,
