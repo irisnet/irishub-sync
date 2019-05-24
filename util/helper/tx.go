@@ -20,6 +20,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx      document.CommonTx
 		gasPrice   float64
 		actualFee  store.ActualFee
+		signers    []document.Signer
 	)
 
 	cdc := itypes.GetCodec()
@@ -35,6 +36,23 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	txHash := BuildHex(txBytes.Hash())
 	fee := itypes.BuildFee(authTx.Fee)
 	memo := authTx.Memo
+
+	// get tx signers
+	if len(authTx.Signatures) > 0 {
+		for _, signature := range authTx.Signatures {
+			address := signature.Address()
+
+			signer := document.Signer{}
+			signer.AddrHex = address.String()
+			if addrBech32, err := ConvertAccountAddrFromHexToBech32(address.Bytes()); err != nil {
+				logger.Error("convert account addr from hex to bech32 fail",
+					logger.String("addrHex", address.String()), logger.String("err", err.Error()))
+			} else {
+				signer.AddrBech32 = addrBech32
+			}
+			signers = append(signers, signer)
+		}
+	}
 
 	// get tx status, gasUsed, gasPrice and actualFee from tx result
 	status, result, err := QueryTxResult(txBytes.Hash())
@@ -74,6 +92,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		GasPrice:  gasPrice,
 		ActualFee: actualFee,
 		Tags:      parseTags(result),
+		Signers:   signers,
 	}
 
 	switch msg.(type) {
