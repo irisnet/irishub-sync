@@ -39,6 +39,7 @@ type CommonTx struct {
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
 	Msg                  store.Msg            `bson:"-"`
+	Signers              []Signer             `bson:"signers"`
 }
 
 // Description
@@ -56,6 +57,11 @@ type StakeCreateValidator struct {
 
 type StakeEditValidator struct {
 	Description ValDescription `bson:"description"`
+}
+
+type Signer struct {
+	AddrHex    string `bson:"addr_hex"`
+	AddrBech32 string `bson:"addr_bech32"`
 }
 
 func (d CommonTx) Name() string {

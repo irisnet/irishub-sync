@@ -7,6 +7,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/tendermint/tendermint/libs/bech32"
 )
 
 // query account balance from sdk store
@@ -50,4 +51,9 @@ func ValAddrToAccAddr(address string) (accAddr string) {
 	}
 
 	return types.AccAddress(valAddr.Bytes()).String()
+}
+
+// convert account address from hex to bech32
+func ConvertAccountAddrFromHexToBech32(address []byte) (string, error) {
+	return bech32.ConvertAndEncode(types.Bech32AccountAddrPrefix, address)
 }

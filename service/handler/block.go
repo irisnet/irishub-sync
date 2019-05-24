@@ -145,7 +145,16 @@ func parseBlockResult(height int64) (res document.BlockResults) {
 
 	result, err := client.BlockResults(&height)
 	if err != nil {
-		logger.Error("EndBlocker error", logger.Any("err", err))
+		// try again
+		var err2 error
+		client2 := helper.GetClient()
+		result, err2 = client2.BlockResults(&height)
+		client2.Release()
+		if err2 != nil {
+			logger.Error("parse block result fail", logger.Int64("block", height),
+				logger.String("err", err.Error()))
+			return document.BlockResults{}
+		}
 	}
 
 	var deliverTxRes []document.ResponseDeliverTx
