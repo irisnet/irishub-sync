@@ -8,7 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"encoding/hex"
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestQueryAccountBalance(t *testing.T) {
@@ -46,6 +48,21 @@ func TestQueryAccountBalance(t *testing.T) {
 func TestValAddrToAccAddr(t *testing.T) {
 	valAddr := "fva1qz47703lujvyumg4k3fgl7uf9v7uruhzqqh5f8"
 	fmt.Println(ValAddrToAccAddr(valAddr))
+}
+
+func TestConvertAccountAddrFromHexToBech32(t *testing.T) {
+	hexAddr := "7c99a0d9ab962250b83234f830666d785e5406ff"
+	bech32Addr := "faa10jv6pkdtjc39pwpjxnurqend0p09gphl3xg5yc"
+	if bytes, err := hex.DecodeString(hexAddr); err != nil {
+		t.Fatal(err)
+	} else {
+		res, err := ConvertAccountAddrFromHexToBech32(bytes)
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, bech32Addr, res)
+	}
+
 }
 
 type Student struct {
