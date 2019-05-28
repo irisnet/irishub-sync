@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
@@ -59,20 +58,4 @@ func TestSort(t *testing.T) {
 		return people[i].Age > people[j].Age
 	})
 	fmt.Println(people)
-}
-
-func TestBuildUnbondingDelegation(t *testing.T) {
-	var delAddr = "faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm"
-	var valAddr = "fva1kca5vw7r2k72d5zy0demszmrhdz4dp8t4uat0c"
-	res := BuildUnbondingDelegation(delAddr, valAddr)
-	r, _ := json.Marshal(res)
-	fmt.Println(string(r))
-}
-
-func TestBuildDelegation(t *testing.T) {
-	var delAddr = "faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm"
-	var valAddr = "fva1kca5vw7r2k72d5zy0demszmrhdz4dp8t4uat0c"
-	res := BuildDelegation(delAddr, valAddr)
-	r, _ := json.Marshal(res)
-	fmt.Println(string(r))
 }
