@@ -9,7 +9,6 @@
 // )
 
 // create collections
-db.createCollection("token_flow");
 db.createCollection("block");
 db.createCollection("stake_role_candidate");
 db.createCollection("sync_task");
@@ -26,7 +25,6 @@ db.createCollection("ex_tx_num_stat");
 
 
 // create index
-db.token_flow.createIndex({"block_height": -1});
 db.account.createIndex({"address": 1}, {"unique": true});
 db.block.createIndex({"height": -1}, {"unique": true});
 
@@ -69,12 +67,10 @@ db.sync_conf.insert({"block_num_per_worker_handle": 50, "max_worker_sleep_time":
 // remove collection data
 // db.account.remove({});
 // db.block.remove({});
-// db.power_change.remove({});
 // db.proposal.remove({});
 // db.stake_role_candidate.remove({});
 // db.sync_task.remove({});
 // db.tx_common.remove({});
 // db.tx_msg.remove({});
-// db.uptime_change.remove({});
 // db.mgo_txn.remove({});
 // db.mgo_txn.stash.remove({});

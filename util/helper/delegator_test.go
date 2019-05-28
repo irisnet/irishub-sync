@@ -16,7 +16,7 @@ func TestGetDelegations(t *testing.T) {
 		{
 			name: "TestGetDelegations",
 			args: args{
-				delegator: "faa1eqvkfthtrr93g4p9qspp54w6dtjtrn279vcmpn",
+				delegator: "faa192vef4442d07lqde59mx35dvmfv9v72wrsu84a",
 			},
 		},
 	}
@@ -40,7 +40,7 @@ func TestGetUnbondingDelegations(t *testing.T) {
 		{
 			name: "TestGetDelegations",
 			args: args{
-				delegator: "faa1eqvkfthtrr93g4p9qspp54w6dtjtrn279vcmpn",
+				delegator: "faa192vef4442d07lqde59mx35dvmfv9v72wrsu84a",
 			},
 		},
 	}
@@ -51,4 +51,16 @@ func TestGetUnbondingDelegations(t *testing.T) {
 			t.Log(string(resBytes))
 		})
 	}
+}
+
+func TestCalculateDelegatorDelegationTokens(t *testing.T) {
+	delegatorAddr := "faa192vef4442d07lqde59mx35dvmfv9v72wrsu84a"
+	tokens := CalculateDelegatorDelegationTokens(GetDelegations(delegatorAddr))
+	t.Log(tokens)
+}
+
+func TestCalculateDelegatorUnbondingDelegationTokens(t *testing.T) {
+	delegatorAddr := "faa192vef4442d07lqde59mx35dvmfv9v72wrsu84a"
+	tokens := CalculateDelegatorUnbondingDelegationTokens(GetUnbondingDelegations(delegatorAddr))
+	t.Log(tokens)
 }
