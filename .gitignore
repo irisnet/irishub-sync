@@ -6,4 +6,4 @@ irishub-sync
 irishub-sync-unix
 *.iml
 *.log
-
+processor/
