@@ -2,6 +2,9 @@ package task
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	serverConf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/service/handler"
@@ -12,8 +15,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
-	"os"
-	"time"
 )
 
 func StartExecuteTask() {
@@ -34,8 +35,8 @@ func StartExecuteTask() {
 		log.Fatal("blockNumPerWorkerHandle should greater than 0")
 	}
 	maxWorkerSleepTime = syncConf.MaxWorkerSleepTime
-	if maxWorkerSleepTime <= 0 {
-		log.Fatal("maxWorkerSleepTime should greater than 0")
+	if maxWorkerSleepTime <= 60 {
+		log.Fatal("maxWorkerSleepTime should greater than 60 second")
 	}
 
 	log.Info("Start execute task", logger.Any("sync conf", syncConf))
@@ -232,6 +233,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 				task.CurrentHeight = inProcessBlock
 
 				if taskType == document.SyncTaskTypeFollow {
+					// TODO: whether can remove compareAndUpdateValidators in sync logic
 					// compare and update validators
 					handler.CompareAndUpdateValidators()
 				}

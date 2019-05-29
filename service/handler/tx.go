@@ -24,6 +24,8 @@ func HandleTx(block *types.Block) ([]string, error) {
 
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
+
+		// batch insert tx
 		txOp := txn.Op{
 			C:      document.CollectionNmCommonTx,
 			Id:     bson.NewObjectId(),
@@ -31,8 +33,8 @@ func HandleTx(block *types.Block) ([]string, error) {
 		}
 		batch = append(batch, txOp)
 
-		msg := tx.Msg
-		if msg != nil {
+		// batch insert tx_msg
+		if msg := tx.Msg; msg != nil {
 			txMsg := document.TxMsg{
 				Hash:    tx.TxHash,
 				Type:    msg.Type(),
@@ -45,11 +47,13 @@ func HandleTx(block *types.Block) ([]string, error) {
 			}
 			batch = append(batch, txOp)
 		}
-		// TODO(deal with by biz system)
-		handleProposal(tx)
-		SaveOrUpdateDelegator(tx)
-		SaveOrUpdateAccountDelegationInfo(tx)
 
+		// save or update proposal
+		handleProposal(tx)
+		//handleTokenFlow(blockWithTags, tx, &batch)
+
+		// save or update account delegations info and unbonding delegation info
+		SaveOrUpdateAccountDelegationInfo(tx)
 		switch tx.Type {
 		case constant.TxTypeStakeBeginUnbonding:
 			accounts := []string{tx.From}

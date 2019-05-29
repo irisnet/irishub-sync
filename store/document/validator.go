@@ -1,7 +1,6 @@
 package document
 
 import (
-	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
@@ -9,23 +8,10 @@ import (
 )
 
 const (
-	LiftUp        = 1
-	LiftNotChange = 0
-	LiftDown      = -1
-
 	CollectionNmStakeRoleCandidate = "stake_role_candidate"
 
-	Candidate_Field_Address         = "address"
-	Candidate_Field_PubKey          = "pub_key"
-	Candidate_Field_PubKeyAddr      = "pub_key_addr"
-	Candidate_Field_Jailed          = "jailed"
-	Candidate_Field_Tokens          = "tokens"
-	Candidate_Field_OriginalTokens  = "original_tokens"
-	Candidate_Field_DelegatorShares = "delegator_shares"
-	Candidate_Field_VotingPower     = "voting_power"
-	Candidate_Field_Description     = "description"
-	Candidate_Field_BondHeight      = "bond_height"
-	Candidate_Field_Status          = "status"
+	Candidate_Field_Address = "address"
+	Candidate_Field_Tokens  = "tokens"
 )
 
 type (
@@ -41,7 +27,6 @@ type (
 		Description     ValDescription `bson:"description"`  // Description terms for the candidate
 		BondHeight      int64          `bson:"bond_height"`
 		Status          string         `bson:"status"`
-		Rank            int            `bson:"rank,omitempty"`
 	}
 )
 
@@ -53,10 +38,14 @@ func (d Candidate) PkKvPair() map[string]interface{} {
 	return bson.M{Candidate_Field_Address: d.Address}
 }
 
-func (d Candidate) Query(query bson.M, sorts ...string) (
+func (d Candidate) Query(query bson.M, selector interface{}, sorts ...string) (
 	results []Candidate, err error) {
 	exop := func(c *mgo.Collection) error {
-		return c.Find(query).Sort(sorts...).All(&results)
+		if sorts[0] == "" {
+			return c.Find(query).Select(selector).All(&results)
+		} else {
+			return c.Find(query).Select(selector).Sort(sorts...).All(&results)
+		}
 	}
 	return results, store.ExecCollection(d.Name(), exop)
 }
@@ -70,27 +59,15 @@ func (d Candidate) Remove(query bson.M) error {
 	return store.ExecCollection(d.Name(), remove)
 }
 
-func (d Candidate) GetValidator(address string) (candidate Candidate) {
-	query := bson.M{
-		Candidate_Field_Address: address,
-	}
-
-	sorts := make([]string, 0)
-
-	candidates, err := d.Query(query, sorts...)
-
-	if err != nil || len(candidates) != 0 {
-		logger.Error("candidate don't find", logger.String("address", address))
-		return candidate
-	}
-
-	candidate = candidates[0]
-	return candidate
-}
-
 func (d Candidate) QueryAll() (candidates []Candidate) {
-	sort := fmt.Sprintf("-%s", Candidate_Field_Tokens)
-	candidates, err := d.Query(nil, sort)
+	selector := bson.M{
+		"address":      1,
+		"pub_key_addr": 1,
+		"tokens":       1,
+		"jailed":       1,
+		"status":       1,
+	}
+	candidates, err := d.Query(nil, selector, "")
 
 	if err != nil {
 		logger.Error("candidate collection is empty")

@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:7a9140c806333a78122763d08ec6c0d7358c7fff1df8cfbb01881c5dc46e24e5"
-  name = "github.com/armon/go-metrics"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "ec5e00d3c878b2a97bbe0884ef45ffd1b4f669f5"
-
-[[projects]]
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
@@ -149,46 +141,6 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:9537873f2fc92467f451178506405fae087efc624d8d92644042209a03a2bfa0"
-  name = "github.com/hashicorp/consul"
-  packages = ["api"]
-  pruneopts = "UT"
-  revision = "ea5210a30e154f4da9a4c8e729b45b8ce7b9b92c"
-  version = "v1.4.4"
-
-[[projects]]
-  digest = "1:af105c7c5dc0b4ae41991f122cae860b9600f7d226072c2a83127048c991660c"
-  name = "github.com/hashicorp/go-cleanhttp"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "eda1e5db218aad1db63ca4642c8906b26bcf2744"
-  version = "v0.5.1"
-
-[[projects]]
-  digest = "1:2be5a35f0c5b35162c41bb24971e5dcf6ce825403296ee435429cdcc4e1e847e"
-  name = "github.com/hashicorp/go-immutable-radix"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "27df80928bb34bb1b0d6d0e01b9e679902e7a6b5"
-  version = "v1.0.0"
-
-[[projects]]
-  digest = "1:a54ada9beb59fdc35b69322979e870ff0b780e03f4dc309c4c8674b94927df75"
-  name = "github.com/hashicorp/go-rootcerts"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "63503fb4e1eca22f9ae0f90b49c5d5538a0e87eb"
-  version = "v1.0.0"
-
-[[projects]]
-  digest = "1:67474f760e9ac3799f740db2c489e6423a4cde45520673ec123ac831ad849cb8"
-  name = "github.com/hashicorp/golang-lru"
-  packages = ["simplelru"]
-  pruneopts = "UT"
-  revision = "7087cb70de9f7a8bc0a10c375cb0d2280a8edf9c"
-  version = "v0.5.1"
-
-[[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
   name = "github.com/hashicorp/hcl"
   packages = [
@@ -206,14 +158,6 @@
   pruneopts = "UT"
   revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
   version = "v1.0.0"
-
-[[projects]]
-  digest = "1:acc81e4e4289587b257ccdfccbc6eaf16d4c2fb57dda73c6bb349bf50f02501f"
-  name = "github.com/hashicorp/serf"
-  packages = ["coordinate"]
-  pruneopts = "UT"
-  revision = "15cfd05de3dffb3664aa37b06e91f970b825e380"
-  version = "v0.8.3"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -304,12 +248,12 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
-  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
+  digest = "1:5a0ef768465592efca0412f7e838cdc0826712f8447e70e6ccc52eb441e9ab13"
   name = "github.com/magiconair/properties"
   packages = ["."]
   pruneopts = "UT"
-  revision = "c2353362d570a7bfa228149c62842019201cfb71"
-  version = "v1.8.0"
+  revision = "de8848e004dd33dc07a2947b3d76f618a7fc7ef1"
+  version = "v1.8.1"
 
 [[projects]]
   digest = "1:e150b5fafbd7607e2d638e4e5cf43aa4100124e5593385147b0a74e2733d8b0d"
@@ -380,12 +324,12 @@
   version = "v0.9.2"
 
 [[projects]]
-  branch = "beorn7/doc"
+  branch = "master"
   digest = "1:2d5cd61daa5565187e1d96bae64dbbc6080dacf741448e9629c64fd93203b0d4"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = "UT"
-  revision = "2b5efa099df2f184740f259544785ced3edc142d"
+  revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
 
 [[projects]]
   digest = "1:35cf6bdf68db765988baa9c4f10cc5d7dda1126a54bd62e252dbcd0b1fc8da90"
@@ -396,19 +340,19 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "a82f4c12f983cc2649298185f296632953e50d3e"
-  version = "v0.3.0"
+  revision = "1ba88736f028e37bc17328369e94a537ae9e0234"
+  version = "v0.4.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:08f5524b0ca33fab03c05bd0015337c1d5658c3cf580d4772d789cbe42344db3"
+  digest = "1:9d62e12429921bbbdc2d1e3c81c6a2c128cc07046633ff92fb6d17376f74261d"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
     "internal/fs",
   ]
   pruneopts = "UT"
-  revision = "740c0778500738e56e1877d52904c431a3fdc573"
+  revision = "5867b95ac084bbfee6ea16595c4e05ab009021da"
 
 [[projects]]
   digest = "1:c4556a44e350b50a490544d9b06e9fba9c286c21d6c0e47f54f3a9214597298c"
@@ -709,14 +653,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:76eb085408ed50effcb126e51935c2f5150974c607dcff34e9f0d647104cce72"
+  digest = "1:00a3a12527dd7a3af0d24260fd14887ebd69aaf924303b6a4a67f35eb9b6c012"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
     "unix",
   ]
   pruneopts = "UT"
-  revision = "a43fa875dd822b81eb6d2ad538bc1f4caba169bd"
+  revision = "f91f9b37d0e9fd2002e73af3d2c862431c925769"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -828,7 +772,6 @@
   input-imports = [
     "github.com/go-kit/kit/metrics",
     "github.com/go-kit/kit/metrics/prometheus",
-    "github.com/hashicorp/consul/api",
     "github.com/irisnet/irishub/app",
     "github.com/irisnet/irishub/client/utils",
     "github.com/irisnet/irishub/codec",

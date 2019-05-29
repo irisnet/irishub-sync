@@ -10,29 +10,17 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = []string{"tcp://192.168.150.7:30657"}
-	ChainId              = "rainbow-dev"
+	BlockChainMonitorUrl = []string{"tcp://35.201.147.145:30657"}
+	ChainId              = "fuxi"
 
 	WorkerNumCreateTask  = 2
 	WorkerNumExecuteTask = 60
 
-	InitConnectionNum        = 50              // fast init num of tendermint client pool
-	MaxConnectionNum         = 100             // max size of tendermint client pool
-	CronWatchBlock           = "*/1 * * * * *" // every 1 seconds
-	CronCalculateUpTime      = "0 */1 * * * *" // every minute
-	CronCalculateTxGas       = "0 */5 * * * *" // every five minute
-	SyncProposalStatus       = "0 */1 * * * *" // every minute
-	CronSaveValidatorHistory = "@daily"        // every day
-	CronUpdateDelegator      = "0/5 * * * * *" // every ten minute
+	InitConnectionNum  = 50              // fast init num of tendermint client pool
+	MaxConnectionNum   = 100             // max size of tendermint client pool
+	SyncProposalStatus = "0 */1 * * * *" // every minute
 
-	// deprecated
-	SyncMaxGoroutine = 60 // max go routine in server
-	// deprecated
-	SyncBlockNumFastSync = 8000 // sync block num each goroutine
-
-	ConsulAddr    = "192.168.150.7:8500"
-	SyncWithDLock = false
-	Network       = "testnet"
+	Network = "testnet"
 )
 
 // get value of env var
@@ -49,28 +37,6 @@ func init() {
 		ChainId = chainId
 	}
 	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
-
-	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
-	if found {
-		ConsulAddr = consulAddr
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameConsulAddr, ConsulAddr))
-
-	withDLock, found := os.LookupEnv(constant.EnvNameSyncWithDLock)
-	if found {
-		flag, err := strconv.ParseBool(withDLock)
-		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSyncWithDLock, withDLock))
-		}
-		SyncWithDLock = flag
-	}
-	logger.Info("Env Value", logger.Bool(constant.EnvNameSyncWithDLock, SyncWithDLock))
-
-	cronSaveValidatorHistory, found := os.LookupEnv(constant.EnvNameCronSaveValidatorHistory)
-	if found {
-		CronSaveValidatorHistory = cronSaveValidatorHistory
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
 
 	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
 	if found {

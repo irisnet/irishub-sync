@@ -95,10 +95,6 @@
   name = "github.com/jolestar/go-commons-pool"
 
 [[constraint]]
-  version = "v1.2.2"
-  name = "github.com/hashicorp/consul"
-
-[[constraint]]
   version = "^v1.9.1"
   name = "go.uber.org/zap"
 

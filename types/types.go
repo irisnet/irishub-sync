@@ -33,6 +33,7 @@ import (
 
 type (
 	MsgTransfer = bank.MsgSend
+	MsgBurn     = bank.MsgBurn
 
 	MsgStakeCreate                 = stake.MsgCreateValidator
 	MsgStakeEdit                   = stake.MsgEditValidator
@@ -51,6 +52,7 @@ type (
 	MsgDeposit                       = gov.MsgDeposit
 	MsgSubmitProposal                = gov.MsgSubmitProposal
 	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
+	MsgSubmitTaxUsageProposal        = gov.MsgSubmitTxTaxUsageProposal
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
