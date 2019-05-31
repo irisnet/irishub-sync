@@ -48,3 +48,26 @@ func TestParseBlockResult(t *testing.T) {
 	bz, _ := json.Marshal(v)
 	fmt.Println(string(bz))
 }
+
+func TestParseBlock(t *testing.T) {
+	blockHeight := int64(88)
+
+	client := helper.GetClient()
+	defer client.Release()
+
+	if res, err := client.Block(&blockHeight); err != nil {
+		t.Fatal(err)
+	} else {
+		var validators []*types.Validator
+		valRes, err := client.Validators(&blockHeight)
+		if err != nil {
+			t.Error(err)
+		} else {
+			validators = valRes.Validators
+		}
+		blockDoc := ParseBlock(res.BlockMeta, res.Block, validators, nil)
+
+		resBytes, _ := json.MarshalIndent(blockDoc, "", "\t")
+		t.Log(string(resBytes))
+	}
+}
