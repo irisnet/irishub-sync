@@ -15,17 +15,18 @@ const (
 )
 
 type Proposal struct {
-	ProposalId      uint64      `bson:"proposal_id"`
-	Title           string      `bson:"title"`
-	Type            string      `bson:"type"`
-	Description     string      `bson:"description"`
-	Status          string      `bson:"status"`
-	SubmitTime      time.Time   `bson:"submit_time"`
-	DepositEndTime  time.Time   `bson:"deposit_end_time"`
-	VotingStartTime time.Time   `bson:"voting_start_time"`
-	VotingEndTime   time.Time   `bson:"voting_end_time"`
-	TotalDeposit    store.Coins `bson:"total_deposit"`
-	Votes           []PVote     `bson:"votes"`
+	ProposalId              uint64      `bson:"proposal_id"`
+	Title                   string      `bson:"title"`
+	Type                    string      `bson:"type"`
+	Description             string      `bson:"description"`
+	Status                  string      `bson:"status"`
+	SubmitTime              time.Time   `bson:"submit_time"`
+	DepositEndTime          time.Time   `bson:"deposit_end_time"`
+	VotingStartTime         time.Time   `bson:"voting_start_time"`
+	VotingEndTime           time.Time   `bson:"voting_end_time"`
+	VotingPeriodStartHeight int64       `bson:"voting_start_height"`
+	TotalDeposit            store.Coins `bson:"total_deposit"`
+	Votes                   []PVote     `bson:"votes"`
 }
 
 type PVote struct {

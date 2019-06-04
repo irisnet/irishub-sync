@@ -12,11 +12,17 @@ func handleProposal(docTx document.CommonTx) {
 	switch docTx.Type {
 	case constant.TxTypeSubmitProposal:
 		if proposal, err := helper.GetProposal(docTx.ProposalId); err == nil {
+			if isContainVotingPeriodStartTag(docTx) {
+				proposal.VotingPeriodStartHeight = docTx.Height
+			}
 			store.SaveOrUpdate(proposal)
 		}
 	case constant.TxTypeDeposit:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
 			propo, _ := helper.GetProposal(docTx.ProposalId)
+			if isContainVotingPeriodStartTag(docTx) {
+				proposal.VotingPeriodStartHeight = docTx.Height
+			}
 			proposal.TotalDeposit = propo.TotalDeposit
 			proposal.Status = propo.Status
 			proposal.VotingStartTime = propo.VotingStartTime
@@ -51,4 +57,17 @@ func handleProposal(docTx document.CommonTx) {
 			store.SaveOrUpdate(proposal)
 		}
 	}
+}
+
+func isContainVotingPeriodStartTag(docTx document.CommonTx) bool {
+	tags := docTx.Tags
+	if len(tags) > 0 {
+		for k, _ := range tags {
+			if k == constant.TxTagVotingPeriodStart {
+				return true
+			}
+		}
+	}
+
+	return false
 }
