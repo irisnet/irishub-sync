@@ -1,15 +1,17 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
+	itypes "github.com/irisnet/irishub-sync/types"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"testing"
 )
 
 func TestIsContainVotingPeriodStartTag(t *testing.T) {
-	txHash := "7DD721FAFF970A6A74D1BF0771A1634B10CF40CCDD10C8F1A38F65BB0E035B2D"
+	txHash := "A837138C2A569B7884AA94C27CC4AB791C04F1B8DD93EFC3D5BFCF3D7EB0F2F3"
 
 	var tx document.CommonTx
 	fn := func(c *mgo.Collection) error {
@@ -26,7 +28,7 @@ func TestIsContainVotingPeriodStartTag(t *testing.T) {
 }
 
 func TestHandleProposal(t *testing.T) {
-	txHash := "2D9B3B49F6250B8A2D60C90AF0F21591CDDC74C14FBF7E1ADDE0062D1E977922"
+	txHash := "5875062EE8B8656CF943C42983F382B5341B1B0C530062D266BD8283CA9658B0"
 
 	var tx document.CommonTx
 	fn := func(c *mgo.Collection) error {
@@ -37,7 +39,23 @@ func TestHandleProposal(t *testing.T) {
 	if err := store.ExecCollection(tx.Name(), fn); err != nil {
 		t.Fatal(err)
 	} else {
-		handleProposal(tx)
-		t.Log("success")
+		var txMsg document.TxMsg
+		fn := func(c *mgo.Collection) error {
+			q := bson.M{"hash": txHash}
+			return c.Find(q).One(&txMsg)
+		}
+		if err := store.ExecCollection(txMsg.Name(), fn); err != nil {
+			t.Fatal(err)
+		} else {
+			var msgVote itypes.Vote
+			if err := json.Unmarshal([]byte(txMsg.Content), &msgVote); err != nil {
+				t.Fatal(err)
+			} else {
+				tx.Msg = msgVote
+				handleProposal(tx)
+				t.Log("success")
+			}
+		}
+
 	}
 }

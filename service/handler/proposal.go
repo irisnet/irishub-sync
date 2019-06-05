@@ -39,6 +39,7 @@ func handleProposal(docTx document.CommonTx) {
 			vote := document.PVote{
 				Voter:  voteMsg.Voter,
 				Option: voteMsg.Option,
+				TxHash: docTx.TxHash,
 				Time:   docTx.Time,
 			}
 			var i int
