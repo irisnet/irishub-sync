@@ -41,6 +41,7 @@ db.tx_common.createIndex({"from": 1});
 db.tx_common.createIndex({"to": 1});
 db.tx_common.createIndex({"type": 1});
 db.tx_common.createIndex({"status": 1});
+db.tx_common.createIndex({"proposal_id": 1}, {"background": true});
 
 db.power_change.createIndex({"height": 1, "address": 1}, {"unique": true});
 
