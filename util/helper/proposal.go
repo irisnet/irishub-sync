@@ -28,6 +28,15 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	proposal.DepositEndTime = propo.GetDepositEndTime()
 	proposal.TotalDeposit = types.ParseCoins(propo.GetTotalDeposit().String())
 	proposal.Votes = []document.PVote{}
+
+	tallyResult := propo.GetTallyResult()
+	proposal.TallyResult = document.PTallyResult{
+		Yes:        tallyResult.Yes.String(),
+		Abstain:    tallyResult.Abstain.String(),
+		No:         tallyResult.No.String(),
+		NoWithVeto: tallyResult.NoWithVeto.String(),
+	}
+
 	return
 }
 

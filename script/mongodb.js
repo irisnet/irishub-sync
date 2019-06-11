@@ -37,8 +37,12 @@ db.tx_common.createIndex({"from": 1});
 db.tx_common.createIndex({"to": 1});
 db.tx_common.createIndex({"type": 1});
 db.tx_common.createIndex({"status": 1});
+db.tx_common.createIndex({"proposal_id": 1}, {"background": true});
 
 db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
+db.proposal.createIndex({"status": 1}, {"background": true});
+db.proposal.createIndex({"voting_end_time": 1, "deposit_end_time": 1, "status": 1}, {"background": true});
+
 db.tx_msg.createIndex({"hash": 1}, {"unique": true});
 
 // init data
