@@ -47,6 +47,9 @@ db.power_change.createIndex({"height": 1, "address": 1}, {"unique": true});
 
 
 db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
+db.proposal.createIndex({"status": 1}, {"background": true});
+db.proposal.createIndex({"voting_end_time": 1, "deposit_end_time": 1, "status": 1}, {"background": true});
+
 db.tx_msg.createIndex({"hash": 1}, {"unique": true});
 db.ex_tx_num_stat.createIndex({"date": -1}, {"unique": true});
 
