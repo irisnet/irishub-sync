@@ -56,7 +56,8 @@ type StakeCreateValidator struct {
 }
 
 type StakeEditValidator struct {
-	Description ValDescription `bson:"description"`
+	CommissionRate string         `bson:"commission_rate"`
+	Description    ValDescription `bson:"description"`
 }
 
 type Signer struct {
