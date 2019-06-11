@@ -51,7 +51,6 @@ db.proposal.createIndex({"status": 1}, {"background": true});
 db.proposal.createIndex({"voting_end_time": 1, "deposit_end_time": 1, "status": 1}, {"background": true});
 
 db.tx_msg.createIndex({"hash": 1}, {"unique": true});
-db.ex_tx_num_stat.createIndex({"date": -1}, {"unique": true});
 
 // init data
 db.sync_conf.insert({"block_num_per_worker_handle": 50, "max_worker_sleep_time": 120});
