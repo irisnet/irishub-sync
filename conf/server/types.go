@@ -11,7 +11,6 @@ import (
 
 var (
 	BlockChainMonitorUrl = []string{"tcp://35.201.147.145:30657"}
-	ChainId              = "fuxi"
 
 	WorkerNumCreateTask  = 2
 	WorkerNumExecuteTask = 60
@@ -31,12 +30,6 @@ func init() {
 	}
 
 	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkFullNode, BlockChainMonitorUrl))
-
-	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
-	if found {
-		ChainId = chainId
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
 
 	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
 	if found {
@@ -62,5 +55,5 @@ func init() {
 	if found {
 		Network = network
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameNetwork, network))
+	logger.Info("Env Value", logger.String(constant.EnvNameNetwork, Network))
 }

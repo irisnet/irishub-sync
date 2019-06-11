@@ -36,10 +36,11 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	}
 
 	docBlock := document.Block{
-		Height: meta.Header.Height,
-		Hash:   hexFunc(meta.BlockID.Hash),
-		Time:   meta.Header.Time,
-		NumTxs: meta.Header.NumTxs,
+		Height:          meta.Header.Height,
+		Hash:            hexFunc(meta.BlockID.Hash),
+		Time:            meta.Header.Time,
+		NumTxs:          meta.Header.NumTxs,
+		ProposalAddress: block.Header.ProposerAddress.String(),
 	}
 
 	lastBlockId := document.BlockID{
