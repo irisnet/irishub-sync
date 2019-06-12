@@ -23,6 +23,8 @@ const (
 	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
 	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
 
+	TxTagVotingPeriodStart = "voting-period-start"
+
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"
 	EnvNameDbPassWd   = "DB_PASSWD"

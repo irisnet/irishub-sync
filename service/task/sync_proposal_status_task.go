@@ -21,6 +21,7 @@ func syncProposalStatus() {
 			if propo.Status != proposal.Status {
 				propo.SubmitTime = proposal.SubmitTime
 				propo.Votes = proposal.Votes
+				propo.VotingPeriodStartHeight = proposal.VotingPeriodStartHeight
 				store.SaveOrUpdate(propo)
 			}
 		}
