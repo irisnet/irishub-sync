@@ -231,12 +231,6 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 				log.Error("save docs fail", logger.String("err", err.Error()))
 			} else {
 				task.CurrentHeight = inProcessBlock
-
-				if taskType == document.SyncTaskTypeFollow {
-					// TODO: whether can remove compareAndUpdateValidators in sync logic
-					// compare and update validators
-					handler.CompareAndUpdateValidators()
-				}
 			}
 		} else {
 			log.Info("task worker changed", logger.Any("task_id", task.ID),
