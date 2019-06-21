@@ -10,7 +10,6 @@
 
 // create collections
 db.createCollection("block");
-db.createCollection("stake_role_candidate");
 db.createCollection("sync_task");
 db.createCollection("tx_common");
 db.createCollection("proposal");
@@ -23,9 +22,6 @@ db.createCollection("mgo_txn.stash");
 // create index
 db.account.createIndex({"address": 1}, {"unique": true});
 db.block.createIndex({"height": -1}, {"unique": true});
-
-db.stake_role_candidate.createIndex({"address": 1}, {"unique": true});
-db.stake_role_candidate.createIndex({"pub_key": 1});
 
 db.sync_task.createIndex({"start_height": 1, "end_height": 1}, {"unique": true});
 db.sync_task.createIndex({"status": 1}, {"background": true});
@@ -52,7 +48,6 @@ db.sync_conf.insert({"block_num_per_worker_handle": 50, "max_worker_sleep_time":
 // db.account.drop();
 // db.block.drop();
 // db.proposal.drop();
-// db.stake_role_candidate.drop();
 // db.sync_task.drop();
 // db.tx_common.drop();
 // db.tx_msg.drop();
@@ -63,7 +58,6 @@ db.sync_conf.insert({"block_num_per_worker_handle": 50, "max_worker_sleep_time":
 // db.account.remove({});
 // db.block.remove({});
 // db.proposal.remove({});
-// db.stake_role_candidate.remove({});
 // db.sync_task.remove({});
 // db.tx_common.remove({});
 // db.tx_msg.remove({});
