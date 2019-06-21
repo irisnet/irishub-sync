@@ -24,6 +24,7 @@ const (
 	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
 
 	TxTagVotingPeriodStart = "voting-period-start"
+	TxTagProposalId = "proposal-id"
 
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"

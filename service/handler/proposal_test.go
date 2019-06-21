@@ -11,7 +11,7 @@ import (
 )
 
 func TestIsContainVotingPeriodStartTag(t *testing.T) {
-	txHash := "A837138C2A569B7884AA94C27CC4AB791C04F1B8DD93EFC3D5BFCF3D7EB0F2F3"
+	txHash := "37A0127A87AA68BFE73D03C2B9A2A6A3D8E51DF242D86C845DB2D158B1617502"
 
 	var tx document.CommonTx
 	fn := func(c *mgo.Collection) error {
@@ -28,7 +28,7 @@ func TestIsContainVotingPeriodStartTag(t *testing.T) {
 }
 
 func TestHandleProposal(t *testing.T) {
-	txHash := "5875062EE8B8656CF943C42983F382B5341B1B0C530062D266BD8283CA9658B0"
+	txHash := "37A0127A87AA68BFE73D03C2B9A2A6A3D8E51DF242D86C845DB2D158B1617502"
 
 	var tx document.CommonTx
 	fn := func(c *mgo.Collection) error {
