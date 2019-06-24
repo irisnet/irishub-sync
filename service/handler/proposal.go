@@ -6,6 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
+	"strconv"
 )
 
 func handleProposal(docTx document.CommonTx) {
@@ -71,4 +72,18 @@ func isContainVotingPeriodStartTag(docTx document.CommonTx) bool {
 	}
 
 	return false
+}
+
+func IsContainVotingEndTag(blockresult document.ResponseEndBlock) (uint64, bool) {
+	tags := blockresult.Tags
+	if len(tags) > 0 {
+		for _, tag := range tags {
+			if tag.Key == constant.BlockTagProposalId {
+				proposalid,_ := strconv.ParseUint(tag.Value,10,64)
+				return proposalid, true
+			}
+		}
+	}
+
+	return 0, false
 }
