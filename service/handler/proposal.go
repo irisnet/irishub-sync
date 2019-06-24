@@ -78,7 +78,7 @@ func IsContainVotingEndTag(blockresult document.ResponseEndBlock) (uint64, bool)
 	tags := blockresult.Tags
 	if len(tags) > 0 {
 		for _, tag := range tags {
-			if tag.Key == constant.TxTagProposalId {
+			if tag.Key == constant.BlockTagProposalId {
 				proposalid,_ := strconv.ParseUint(tag.Value,10,64)
 				return proposalid, true
 			}
