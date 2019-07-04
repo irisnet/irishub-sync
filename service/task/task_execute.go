@@ -146,7 +146,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 								logger.String("task_current_worker", task.WorkerId))
 						} else {
 							log.Info("task is invalid, exit health check", logger.String("task_id", taskId.Hex()))
-							break
+							return
 						}
 					} else {
 						log.Error("get block chain latest height fail", logger.String("err", err.Error()))
@@ -155,7 +155,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 					if err == mgo.ErrNotFound {
 						log.Info("task may be task over by other goroutine, exit health check",
 							logger.String("task_id", taskId.Hex()), logger.String("current_worker", workerId))
-						break
+						return
 					} else {
 						log.Error("get task by id and worker fail", logger.String("task_id", taskId.Hex()),
 							logger.String("current_worker", workerId))
@@ -231,12 +231,6 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 				log.Error("save docs fail", logger.String("err", err.Error()))
 			} else {
 				task.CurrentHeight = inProcessBlock
-
-				if taskType == document.SyncTaskTypeFollow {
-					// TODO: whether can remove compareAndUpdateValidators in sync logic
-					// compare and update validators
-					handler.CompareAndUpdateValidators()
-				}
 			}
 		} else {
 			log.Info("task worker changed", logger.Any("task_id", task.ID),

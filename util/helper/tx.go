@@ -152,8 +152,15 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Website:  msg.Website,
 			Details:  msg.Details,
 		}
+
 		docTx.StakeEditValidator = document.StakeEditValidator{
 			Description: valDes,
+		}
+		commissionRate := msg.CommissionRate
+		if commissionRate == nil {
+			docTx.StakeEditValidator.CommissionRate = ""
+		} else {
+			docTx.StakeEditValidator.CommissionRate = commissionRate.String()
 		}
 
 		return docTx

@@ -25,6 +25,7 @@ type Proposal struct {
 	VotingStartTime         time.Time    `bson:"voting_start_time"`
 	VotingEndTime           time.Time    `bson:"voting_end_time"`
 	VotingPeriodStartHeight int64        `bson:"voting_start_height"`
+	VotingEndHeight         int64        `bson:"voting_end_height"`
 	TotalDeposit            store.Coins  `bson:"total_deposit"`
 	Votes                   []PVote      `bson:"votes"`
 	TallyResult             PTallyResult `bson:"tally_result"`

@@ -8,6 +8,7 @@ import (
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"strings"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 var (
@@ -36,10 +37,11 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	}
 
 	docBlock := document.Block{
-		Height: meta.Header.Height,
-		Hash:   hexFunc(meta.BlockID.Hash),
-		Time:   meta.Header.Time,
-		NumTxs: meta.Header.NumTxs,
+		Height:          meta.Header.Height,
+		Hash:            hexFunc(meta.BlockID.Hash),
+		Time:            meta.Header.Time,
+		NumTxs:          meta.Header.NumTxs,
+		ProposalAddress: block.Header.ProposerAddress.String(),
 	}
 
 	lastBlockId := document.BlockID{
@@ -126,6 +128,16 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	docBlock.Block = blockContent
 	docBlock.Validators = vals
 	docBlock.Result = parseBlockResult(docBlock.Height)
+
+	if proposalId,ok := IsContainVotingEndTag(docBlock.Result.EndBlock);ok {
+		if proposal,err := document.QueryProposal(proposalId);err == nil {
+			proposal.VotingEndHeight = docBlock.Height
+			store.SaveOrUpdate(proposal)
+		}else{
+			logger.Error("QueryProposal fail", logger.Int64("block", docBlock.Height),
+				logger.String("err", err.Error()))
+		}
+	}
 
 	// save or update account balance info and unbonding delegation info by parse block coin flow
 	accsBalanceNeedUpdated, accsUnbondingDelegationNeedUpdated := getAccountsFromCoinFlow(
