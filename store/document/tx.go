@@ -40,6 +40,18 @@ type CommonTx struct {
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
 	Msg                  store.Msg            `bson:"-"`
 	Signers              []Signer             `bson:"signers"`
+
+	Msgs []DocTxMsg `bson:"msgs"`
+}
+
+type DocTxMsg struct {
+	Type string `bson:"type"`
+	Msg  Msg    `bson:"msg"`
+}
+
+type Msg interface {
+	Type() string
+	BuildMsg(msg interface{})
 }
 
 // Description
