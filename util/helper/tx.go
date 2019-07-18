@@ -89,6 +89,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		Code:      result.Code,
 		Log:       log,
 		GasUsed:   gasUsed,
+		GasWanted: result.GasWanted,
 		GasPrice:  gasPrice,
 		ActualFee: actualFee,
 		Tags:      parseTags(result),
