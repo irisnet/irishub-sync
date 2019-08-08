@@ -160,7 +160,7 @@ func ParseCoins(coinsStr string) (coins store.Coins) {
 
 func ParseCoin(coinStr string) (coin store.Coin) {
 	var (
-		reDnm  = `[A-Za-z]{2,}\S*`
+		reDnm  = `[A-Za-z]{1,}\S*`
 		reAmt  = `[0-9]+[.]?[0-9]*`
 		reSpc  = `[[:space:]]*`
 		reCoin = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, reAmt, reSpc, reDnm))
