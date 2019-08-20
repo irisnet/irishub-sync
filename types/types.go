@@ -180,8 +180,12 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 }
 
 func getPrecision(amount, denom string) string {
-	if denom == types.NativeTokenMinDenom && len(amount) > 16 {
-		amount = string([]byte(amount)[:16]) + "00"
+	length := len(amount)
+	if denom == types.NativeTokenMinDenom && length > 15 {
+		amount = string([]byte(amount)[:15])
+		for i := 1; i <= length-15; i++ {
+			amount += "0"
+		}
 	}
 	return amount
 }
