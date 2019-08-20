@@ -166,6 +166,7 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 	}
 	denom, amount := matches[2], matches[1]
 
+	amount = getPrecision(amount, denom)
 	amt, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
 		logger.Error("Convert str to int failed", logger.Any("amount", amount))
@@ -176,6 +177,13 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 		Denom:  denom,
 		Amount: amt,
 	}
+}
+
+func getPrecision(amount, denom string) string {
+	if denom == types.NativeTokenMinDenom && len(amount) > 16 {
+		amount = string([]byte(amount)[:16]) + "00"
+	}
+	return amount
 }
 
 func BuildFee(fee auth.StdFee) store.Fee {
