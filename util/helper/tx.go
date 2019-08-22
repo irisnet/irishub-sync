@@ -114,6 +114,19 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Amount = itypes.ParseCoins(msg.Coins.String())
 		docTx.Type = constant.TxTypeBurn
 		return docTx
+	case itypes.MsgSetMemoRegexp:
+		msg := msg.(itypes.MsgSetMemoRegexp)
+		docTx.From = msg.Owner.String()
+		docTx.To = ""
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeSetMemoRegexp
+		txMsg := itypes.DocTxMsgSetMemoRegexp{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
 
@@ -311,6 +324,20 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		}
 		docTx.ProposalId = proposalId
 		return docTx
+	case itypes.MsgSubmitTokenAdditionProposal:
+		msg := msg.(itypes.MsgSubmitTokenAdditionProposal)
+
+		docTx.From = msg.Proposer.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
+		docTx.Type = constant.TxTypeSubmitTokenAdditionProposal
+		txMsg := itypes.DocTxMsgSubmitTokenAdditionProposal{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
 
@@ -328,6 +355,19 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Type = constant.TxTypeVote
 		docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
+		return docTx
+	case itypes.MsgRequestRand:
+		msg := msg.(itypes.MsgRequestRand)
+
+		docTx.From = msg.Consumer.String()
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeRequestRand
+		txMsg := itypes.DocTxMsgRequestRand{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
 		return docTx
 	case itypes.AssetIssueToken:
 		msg := msg.(itypes.AssetIssueToken)

@@ -5,6 +5,7 @@ package constant
 const (
 	TxTypeTransfer                    = "Transfer"
 	TxTypeBurn                        = "Burn"
+	TxTypeSetMemoRegexp               = "SetMemoRegexp"
 	TxTypeStakeCreateValidator        = "CreateValidator"
 	TxTypeStakeEditValidator          = "EditValidator"
 	TxTypeStakeDelegate               = "Delegate"
@@ -18,6 +19,8 @@ const (
 	TxTypeSubmitProposal              = "SubmitProposal"
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
+	TxTypeSubmitTokenAdditionProposal = "SubmitTokenAdditionProposal"
+	TxTypeRequestRand                 = "RequestRand"
 	TxTypeAssetIssueToken             = "IssueToken"
 	TxTypeAssetEditToken              = "EditToken"
 	TxTypeAssetMintToken              = "MintToken"
