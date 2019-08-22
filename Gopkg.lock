@@ -41,12 +41,12 @@
   revision = "555e2067c45d9fcd7292bf3b8e732bc10ac8c58e"
 
 [[projects]]
-  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   pruneopts = "UT"
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:95295c8fcd8363f85a8a34be6554c2bd44d28aa2eb289ec93a327415b156ac01"
@@ -169,7 +169,7 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:30a9b9c7daefc5a928ca0bacad9e1f8faef5b8b792aefcf468a961375824afa2"
+  digest = "1:537b3fcfbaff2f7f29125a720bb8af65a97248b7a9f4f1c501a47c6ae0bfeca4"
   name = "github.com/irisnet/irishub"
   packages = [
     "app",
@@ -177,7 +177,9 @@
     "app/v0",
     "app/v1",
     "app/v1/asset",
-    "app/v1/asset/tags",
+    "app/v1/asset/exported",
+    "app/v1/asset/internal/keeper",
+    "app/v1/asset/internal/types",
     "app/v1/auth",
     "app/v1/bank",
     "app/v1/distribution",
@@ -192,6 +194,9 @@
     "app/v1/mock/baseapp",
     "app/v1/params",
     "app/v1/params/subspace",
+    "app/v1/rand",
+    "app/v1/rand/internal/keeper",
+    "app/v1/rand/internal/types",
     "app/v1/service",
     "app/v1/service/tags",
     "app/v1/slashing",
@@ -238,13 +243,14 @@
     "server",
     "server/config",
     "store",
+    "tools/prometheus",
     "tools/protoidl",
     "types",
     "version",
   ]
   pruneopts = "UT"
-  revision = "a24e69105097d7eddd1cabada2f652bd19c3aa17"
-  version = "v0.15.0-rc1"
+  revision = "fdc78914a514ead0fc62d4773dcbae1a31b66fac"
+  version = "v0.15.0"
 
 [[projects]]
   digest = "1:a74b5a8e34ee5843cd6e65f698f3e75614f812ff170c2243425d75bc091e9af2"
@@ -503,13 +509,13 @@
   version = "v0.14.0"
 
 [[projects]]
-  digest = "1:585125df1f61c38bd6ee965e171ffffa94dd6da158ceda754b5abd26e9c3e4d9"
+  digest = "1:1d48cbd70e6b3a95b951e76e4a25c460a7a2ee6068d39f9706c90929b086405b"
   name = "github.com/tendermint/iavl"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e3036c48907e3854e9971d374f1dcb6d6985a51a"
+  revision = "16bb90151d48dc47cb961b338a7e8417126ecc53"
   source = "https://github.com/irisnet/iavl.git"
-  version = "v0.12.1"
+  version = "v0.12.2"
 
 [[projects]]
   digest = "1:42f4bf998f8113305c9ba789d4d8dee34d590b22510415769de944b27573e907"
@@ -800,6 +806,7 @@
     "github.com/go-kit/kit/metrics",
     "github.com/go-kit/kit/metrics/prometheus",
     "github.com/irisnet/irishub/app",
+    "github.com/irisnet/irishub/app/v1/asset",
     "github.com/irisnet/irishub/app/v1/auth",
     "github.com/irisnet/irishub/app/v1/bank",
     "github.com/irisnet/irishub/app/v1/distribution",

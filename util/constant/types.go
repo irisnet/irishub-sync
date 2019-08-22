@@ -71,4 +71,7 @@ const (
 
 	// define coin unit
 	IrisAttoUnit = "iris-atto"
+
+	TrueStr  = "true"
+	FalseStr = "false"
 )

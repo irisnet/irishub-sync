@@ -8,30 +8,30 @@ import (
 
 type (
 	DocTxMsgIssueToken struct {
-		Family         string           `bson:"family"`
-		Source         string           `bson:"source"`
-		Gateway        string           `bson:"gateway"`
-		Symbol         string           `bson:"symbol"`
-		SymbolAtSource string           `bson:"symbol_at_source"`
-		Name           string           `bson:"name"`
-		Decimal        uint8            `bson:"decimal"`
-		SymbolMinAlias string           `bson:"symbol_min_alias"`
-		InitialSupply  uint64           `bson:"initial_supply"`
-		MaxSupply      uint64           `bson:"max_supply"`
-		Mintable       bool             `bson:"mintable"`
-		Owner          string           `bson:"owner"`
-		UdInfo         assetTokenUdInfo `bson:"ud_info"`
+		Family          string           `bson:"family"`
+		Source          string           `bson:"source"`
+		Gateway         string           `bson:"gateway"`
+		Symbol          string           `bson:"symbol"`
+		CanonicalSymbol string           `bson:"canonical_symbol"`
+		Name            string           `bson:"name"`
+		Decimal         uint8            `bson:"decimal"`
+		MinUnitAlias    string           `bson:"min_unit_alias"`
+		InitialSupply   uint64           `bson:"initial_supply"`
+		MaxSupply       uint64           `bson:"max_supply"`
+		Mintable        bool             `bson:"mintable"`
+		Owner           string           `bson:"owner"`
+		UdInfo          assetTokenUdInfo `bson:"ud_info"`
 	}
 
 	DocTxMsgEditToken struct {
-		TokenId        string           `bson:"token_id"`         //  id of token
-		Owner          string           `bson:"owner"`            //  owner of token
-		SymbolAtSource string           `bson:"symbol_at_source"` //  symbol_at_source of token
-		SymbolMinAlias string           `bson:"symbol_min_alias"` //  symbol_min_alias of token
-		MaxSupply      uint64           `bson:"max_supply"`
-		Mintable       *bool            `bson:"mintable"` //  mintable of token
-		Name           string           `bson:"name"`
-		UdInfo         assetTokenUdInfo `bson:"ud_info"`
+		TokenId         string           `bson:"token_id"`         //  id of token
+		Owner           string           `bson:"owner"`            //  owner of token
+		CanonicalSymbol string           `bson:"canonical_symbol"` //  canonical_symbol of token
+		MinUnitAlias    string           `bson:"min_unit_alias"`   //  min_unit_alias of token
+		MaxSupply       uint64           `bson:"max_supply"`
+		Mintable        bool             `bson:"mintable"` //  mintable of token
+		Name            string           `bson:"name"`
+		UdInfo          assetTokenUdInfo `bson:"ud_info"`
 	}
 
 	DocTxMsgMintToken struct {
@@ -97,10 +97,10 @@ func (m *DocTxMsgIssueToken) BuildMsg(txMsg interface{}) {
 	m.Source = msg.Source.String()
 	m.Gateway = msg.Gateway
 	m.Symbol = msg.Symbol
-	m.SymbolAtSource = msg.SymbolAtSource
+	m.CanonicalSymbol = msg.CanonicalSymbol
 	m.Name = msg.Name
 	m.Decimal = msg.Decimal
-	m.SymbolMinAlias = msg.SymbolMinAlias
+	m.MinUnitAlias = msg.MinUnitAlias
 	m.InitialSupply = msg.InitialSupply
 	m.MaxSupply = msg.MaxSupply
 	m.Mintable = msg.Mintable
@@ -121,10 +121,17 @@ func (m *DocTxMsgEditToken) BuildMsg(txMsg interface{}) {
 
 	m.TokenId = msg.TokenId
 	m.Owner = msg.Owner.String()
-	m.SymbolAtSource = msg.SymbolAtSource
-	m.SymbolMinAlias = msg.SymbolMinAlias
+	m.CanonicalSymbol = msg.CanonicalSymbol
+	m.MinUnitAlias = msg.MinUnitAlias
 	m.MaxSupply = msg.MaxSupply
-	m.Mintable = msg.Mintable
+	switch msg.Mintable {
+	case constant.TrueStr:
+		m.Mintable = true
+		break
+	case constant.FalseStr:
+		m.Mintable = false
+		break
+	}
 	m.Name = msg.Name
 	m.UdInfo = getAssetTokenUdInfo(msg.TokenId)
 }

@@ -53,7 +53,7 @@ type (
 	MsgDeposit                       = gov.MsgDeposit
 	MsgSubmitProposal                = gov.MsgSubmitProposal
 	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
-	MsgSubmitTaxUsageProposal        = gov.MsgSubmitTxTaxUsageProposal
+	MsgSubmitTaxUsageProposal        = gov.MsgSubmitCommunityTaxUsageProposal
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
@@ -175,7 +175,7 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 	}
 	denom, amount := matches[2], matches[1]
 
-	amount = getPrecision(amount, denom)
+	amount = getPrecision(amount)
 	amt, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
 		logger.Error("Convert str to int failed", logger.Any("amount", amount))
@@ -188,9 +188,9 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 	}
 }
 
-func getPrecision(amount, denom string) string {
+func getPrecision(amount string) string {
 	length := len(amount)
-	if denom == types.NativeTokenMinDenom && length > 15 {
+	if length > 15 {
 		amount = string([]byte(amount)[:15])
 		for i := 1; i <= length-15; i++ {
 			amount += "0"

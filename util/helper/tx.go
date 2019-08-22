@@ -11,6 +11,7 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
@@ -469,12 +470,20 @@ func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 
 	res, err := client.Tx(txHash, false)
 	if err != nil {
-		return "unknown", resDeliverTx, err
+		// try again
+		time.Sleep(time.Duration(1) * time.Second)
+		if res, err := client.Tx(txHash, false); err != nil {
+			return "unknown", resDeliverTx, err
+		} else {
+			resDeliverTx = res.TxResult
+		}
+	} else {
+		resDeliverTx = res.TxResult
 	}
-	result := res.TxResult
-	if result.Code != 0 {
+
+	if resDeliverTx.Code != 0 {
 		status = document.TxStatusFail
 	}
 
-	return status, result, nil
+	return status, resDeliverTx, nil
 }
