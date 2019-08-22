@@ -18,13 +18,27 @@ const (
 	TxTypeSubmitProposal              = "SubmitProposal"
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
+	TxTypeAssetIssueToken             = "IssueToken"
+	TxTypeAssetEditToken              = "EditToken"
+	TxTypeAssetMintToken              = "MintToken"
+	TxTypeAssetTransferTokenOwner     = "TransferTokenOwner"
+	TxTypeAssetCreateGateway          = "CreateGateway"
+	TxTypeAssetEditGateway            = "EditGateway"
+	TxTypeAssetTransferGatewayOwner   = "TransferGatewayOwner"
 
 	TxMsgTypeSubmitProposal                = "SubmitProposal"
 	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
 	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
+	TxMsgTypeAssetIssueToken               = "IssueToken"
+	TxMsgTypeAssetEditToken                = "EditToken"
+	TxMsgTypeAssetMintToken                = "MintToken"
+	TxMsgTypeAssetTransferTokenOwner       = "TransferTokenOwner"
+	TxMsgTypeAssetCreateGateway            = "CreateGateway"
+	TxMsgTypeAssetEditGateway              = "EditGateway"
+	TxMsgTypeAssetTransferGatewayOwner     = "TransferGatewayOwner"
 
 	TxTagVotingPeriodStart = "voting-period-start"
-	BlockTagProposalId = "proposal-id"
+	BlockTagProposalId     = "proposal-id"
 
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"
@@ -57,4 +71,7 @@ const (
 
 	// define coin unit
 	IrisAttoUnit = "iris-atto"
+
+	TrueStr  = "true"
+	FalseStr = "false"
 )

@@ -3,7 +3,7 @@ package helper
 import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub/modules/stake"
+	"github.com/irisnet/irishub/app/v1/stake"
 	sdktypes "github.com/irisnet/irishub/types"
 )
 

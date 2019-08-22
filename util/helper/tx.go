@@ -11,6 +11,7 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
@@ -21,6 +22,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		gasPrice   float64
 		actualFee  store.ActualFee
 		signers    []document.Signer
+		docTxMsgs  []document.DocTxMsg
 	)
 
 	cdc := itypes.GetCodec()
@@ -327,7 +329,100 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
 		return docTx
+	case itypes.AssetIssueToken:
+		msg := msg.(itypes.AssetIssueToken)
 
+		docTx.From = msg.Owner.String()
+		docTx.Type = constant.TxTypeAssetIssueToken
+		txMsg := itypes.DocTxMsgIssueToken{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case itypes.AssetEditToken:
+		msg := msg.(itypes.AssetEditToken)
+
+		docTx.From = msg.Owner.String()
+		docTx.Type = constant.TxTypeAssetEditToken
+		txMsg := itypes.DocTxMsgEditToken{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case itypes.AssetMintToken:
+		msg := msg.(itypes.AssetMintToken)
+
+		docTx.From = msg.Owner.String()
+		docTx.To = msg.To.String()
+		docTx.Type = constant.TxTypeAssetMintToken
+		txMsg := itypes.DocTxMsgMintToken{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case itypes.AssetTransferTokenOwner:
+		msg := msg.(itypes.AssetTransferTokenOwner)
+
+		docTx.From = msg.SrcOwner.String()
+		docTx.To = msg.DstOwner.String()
+		docTx.Type = constant.TxTypeAssetTransferTokenOwner
+		txMsg := itypes.DocTxMsgTransferTokenOwner{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case itypes.AssetCreateGateway:
+		msg := msg.(itypes.AssetCreateGateway)
+
+		docTx.From = msg.Owner.String()
+		docTx.Type = constant.TxTypeAssetCreateGateway
+		txMsg := itypes.DocTxMsgCreateGateway{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case itypes.AssetEditGateWay:
+		msg := msg.(itypes.AssetEditGateWay)
+
+		docTx.From = msg.Owner.String()
+		docTx.Type = constant.TxTypeAssetEditGateway
+		txMsg := itypes.DocTxMsgEditGateway{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case itypes.AssetTransferGatewayOwner:
+		msg := msg.(itypes.AssetTransferGatewayOwner)
+
+		docTx.From = msg.Owner.String()
+		docTx.To = msg.To.String()
+		docTx.Type = constant.TxTypeAssetTransferGatewayOwner
+		txMsg := itypes.DocTxMsgTransferGatewayOwner{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
 	default:
 		logger.Warn("unknown msg type")
 	}
@@ -375,12 +470,20 @@ func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 
 	res, err := client.Tx(txHash, false)
 	if err != nil {
-		return "unknown", resDeliverTx, err
+		// try again
+		time.Sleep(time.Duration(1) * time.Second)
+		if res, err := client.Tx(txHash, false); err != nil {
+			return "unknown", resDeliverTx, err
+		} else {
+			resDeliverTx = res.TxResult
+		}
+	} else {
+		resDeliverTx = res.TxResult
 	}
-	result := res.TxResult
-	if result.Code != 0 {
+
+	if resDeliverTx.Code != 0 {
 		status = document.TxStatusFail
 	}
 
-	return status, result, nil
+	return status, resDeliverTx, nil
 }
