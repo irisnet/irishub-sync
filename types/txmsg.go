@@ -1,6 +1,8 @@
 package types
 
-import "github.com/irisnet/irishub-sync/util/constant"
+import (
+	"github.com/irisnet/irishub-sync/util/constant"
+)
 
 type DocTxMsgSubmitTokenAdditionProposal struct {
 	Symbol          string `bson:"symbol"`
@@ -12,7 +14,7 @@ type DocTxMsgSubmitTokenAdditionProposal struct {
 }
 
 func (doctx *DocTxMsgSubmitTokenAdditionProposal) Type() string {
-	return constant.TxTypeSubmitTokenAdditionProposal
+	return constant.TxMsgTypeSubmitTokenAdditionProposal
 }
 
 func (doctx *DocTxMsgSubmitTokenAdditionProposal) BuildMsg(txMsg interface{}) {

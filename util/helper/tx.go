@@ -126,6 +126,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
+		docTx.Msg = itypes.NewSetMemoRegexp(msg)
 		return docTx
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
@@ -330,13 +331,14 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Proposer.String()
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
-		docTx.Type = constant.TxTypeSubmitTokenAdditionProposal
+		docTx.Type = constant.TxTypeSubmitProposal
 		txMsg := itypes.DocTxMsgSubmitTokenAdditionProposal{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
+		docTx.Msg = itypes.NewSubmitTokenAdditionProposal(msg)
 		return docTx
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
@@ -368,6 +370,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
+		docTx.Msg = itypes.NewRequestRand(msg)
 		return docTx
 	case itypes.AssetIssueToken:
 		msg := msg.(itypes.AssetIssueToken)
