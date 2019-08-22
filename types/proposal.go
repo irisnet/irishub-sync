@@ -40,16 +40,6 @@ type SubmitTokenAdditionProposal struct {
 	InitialSupply   uint64 `json:"initial_supply"`
 }
 
-type SetMemoRegexp struct {
-	Owner      string `json:"owner"`
-	MemoRegexp string `json:"memo_regexp"`
-}
-
-type RequestRand struct {
-	Consumer      string `json:"consumer"`       // request address
-	BlockInterval uint64 `json:"block-interval"` // block interval after which the requested random number will be generated
-}
-
 type Param struct {
 	Subspace string `json:"subspace" bson:"subspace"`
 	Key      string `json:"key" bson:"key"`
@@ -100,26 +90,13 @@ func NewSubmitTaxUsageProposal(msg MsgSubmitTaxUsageProposal) SubmitTaxUsageProp
 func NewSubmitTokenAdditionProposal(msg MsgSubmitTokenAdditionProposal) SubmitTokenAdditionProposal {
 	submitProposal := NewSubmitProposal(msg.MsgSubmitProposal)
 	return SubmitTokenAdditionProposal{
-		SubmitProposal: submitProposal,
-		Symbol:msg.Symbol,
-		CanonicalSymbol:msg.CanonicalSymbol,
-		Name:msg.Name,
-		Decimal:msg.Decimal,
-		MinUnitAlias:msg.MinUnitAlias,
-		InitialSupply:msg.InitialSupply,
-	}
-}
-func NewRequestRand(msg MsgRequestRand)  RequestRand {
-	return RequestRand{
-		Consumer:msg.Consumer.String(),
-		BlockInterval:msg.BlockInterval,
-	}
-}
-
-func NewSetMemoRegexp(msg MsgSetMemoRegexp)  SetMemoRegexp {
-	return SetMemoRegexp{
-		Owner:msg.Owner.String(),
-		MemoRegexp:msg.MemoRegexp,
+		SubmitProposal:  submitProposal,
+		Symbol:          msg.Symbol,
+		CanonicalSymbol: msg.CanonicalSymbol,
+		Name:            msg.Name,
+		Decimal:         msg.Decimal,
+		MinUnitAlias:    msg.MinUnitAlias,
+		InitialSupply:   msg.InitialSupply,
 	}
 }
 
@@ -155,22 +132,6 @@ func (s SubmitTokenAdditionProposal) Type() string {
 }
 
 func (s SubmitTokenAdditionProposal) String() string {
-	str, _ := json.Marshal(s)
-	return string(str)
-}
-
-func (s SetMemoRegexp) Type() string {
-	return constant.TxTypeSetMemoRegexp
-}
-func (s SetMemoRegexp) String() string {
-	str, _ := json.Marshal(s)
-	return string(str)
-}
-
-func (s RequestRand) Type() string {
-	return constant.TxTypeRequestRand
-}
-func (s RequestRand) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
 }

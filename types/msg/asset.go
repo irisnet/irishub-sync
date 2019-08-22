@@ -1,7 +1,8 @@
-package types
+package msg
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strings"
 )
@@ -91,7 +92,7 @@ func (m *DocTxMsgIssueToken) Type() string {
 }
 
 func (m *DocTxMsgIssueToken) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetIssueToken)
+	msg := txMsg.(itypes.AssetIssueToken)
 
 	m.Family = msg.Family.String()
 	m.Source = msg.Source.String()
@@ -117,7 +118,7 @@ func (m *DocTxMsgEditToken) Type() string {
 }
 
 func (m *DocTxMsgEditToken) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetEditToken)
+	msg := txMsg.(itypes.AssetEditToken)
 
 	m.TokenId = msg.TokenId
 	m.Owner = msg.Owner.String()
@@ -141,7 +142,7 @@ func (m *DocTxMsgMintToken) Type() string {
 }
 
 func (m *DocTxMsgMintToken) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetMintToken)
+	msg := txMsg.(itypes.AssetMintToken)
 
 	m.TokenId = msg.TokenId
 	m.Owner = msg.Owner.String()
@@ -155,7 +156,7 @@ func (m *DocTxMsgTransferTokenOwner) Type() string {
 }
 
 func (m *DocTxMsgTransferTokenOwner) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetTransferTokenOwner)
+	msg := txMsg.(itypes.AssetTransferTokenOwner)
 
 	m.SrcOwner = msg.SrcOwner.String()
 	m.DstOwner = msg.DstOwner.String()
@@ -168,7 +169,7 @@ func (m *DocTxMsgCreateGateway) Type() string {
 }
 
 func (m *DocTxMsgCreateGateway) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetCreateGateway)
+	msg := txMsg.(itypes.AssetCreateGateway)
 
 	m.Owner = msg.Owner.String()
 	m.Moniker = msg.Moniker
@@ -182,7 +183,7 @@ func (m *DocTxMsgEditGateway) Type() string {
 }
 
 func (m *DocTxMsgEditGateway) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetEditGateWay)
+	msg := txMsg.(itypes.AssetEditGateWay)
 
 	m.Owner = msg.Owner.String()
 	m.Moniker = msg.Moniker
@@ -196,7 +197,7 @@ func (m *DocTxMsgTransferGatewayOwner) Type() string {
 }
 
 func (m *DocTxMsgTransferGatewayOwner) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(AssetTransferGatewayOwner)
+	msg := txMsg.(itypes.AssetTransferGatewayOwner)
 
 	m.Owner = msg.Owner.String()
 	m.Moniker = msg.Moniker

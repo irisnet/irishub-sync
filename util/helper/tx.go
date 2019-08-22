@@ -8,6 +8,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
+	imsg "github.com/irisnet/irishub-sync/types/msg"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strconv"
 	"strings"
@@ -34,7 +35,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	}
 
 	height := block.Height
-	time := block.Time
+	blockTime := block.Time
 	txHash := BuildHex(txBytes.Hash())
 	fee := itypes.BuildFee(authTx.Fee)
 	memo := authTx.Memo
@@ -83,7 +84,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 	docTx = document.CommonTx{
 		Height:    height,
-		Time:      time,
+		Time:      blockTime,
 		TxHash:    txHash,
 		Fee:       fee,
 		Memo:      memo,
@@ -120,13 +121,12 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = []store.Coin{}
 		docTx.Type = constant.TxTypeSetMemoRegexp
-		txMsg := itypes.DocTxMsgSetMemoRegexp{}
+		txMsg := imsg.DocTxMsgSetMemoRegexp{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
-		docTx.Msg = itypes.NewSetMemoRegexp(msg)
 		return docTx
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
@@ -332,7 +332,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
-		txMsg := itypes.DocTxMsgSubmitTokenAdditionProposal{}
+		txMsg := imsg.DocTxMsgSubmitTokenAdditionProposal{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -364,20 +364,19 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Consumer.String()
 		docTx.Amount = []store.Coin{}
 		docTx.Type = constant.TxTypeRequestRand
-		txMsg := itypes.DocTxMsgRequestRand{}
+		txMsg := imsg.DocTxMsgRequestRand{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
-		docTx.Msg = itypes.NewRequestRand(msg)
 		return docTx
 	case itypes.AssetIssueToken:
 		msg := msg.(itypes.AssetIssueToken)
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetIssueToken
-		txMsg := itypes.DocTxMsgIssueToken{}
+		txMsg := imsg.DocTxMsgIssueToken{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -390,7 +389,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetEditToken
-		txMsg := itypes.DocTxMsgEditToken{}
+		txMsg := imsg.DocTxMsgEditToken{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -404,7 +403,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Owner.String()
 		docTx.To = msg.To.String()
 		docTx.Type = constant.TxTypeAssetMintToken
-		txMsg := itypes.DocTxMsgMintToken{}
+		txMsg := imsg.DocTxMsgMintToken{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -418,7 +417,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.SrcOwner.String()
 		docTx.To = msg.DstOwner.String()
 		docTx.Type = constant.TxTypeAssetTransferTokenOwner
-		txMsg := itypes.DocTxMsgTransferTokenOwner{}
+		txMsg := imsg.DocTxMsgTransferTokenOwner{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -431,7 +430,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetCreateGateway
-		txMsg := itypes.DocTxMsgCreateGateway{}
+		txMsg := imsg.DocTxMsgCreateGateway{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -444,7 +443,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetEditGateway
-		txMsg := itypes.DocTxMsgEditGateway{}
+		txMsg := imsg.DocTxMsgEditGateway{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -458,7 +457,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Owner.String()
 		docTx.To = msg.To.String()
 		docTx.Type = constant.TxTypeAssetTransferGatewayOwner
-		txMsg := itypes.DocTxMsgTransferGatewayOwner{}
+		txMsg := imsg.DocTxMsgTransferGatewayOwner{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
