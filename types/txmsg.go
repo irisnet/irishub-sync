@@ -2,9 +2,20 @@ package types
 
 import (
 	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/store"
 )
 
+type DocTxMsgSubmitProposal struct {
+	Title          string      `bson:"title"`          //  Title of the proposal
+	Description    string      `bson:"description"`    //  Description of the proposal
+	Proposer       string      `bson:"proposer"`       //  Address of the proposer
+	InitialDeposit store.Coins `bson:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
+	ProposalType   string      `bson:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
+	Params         Params      `bson:"params"`
+}
+
 type DocTxMsgSubmitTokenAdditionProposal struct {
+	DocTxMsgSubmitProposal
 	Symbol          string `bson:"symbol"`
 	CanonicalSymbol string `bson:"canonical_symbol"`
 	Name            string `bson:"name"`
@@ -19,6 +30,20 @@ func (doctx *DocTxMsgSubmitTokenAdditionProposal) Type() string {
 
 func (doctx *DocTxMsgSubmitTokenAdditionProposal) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(MsgSubmitTokenAdditionProposal)
+	var params Params
+	for _, p := range msg.Params {
+		params = append(params, Param{
+			Subspace: p.Subspace,
+			Key:      p.Key,
+			Value:    p.Value,
+		})
+	}
+	doctx.Title = msg.Title
+	doctx.Description = msg.Description
+	doctx.ProposalType = msg.ProposalType.String()
+	doctx.Proposer = msg.Proposer.String()
+	doctx.Params = params
+	doctx.InitialDeposit = ParseCoins(msg.InitialDeposit.String())
 	doctx.Symbol = msg.Symbol
 	doctx.MinUnitAlias = msg.MinUnitAlias
 	doctx.CanonicalSymbol = msg.CanonicalSymbol

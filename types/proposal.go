@@ -51,9 +51,9 @@ type RequestRand struct {
 }
 
 type Param struct {
-	Subspace string `json:"subspace"`
-	Key      string `json:"key"`
-	Value    string `json:"value"`
+	Subspace string `json:"subspace" bson:"subspace"`
+	Key      string `json:"key" bson:"key"`
+	Value    string `json:"value" bson:"value"`
 }
 
 type Params []Param
