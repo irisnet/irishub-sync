@@ -30,11 +30,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"github.com/irisnet/irishub/app/v1/rand"
 )
 
 type (
 	MsgTransfer = bank.MsgSend
 	MsgBurn     = bank.MsgBurn
+	MsgSetMemoRegexp = bank.MsgSetMemoRegexp
 
 	MsgStakeCreate                 = stake.MsgCreateValidator
 	MsgStakeEdit                   = stake.MsgEditValidator
@@ -54,9 +56,12 @@ type (
 	MsgSubmitProposal                = gov.MsgSubmitProposal
 	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
 	MsgSubmitTaxUsageProposal        = gov.MsgSubmitCommunityTaxUsageProposal
+	MsgSubmitTokenAdditionProposal   = gov.MsgSubmitTokenAdditionProposal
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
+
+	MsgRequestRand = rand.MsgRequestRand
 
 	AssetIssueToken           = asset.MsgIssueToken
 	AssetEditToken            = asset.MsgEditToken
