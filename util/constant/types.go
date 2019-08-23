@@ -5,6 +5,7 @@ package constant
 const (
 	TxTypeTransfer                    = "Transfer"
 	TxTypeBurn                        = "Burn"
+	TxTypeSetMemoRegexp               = "SetMemoRegexp"
 	TxTypeStakeCreateValidator        = "CreateValidator"
 	TxTypeStakeEditValidator          = "EditValidator"
 	TxTypeStakeDelegate               = "Delegate"
@@ -18,6 +19,7 @@ const (
 	TxTypeSubmitProposal              = "SubmitProposal"
 	TxTypeDeposit                     = "Deposit"
 	TxTypeVote                        = "Vote"
+	TxTypeRequestRand                 = "RequestRand"
 	TxTypeAssetIssueToken             = "IssueToken"
 	TxTypeAssetEditToken              = "EditToken"
 	TxTypeAssetMintToken              = "MintToken"
@@ -29,6 +31,7 @@ const (
 	TxMsgTypeSubmitProposal                = "SubmitProposal"
 	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
 	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
+	TxMsgTypeSubmitTokenAdditionProposal   = "SubmitTokenAdditionProposal"
 	TxMsgTypeAssetIssueToken               = "IssueToken"
 	TxMsgTypeAssetEditToken                = "EditToken"
 	TxMsgTypeAssetMintToken                = "MintToken"
@@ -71,4 +74,7 @@ const (
 
 	// define coin unit
 	IrisAttoUnit = "iris-atto"
+
+	TrueStr  = "true"
+	FalseStr = "false"
 )

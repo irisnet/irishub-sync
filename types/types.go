@@ -30,11 +30,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"github.com/irisnet/irishub/app/v1/rand"
 )
 
 type (
 	MsgTransfer = bank.MsgSend
 	MsgBurn     = bank.MsgBurn
+	MsgSetMemoRegexp = bank.MsgSetMemoRegexp
 
 	MsgStakeCreate                 = stake.MsgCreateValidator
 	MsgStakeEdit                   = stake.MsgEditValidator
@@ -53,10 +55,13 @@ type (
 	MsgDeposit                       = gov.MsgDeposit
 	MsgSubmitProposal                = gov.MsgSubmitProposal
 	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
-	MsgSubmitTaxUsageProposal        = gov.MsgSubmitTxTaxUsageProposal
+	MsgSubmitTaxUsageProposal        = gov.MsgSubmitCommunityTaxUsageProposal
+	MsgSubmitTokenAdditionProposal   = gov.MsgSubmitTokenAdditionProposal
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
+
+	MsgRequestRand = rand.MsgRequestRand
 
 	AssetIssueToken           = asset.MsgIssueToken
 	AssetEditToken            = asset.MsgEditToken
@@ -175,6 +180,7 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 	}
 	denom, amount := matches[2], matches[1]
 
+	amount = getPrecision(amount)
 	amt, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
 		logger.Error("Convert str to int failed", logger.Any("amount", amount))
@@ -185,6 +191,17 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 		Denom:  denom,
 		Amount: amt,
 	}
+}
+
+func getPrecision(amount string) string {
+	length := len(amount)
+	if length > 15 {
+		amount = string([]byte(amount)[:15])
+		for i := 1; i <= length-15; i++ {
+			amount += "0"
+		}
+	}
+	return amount
 }
 
 func BuildFee(fee auth.StdFee) store.Fee {

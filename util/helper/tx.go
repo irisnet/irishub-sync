@@ -8,9 +8,11 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
+	imsg "github.com/irisnet/irishub-sync/types/msg"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
@@ -33,7 +35,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	}
 
 	height := block.Height
-	time := block.Time
+	blockTime := block.Time
 	txHash := BuildHex(txBytes.Hash())
 	fee := itypes.BuildFee(authTx.Fee)
 	memo := authTx.Memo
@@ -82,7 +84,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 	docTx = document.CommonTx{
 		Height:    height,
-		Time:      time,
+		Time:      blockTime,
 		TxHash:    txHash,
 		Fee:       fee,
 		Memo:      memo,
@@ -90,6 +92,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		Code:      result.Code,
 		Log:       log,
 		GasUsed:   gasUsed,
+		GasWanted: result.GasUsed,
 		GasPrice:  gasPrice,
 		ActualFee: actualFee,
 		Tags:      parseTags(result),
@@ -111,6 +114,19 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.Coins.String())
 		docTx.Type = constant.TxTypeBurn
+		return docTx
+	case itypes.MsgSetMemoRegexp:
+		msg := msg.(itypes.MsgSetMemoRegexp)
+		docTx.From = msg.Owner.String()
+		docTx.To = ""
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeSetMemoRegexp
+		txMsg := imsg.DocTxMsgSetMemoRegexp{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
 		return docTx
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
@@ -309,6 +325,21 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		}
 		docTx.ProposalId = proposalId
 		return docTx
+	case itypes.MsgSubmitTokenAdditionProposal:
+		msg := msg.(itypes.MsgSubmitTokenAdditionProposal)
+
+		docTx.From = msg.Proposer.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
+		docTx.Type = constant.TxTypeSubmitProposal
+		txMsg := imsg.DocTxMsgSubmitTokenAdditionProposal{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		docTx.Msg = itypes.NewSubmitTokenAdditionProposal(msg)
+		return docTx
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
 
@@ -327,12 +358,25 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
 		return docTx
+	case itypes.MsgRequestRand:
+		msg := msg.(itypes.MsgRequestRand)
+
+		docTx.From = msg.Consumer.String()
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeRequestRand
+		txMsg := imsg.DocTxMsgRequestRand{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
 	case itypes.AssetIssueToken:
 		msg := msg.(itypes.AssetIssueToken)
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetIssueToken
-		txMsg := itypes.DocTxMsgIssueToken{}
+		txMsg := imsg.DocTxMsgIssueToken{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -345,7 +389,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetEditToken
-		txMsg := itypes.DocTxMsgEditToken{}
+		txMsg := imsg.DocTxMsgEditToken{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -359,7 +403,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Owner.String()
 		docTx.To = msg.To.String()
 		docTx.Type = constant.TxTypeAssetMintToken
-		txMsg := itypes.DocTxMsgMintToken{}
+		txMsg := imsg.DocTxMsgMintToken{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -373,7 +417,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.SrcOwner.String()
 		docTx.To = msg.DstOwner.String()
 		docTx.Type = constant.TxTypeAssetTransferTokenOwner
-		txMsg := itypes.DocTxMsgTransferTokenOwner{}
+		txMsg := imsg.DocTxMsgTransferTokenOwner{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -386,7 +430,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetCreateGateway
-		txMsg := itypes.DocTxMsgCreateGateway{}
+		txMsg := imsg.DocTxMsgCreateGateway{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -399,7 +443,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Owner.String()
 		docTx.Type = constant.TxTypeAssetEditGateway
-		txMsg := itypes.DocTxMsgEditGateway{}
+		txMsg := imsg.DocTxMsgEditGateway{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -413,7 +457,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Owner.String()
 		docTx.To = msg.To.String()
 		docTx.Type = constant.TxTypeAssetTransferGatewayOwner
-		txMsg := itypes.DocTxMsgTransferGatewayOwner{}
+		txMsg := imsg.DocTxMsgTransferGatewayOwner{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
 			Type: txMsg.Type(),
@@ -468,12 +512,20 @@ func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 
 	res, err := client.Tx(txHash, false)
 	if err != nil {
-		return "unknown", resDeliverTx, err
+		// try again
+		time.Sleep(time.Duration(1) * time.Second)
+		if res, err := client.Tx(txHash, false); err != nil {
+			return "unknown", resDeliverTx, err
+		} else {
+			resDeliverTx = res.TxResult
+		}
+	} else {
+		resDeliverTx = res.TxResult
 	}
-	result := res.TxResult
-	if result.Code != 0 {
+
+	if resDeliverTx.Code != 0 {
 		status = document.TxStatusFail
 	}
 
-	return status, result, nil
+	return status, resDeliverTx, nil
 }

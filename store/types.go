@@ -14,8 +14,8 @@ type Docs interface {
 }
 
 type Coin struct {
-	Denom  string  `json:"denom"`
-	Amount float64 `json:"amount"`
+	Denom  string  `json:"denom" bson:"denom"`
+	Amount float64 `json:"amount" bson:"amount"`
 }
 
 type Coins []Coin
