@@ -15,6 +15,7 @@ import (
 	dtypes "github.com/irisnet/irishub/app/v1/distribution/types"
 	"github.com/irisnet/irishub/app/v1/gov"
 	"github.com/irisnet/irishub/app/v1/gov/tags"
+	"github.com/irisnet/irishub/app/v1/rand"
 	"github.com/irisnet/irishub/app/v1/slashing"
 	"github.com/irisnet/irishub/app/v1/stake"
 	stags "github.com/irisnet/irishub/app/v1/stake/tags"
@@ -30,7 +31,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/irisnet/irishub/app/v1/rand"
+
 )
 
 type (
