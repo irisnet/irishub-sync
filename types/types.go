@@ -15,6 +15,7 @@ import (
 	dtypes "github.com/irisnet/irishub/app/v1/distribution/types"
 	"github.com/irisnet/irishub/app/v1/gov"
 	"github.com/irisnet/irishub/app/v1/gov/tags"
+	"github.com/irisnet/irishub/app/v1/rand"
 	"github.com/irisnet/irishub/app/v1/slashing"
 	"github.com/irisnet/irishub/app/v1/stake"
 	stags "github.com/irisnet/irishub/app/v1/stake/tags"
@@ -30,7 +31,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/irisnet/irishub/app/v1/rand"
+
 )
 
 type (
@@ -196,9 +197,19 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 func getPrecision(amount string) string {
 	length := len(amount)
 	if length > 15 {
-		amount = string([]byte(amount)[:15])
-		for i := 1; i <= length-15; i++ {
-			amount += "0"
+		nums := strings.Split(amount, ".")
+		if len(nums) > 2 {
+			return amount
+		}
+
+		if len_num0 := len(nums[0]); len_num0 > 15 {
+			amount = string([]byte(nums[0])[:15])
+			for i := 1; i <= len_num0-15; i++ {
+				amount += "0"
+			}
+		} else {
+			leng_append := 16 - len_num0
+			amount = nums[0] + "." + string([]byte(nums[1])[:leng_append])
 		}
 	}
 	return amount
