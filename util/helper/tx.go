@@ -151,6 +151,11 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.StakeCreateValidator = document.StakeCreateValidator{
 			PubKey:      pubKey,
 			Description: valDes,
+			Commission: document.CommissionMsg{
+				Rate:          msg.Commission.Rate.String(),
+				MaxChangeRate: msg.Commission.MaxChangeRate.String(),
+				MaxRate:       msg.Commission.MaxRate.String(),
+			},
 		}
 
 		return docTx
