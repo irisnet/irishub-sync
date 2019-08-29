@@ -41,12 +41,12 @@
   revision = "555e2067c45d9fcd7292bf3b8e732bc10ac8c58e"
 
 [[projects]]
-  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   pruneopts = "UT"
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:95295c8fcd8363f85a8a34be6554c2bd44d28aa2eb289ec93a327415b156ac01"
@@ -169,12 +169,43 @@
   version = "v1.0"
 
 [[projects]]
-  digest = "1:f8ce016419f14520d3031bffa5632edcca174e8d0f37ef15cf146cb02084cadb"
+  digest = "1:537b3fcfbaff2f7f29125a720bb8af65a97248b7a9f4f1c501a47c6ae0bfeca4"
   name = "github.com/irisnet/irishub"
   packages = [
     "app",
     "app/protocol",
     "app/v0",
+    "app/v1",
+    "app/v1/asset",
+    "app/v1/asset/exported",
+    "app/v1/asset/internal/keeper",
+    "app/v1/asset/internal/types",
+    "app/v1/auth",
+    "app/v1/bank",
+    "app/v1/distribution",
+    "app/v1/distribution/keeper",
+    "app/v1/distribution/tags",
+    "app/v1/distribution/types",
+    "app/v1/gov",
+    "app/v1/gov/tags",
+    "app/v1/mint",
+    "app/v1/mint/tags",
+    "app/v1/mock",
+    "app/v1/mock/baseapp",
+    "app/v1/params",
+    "app/v1/params/subspace",
+    "app/v1/rand",
+    "app/v1/rand/internal/keeper",
+    "app/v1/rand/internal/types",
+    "app/v1/service",
+    "app/v1/service/tags",
+    "app/v1/slashing",
+    "app/v1/stake",
+    "app/v1/stake/keeper",
+    "app/v1/stake/querier",
+    "app/v1/stake/tags",
+    "app/v1/stake/types",
+    "app/v1/upgrade",
     "client",
     "client/context",
     "client/keys",
@@ -212,13 +243,14 @@
     "server",
     "server/config",
     "store",
+    "tools/prometheus",
     "tools/protoidl",
     "types",
     "version",
   ]
   pruneopts = "UT"
-  revision = "913b1d5fd41df8111593af082c5647727bc273c7"
-  version = "v0.14.0"
+  revision = "fdc78914a514ead0fc62d4773dcbae1a31b66fac"
+  version = "v0.15.0"
 
 [[projects]]
   digest = "1:a74b5a8e34ee5843cd6e65f698f3e75614f812ff170c2243425d75bc091e9af2"
@@ -477,16 +509,16 @@
   version = "v0.14.0"
 
 [[projects]]
-  digest = "1:bfbae02a6a9430f804a8a7fee56edbb93c38e08a777ab4a6a33b03b4780b97f6"
+  digest = "1:1d48cbd70e6b3a95b951e76e4a25c460a7a2ee6068d39f9706c90929b086405b"
   name = "github.com/tendermint/iavl"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4114c0fad8f5909e46327dc967259e33e0e80508"
+  revision = "16bb90151d48dc47cb961b338a7e8417126ecc53"
   source = "https://github.com/irisnet/iavl.git"
-  version = "v0.12.0-iris"
+  version = "v0.12.2"
 
 [[projects]]
-  digest = "1:ade23e23038ae0e1dd2add1fbbdbac457b6eb5694f541a75bdb73b607501e313"
+  digest = "1:42f4bf998f8113305c9ba789d4d8dee34d590b22510415769de944b27573e907"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -551,9 +583,9 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "45e49670ac6cd99b420f0f4aebf9b8c6808c98a2"
+  revision = "6258e4de1099884f16b364b1b0f0b4fefda7478a"
   source = "https://github.com/irisnet/tendermint.git"
-  version = "v0.28.0"
+  version = "v0.31.0"
 
 [[projects]]
   digest = "1:5a736f4722932d9a45d28852e85b83f68292d9af2ef0be29d4e5fe6fd89d5d96"
@@ -774,19 +806,20 @@
     "github.com/go-kit/kit/metrics",
     "github.com/go-kit/kit/metrics/prometheus",
     "github.com/irisnet/irishub/app",
+    "github.com/irisnet/irishub/app/v1/asset",
+    "github.com/irisnet/irishub/app/v1/auth",
+    "github.com/irisnet/irishub/app/v1/bank",
+    "github.com/irisnet/irishub/app/v1/distribution",
+    "github.com/irisnet/irishub/app/v1/distribution/tags",
+    "github.com/irisnet/irishub/app/v1/distribution/types",
+    "github.com/irisnet/irishub/app/v1/gov",
+    "github.com/irisnet/irishub/app/v1/gov/tags",
+    "github.com/irisnet/irishub/app/v1/slashing",
+    "github.com/irisnet/irishub/app/v1/stake",
+    "github.com/irisnet/irishub/app/v1/stake/tags",
+    "github.com/irisnet/irishub/app/v1/stake/types",
     "github.com/irisnet/irishub/client/utils",
     "github.com/irisnet/irishub/codec",
-    "github.com/irisnet/irishub/modules/auth",
-    "github.com/irisnet/irishub/modules/bank",
-    "github.com/irisnet/irishub/modules/distribution",
-    "github.com/irisnet/irishub/modules/distribution/tags",
-    "github.com/irisnet/irishub/modules/distribution/types",
-    "github.com/irisnet/irishub/modules/gov",
-    "github.com/irisnet/irishub/modules/gov/tags",
-    "github.com/irisnet/irishub/modules/slashing",
-    "github.com/irisnet/irishub/modules/stake",
-    "github.com/irisnet/irishub/modules/stake/tags",
-    "github.com/irisnet/irishub/modules/stake/types",
     "github.com/irisnet/irishub/types",
     "github.com/jolestar/go-commons-pool",
     "github.com/pkg/errors",

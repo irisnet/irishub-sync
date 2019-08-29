@@ -7,19 +7,21 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub/app"
+	"github.com/irisnet/irishub/app/v1/asset"
+	"github.com/irisnet/irishub/app/v1/auth"
+	"github.com/irisnet/irishub/app/v1/bank"
+	"github.com/irisnet/irishub/app/v1/distribution"
+	dtags "github.com/irisnet/irishub/app/v1/distribution/tags"
+	dtypes "github.com/irisnet/irishub/app/v1/distribution/types"
+	"github.com/irisnet/irishub/app/v1/gov"
+	"github.com/irisnet/irishub/app/v1/gov/tags"
+	"github.com/irisnet/irishub/app/v1/rand"
+	"github.com/irisnet/irishub/app/v1/slashing"
+	"github.com/irisnet/irishub/app/v1/stake"
+	stags "github.com/irisnet/irishub/app/v1/stake/tags"
+	staketypes "github.com/irisnet/irishub/app/v1/stake/types"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
-	"github.com/irisnet/irishub/modules/auth"
-	"github.com/irisnet/irishub/modules/bank"
-	"github.com/irisnet/irishub/modules/distribution"
-	dtags "github.com/irisnet/irishub/modules/distribution/tags"
-	dtypes "github.com/irisnet/irishub/modules/distribution/types"
-	"github.com/irisnet/irishub/modules/gov"
-	"github.com/irisnet/irishub/modules/gov/tags"
-	"github.com/irisnet/irishub/modules/slashing"
-	"github.com/irisnet/irishub/modules/stake"
-	stags "github.com/irisnet/irishub/modules/stake/tags"
-	staketypes "github.com/irisnet/irishub/modules/stake/types"
 	"github.com/irisnet/irishub/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
@@ -29,11 +31,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
 )
 
 type (
 	MsgTransfer = bank.MsgSend
 	MsgBurn     = bank.MsgBurn
+	MsgSetMemoRegexp = bank.MsgSetMemoRegexp
 
 	MsgStakeCreate                 = stake.MsgCreateValidator
 	MsgStakeEdit                   = stake.MsgEditValidator
@@ -52,10 +56,21 @@ type (
 	MsgDeposit                       = gov.MsgDeposit
 	MsgSubmitProposal                = gov.MsgSubmitProposal
 	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
-	MsgSubmitTaxUsageProposal        = gov.MsgSubmitTxTaxUsageProposal
+	MsgSubmitTaxUsageProposal        = gov.MsgSubmitCommunityTaxUsageProposal
+	MsgSubmitTokenAdditionProposal   = gov.MsgSubmitTokenAdditionProposal
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
+
+	MsgRequestRand = rand.MsgRequestRand
+
+	AssetIssueToken           = asset.MsgIssueToken
+	AssetEditToken            = asset.MsgEditToken
+	AssetMintToken            = asset.MsgMintToken
+	AssetTransferTokenOwner   = asset.MsgTransferTokenOwner
+	AssetCreateGateway        = asset.MsgCreateGateway
+	AssetEditGateWay          = asset.MsgEditGateway
+	AssetTransferGatewayOwner = asset.MsgTransferGatewayOwner
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
@@ -151,7 +166,7 @@ func ParseCoins(coinsStr string) (coins store.Coins) {
 
 func ParseCoin(coinStr string) (coin store.Coin) {
 	var (
-		reDnm  = `[A-Za-z\-]{2,15}`
+		reDnm  = `[A-Za-z]{1,}\S*`
 		reAmt  = `[0-9]+[.]?[0-9]*`
 		reSpc  = `[[:space:]]*`
 		reCoin = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, reAmt, reSpc, reDnm))
@@ -166,6 +181,7 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 	}
 	denom, amount := matches[2], matches[1]
 
+	amount = getPrecision(amount)
 	amt, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
 		logger.Error("Convert str to int failed", logger.Any("amount", amount))
@@ -176,6 +192,27 @@ func ParseCoin(coinStr string) (coin store.Coin) {
 		Denom:  denom,
 		Amount: amt,
 	}
+}
+
+func getPrecision(amount string) string {
+	length := len(amount)
+	if length > 15 {
+		nums := strings.Split(amount, ".")
+		if len(nums) > 2 {
+			return amount
+		}
+
+		if len_num0 := len(nums[0]); len_num0 > 15 {
+			amount = string([]byte(nums[0])[:15])
+			for i := 1; i <= len_num0-15; i++ {
+				amount += "0"
+			}
+		} else {
+			leng_append := 16 - len_num0
+			amount = nums[0] + "." + string([]byte(nums[1])[:leng_append])
+		}
+	}
+	return amount
 }
 
 func BuildFee(fee auth.StdFee) store.Fee {

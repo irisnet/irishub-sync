@@ -41,6 +41,18 @@ type CommonTx struct {
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
 	Msg                  store.Msg            `bson:"-"`
 	Signers              []Signer             `bson:"signers"`
+
+	Msgs []DocTxMsg `bson:"msgs"`
+}
+
+type DocTxMsg struct {
+	Type string `bson:"type"`
+	Msg  Msg    `bson:"msg"`
+}
+
+type Msg interface {
+	Type() string
+	BuildMsg(msg interface{})
 }
 
 // Description
@@ -54,6 +66,13 @@ type ValDescription struct {
 type StakeCreateValidator struct {
 	PubKey      string         `bson:"pub_key"`
 	Description ValDescription `bson:"description"`
+	Commission  CommissionMsg  `bson:"commission"`
+}
+
+type CommissionMsg struct {
+	Rate          string `bson:"rate"`            // the commission rate charged to delegators
+	MaxRate       string `bson:"max_rate"`        // maximum commission rate which validator can ever charge
+	MaxChangeRate string `bson:"max_change_rate"` // maximum daily increase of the validator commission
 }
 
 type StakeEditValidator struct {

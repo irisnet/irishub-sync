@@ -30,10 +30,20 @@ type SubmitTaxUsageProposal struct {
 	Percent     string `json:"percent"`
 }
 
+type SubmitTokenAdditionProposal struct {
+	SubmitProposal
+	Symbol          string `json:"symbol"`
+	CanonicalSymbol string `json:"canonical_symbol"`
+	Name            string `json:"name"`
+	Decimal         uint8  `json:"decimal"`
+	MinUnitAlias    string `json:"min_unit_alias"`
+	InitialSupply   uint64 `json:"initial_supply"`
+}
+
 type Param struct {
-	Subspace string `json:"subspace"`
-	Key      string `json:"key"`
-	Value    string `json:"value"`
+	Subspace string `json:"subspace" bson:"subspace"`
+	Key      string `json:"key" bson:"key"`
+	Value    string `json:"value" bson:"value"`
 }
 
 type Params []Param
@@ -77,6 +87,19 @@ func NewSubmitTaxUsageProposal(msg MsgSubmitTaxUsageProposal) SubmitTaxUsageProp
 	}
 }
 
+func NewSubmitTokenAdditionProposal(msg MsgSubmitTokenAdditionProposal) SubmitTokenAdditionProposal {
+	submitProposal := NewSubmitProposal(msg.MsgSubmitProposal)
+	return SubmitTokenAdditionProposal{
+		SubmitProposal:  submitProposal,
+		Symbol:          msg.Symbol,
+		CanonicalSymbol: msg.CanonicalSymbol,
+		Name:            msg.Name,
+		Decimal:         msg.Decimal,
+		MinUnitAlias:    msg.MinUnitAlias,
+		InitialSupply:   msg.InitialSupply,
+	}
+}
+
 func (s SubmitProposal) Type() string {
 	return constant.TxMsgTypeSubmitProposal
 }
@@ -100,6 +123,15 @@ func (s SubmitTaxUsageProposal) Type() string {
 }
 
 func (s SubmitTaxUsageProposal) String() string {
+	str, _ := json.Marshal(s)
+	return string(str)
+}
+
+func (s SubmitTokenAdditionProposal) Type() string {
+	return constant.TxMsgTypeSubmitTokenAdditionProposal
+}
+
+func (s SubmitTokenAdditionProposal) String() string {
 	str, _ := json.Marshal(s)
 	return string(str)
 }
