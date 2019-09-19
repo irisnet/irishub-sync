@@ -32,20 +32,20 @@ type Proposal struct {
 }
 
 type PVote struct {
-	Voter  string    `json:"voter" bson:"voter"`
-	Option string    `json:"option" bson:"option"`
-	TxHash string    `json:"tx_hash" bson:"tx_hash"`
-	Time   time.Time `json:"time" bson:"time"`
+	Voter  string    `json:"voter"`
+	Option string    `json:"option"`
+	TxHash string    `json:"tx_hash"`
+	Time   time.Time `json:"time"`
 }
 
 //-----------------------------------------------------------
 // Tally Results
 type PTallyResult struct {
-	Yes        string `json:"yes" bson:"yes"`
-	Abstain    string `json:"abstain" bson:"abstain"`
-	No         string `json:"no" bson:"no"`
-	NoWithVeto string `json:"no_with_veto" bson:"no_with_veto"`
-	SystemVotingPower string `json:"system_voting_power" bson:"system_voting_power"`
+	Yes        string `json:"yes"`
+	Abstain    string `json:"abstain"`
+	No         string `json:"no"`
+	NoWithVeto string `json:"no_with_veto"`
+	SystemVotingPower string `json:"system_voting_power"`
 }
 
 func (m Proposal) Name() string {
