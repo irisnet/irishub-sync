@@ -344,6 +344,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Msg:  &txMsg,
 		})
 		docTx.Msg = itypes.NewSubmitTokenAdditionProposal(msg)
+		//query proposal_id
+		proposalId, err := getProposalIdFromTags(result.Tags)
+		if err != nil {
+			logger.Error("can't get proposal id from tags", logger.String("txHash", docTx.TxHash),
+				logger.String("err", err.Error()))
+		}
+		docTx.ProposalId = proposalId
 		return docTx
 	case itypes.MsgDeposit:
 		msg := msg.(itypes.MsgDeposit)
