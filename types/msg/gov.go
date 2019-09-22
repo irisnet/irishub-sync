@@ -87,7 +87,6 @@ func (doctx *DocTxMsgSubmitCommunityTaxUsageProposal) BuildMsg(txMsg interface{}
 	doctx.Percent = msg.Percent.String()
 }
 
-
 type DocTxMsgSubmitTokenAdditionProposal struct {
 	DocTxMsgSubmitProposal
 	Symbol          string `bson:"symbol"`
@@ -126,7 +125,6 @@ func (doctx *DocTxMsgSubmitTokenAdditionProposal) BuildMsg(txMsg interface{}) {
 	doctx.InitialSupply = msg.InitialSupply
 }
 
-
 // MsgVote
 type DocTxMsgVote struct {
 	ProposalID uint64 `bson:"proposal_id"` // ID of the proposal
@@ -142,5 +140,24 @@ func (doctx *DocTxMsgVote) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgVote)
 	doctx.Voter = msg.Voter.String()
 	doctx.Option = msg.Option.String()
+	doctx.ProposalID = msg.ProposalID
+}
+
+// MsgDeposit
+type DocTxMsgDeposit struct {
+	ProposalID uint64      `bson:"proposal_id"` // ID of the proposal
+	Depositor  string      `bson:"depositor"`   // Address of the depositor
+	Amount     store.Coins `bson:"amount"`      // Coins to add to the proposal's deposit
+}
+
+
+func (doctx *DocTxMsgDeposit) Type() string {
+	return constant.TxTypeDeposit
+}
+
+func (doctx *DocTxMsgDeposit) BuildMsg(txMsg interface{}) {
+	msg := txMsg.(itypes.MsgDeposit)
+	doctx.Depositor = msg.Depositor.String()
+	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
 	doctx.ProposalID = msg.ProposalID
 }
