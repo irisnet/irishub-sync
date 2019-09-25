@@ -34,7 +34,7 @@ db.tx_common.createIndex({"to": 1});
 db.tx_common.createIndex({"type": 1});
 db.tx_common.createIndex({"status": 1});
 db.tx_common.createIndex({"proposal_id": 1}, {"background": true});
-db.tx_common.createIndex({"type": -1, time": -1, "height": -1}, {"background": true});
+db.tx_common.createIndex({"type": -1, "time": -1, "height": -1}, {"background": true});
 
 db.proposal.createIndex({"proposal_id": 1}, {"unique": true});
 db.proposal.createIndex({"status": 1}, {"background": true});
