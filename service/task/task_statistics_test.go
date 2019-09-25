@@ -21,6 +21,6 @@ func Test_assertFastSyncFinished(t *testing.T) {
 	}
 }
 
-func TestMakeUpdateDelegatorTask(t *testing.T) {
-	updateDelegator()
-}
+//func TestMakeUpdateDelegatorTask(t *testing.T) {
+//	updateDelegator()
+//}

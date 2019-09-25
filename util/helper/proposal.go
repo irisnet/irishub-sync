@@ -35,6 +35,7 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 		Abstain:    tallyResult.Abstain.String(),
 		No:         tallyResult.No.String(),
 		NoWithVeto: tallyResult.NoWithVeto.String(),
+		SystemVotingPower:tallyResult.SystemVotingPower.String(),
 	}
 
 	return
