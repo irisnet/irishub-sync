@@ -10,8 +10,6 @@ import (
 	"github.com/irisnet/irishub-sync/util/helper"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"encoding/json"
-	"fmt"
 )
 
 const (
@@ -46,7 +44,6 @@ type CommonTx struct {
 
 	StakeCreateValidator document.StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   document.StakeEditValidator   `bson:"stake_edit_validator"`
-	Msg                  store.Msg                     `bson:"-"`
 	Signers              []document.Signer             `bson:"signers"`
 
 	Msgs []MsgItem `bson:"msgs"`
@@ -76,7 +73,7 @@ func (s *CronService) StartCronService() {
 			}
 			if total < 20 {
 				runValue = false
-				logger.Info("Finish UpdateUnknownTxsByPage.",logger.Int("total",total))
+				logger.Info("Finish UpdateUnknownTxsByPage.", logger.Int("total", total))
 			} else {
 				skip = skip + total
 				logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
@@ -113,9 +110,6 @@ func UpdateUnknownTxsByPage(skip, limit int) (int, error) {
 	if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
 		return 0, err
 	}
-
-	bytesmsg, _ := json.Marshal(res)
-	fmt.Println(string(bytesmsg))
 
 	if len(res) > 0 {
 		doWork(res)
@@ -181,7 +175,8 @@ func UpdateUnknowTxs(commontx []*document.CommonTx) error {
 	update_fn := func(tx *document.CommonTx) error {
 		fn := func(c *mgo.Collection) error {
 			return c.Update(bson.M{"tx_hash": tx.TxHash},
-				bson.M{"$set": bson.M{"actual_fee": tx.ActualFee, "status": tx.Status, "tags": tx.Tags, "code": tx.Code, "log": tx.Log, "gas_wanted": tx.GasWanted}})
+				bson.M{"$set": bson.M{"actual_fee": tx.ActualFee, "status": tx.Status, "tags": tx.Tags, "msgs": tx.Msgs,
+					"code": tx.Code, "log": tx.Log, "gas_wanted": tx.GasWanted}})
 		}
 
 		if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
