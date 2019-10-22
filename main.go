@@ -6,6 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/cron"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,6 +36,7 @@ func main() {
 	store.Start()
 	//#########################开启同步服务##########################
 	logger.Info("#########################开启同步服务##########################")
+	go new(cron.CronService).StartCronService()
 	engine.Start()
 	//阻塞直至有信号传入
 	<-c
