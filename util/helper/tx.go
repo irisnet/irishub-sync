@@ -577,7 +577,62 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
+		return docTx
 
+	case itypes.MsgAddProfiler:
+		msg := msg.(itypes.MsgAddProfiler)
+
+		docTx.From = msg.AddedBy.String()
+		docTx.To = msg.Address.String()
+		docTx.Type = constant.TxTypeAddProfiler
+		txMsg := imsg.DocTxMsgAddProfiler{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case itypes.MsgAddTrustee:
+		msg := msg.(itypes.MsgAddTrustee)
+
+		docTx.From = msg.AddedBy.String()
+		docTx.To = msg.Address.String()
+		docTx.Type = constant.TxTypeAddTrustee
+		txMsg := imsg.DocTxMsgAddTrustee{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case itypes.MsgDeleteTrustee:
+		msg := msg.(itypes.MsgDeleteTrustee)
+
+		docTx.From = msg.DeletedBy.String()
+		docTx.To = msg.Address.String()
+		docTx.Type = constant.TxTypeDeleteTrustee
+		txMsg := imsg.DocTxMsgDeleteTrustee{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case itypes.MsgDeleteProfiler:
+		msg := msg.(itypes.MsgDeleteProfiler)
+
+		docTx.From = msg.DeletedBy.String()
+		docTx.To = msg.Address.String()
+		docTx.Type = constant.TxTypeDeleteProfiler
+		txMsg := imsg.DocTxMsgDeleteProfiler{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
 		return docTx
 	default:
 		logger.Warn("unknown msg type")

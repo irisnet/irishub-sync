@@ -28,6 +28,11 @@ const (
 	TxTypeAssetEditGateway            = "EditGateway"
 	TxTypeAssetTransferGatewayOwner   = "TransferGatewayOwner"
 
+	TxTypeAddProfiler    = "AddProfiler"
+	TxTypeAddTrustee     = "AddTrustee"
+	TxTypeDeleteTrustee  = "DeleteTrustee"
+	TxTypeDeleteProfiler = "DeleteProfiler"
+
 	TxMsgTypeSubmitProposal                = "SubmitProposal"
 	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
 	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
