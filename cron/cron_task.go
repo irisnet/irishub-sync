@@ -13,41 +13,12 @@ import (
 )
 
 const (
-	Unknow_Status = "unknown"
+	Unknow_Status   = "unknown"
+	Tx_Field_Hash   = "tx_hash"
+	Tx_Field_Height = "height"
 )
 
 type CronService struct{}
-type MsgItem struct {
-	Type    string      `bson:"type"`
-	MsgData interface{} `bson:"msg"`
-}
-
-type CommonTx struct {
-	Time       time.Time         `bson:"time"`
-	Height     int64             `bson:"height"`
-	TxHash     string            `bson:"tx_hash"`
-	From       string            `bson:"from"`
-	To         string            `bson:"to"`
-	Amount     store.Coins       `bson:"amount"`
-	Type       string            `bson:"type"`
-	Fee        store.Fee         `bson:"fee"`
-	Memo       string            `bson:"memo"`
-	Status     string            `bson:"status"`
-	Code       uint32            `bson:"code"`
-	Log        string            `bson:"log"`
-	GasUsed    int64             `bson:"gas_used"`
-	GasWanted  int64             `bson:"gas_wanted"`
-	GasPrice   float64           `bson:"gas_price"`
-	ActualFee  store.ActualFee   `bson:"actual_fee"`
-	ProposalId uint64            `bson:"proposal_id"`
-	Tags       map[string]string `bson:"tags"`
-
-	StakeCreateValidator document.StakeCreateValidator `bson:"stake_create_validator"`
-	StakeEditValidator   document.StakeEditValidator   `bson:"stake_edit_validator"`
-	Signers              []document.Signer             `bson:"signers"`
-
-	Msgs []MsgItem `bson:"msgs"`
-}
 
 func (s *CronService) StartCronService() {
 
@@ -99,12 +70,16 @@ func (s *CronService) StartCronService() {
 
 func UpdateUnknownTxsByPage(skip, limit int) (int, error) {
 
-	var res []CommonTx
+	var res []document.CommonTx
 	q := bson.M{"status": Unknow_Status}
 	sorts := []string{"-height"}
+	selector := bson.M{
+		Tx_Field_Hash:   1,
+		Tx_Field_Height: 1,
+	}
 
 	fn := func(c *mgo.Collection) error {
-		return c.Find(q).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
+		return c.Find(q).Select(selector).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
 	}
 
 	if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
@@ -118,7 +93,7 @@ func UpdateUnknownTxsByPage(skip, limit int) (int, error) {
 	return len(res), nil
 }
 
-func doWork(commonTxs []CommonTx) {
+func doWork(commonTxs []document.CommonTx) {
 	client := helper.GetClient()
 	defer func() {
 		client.Release()
