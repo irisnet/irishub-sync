@@ -18,6 +18,7 @@ import (
 	"github.com/irisnet/irishub/app/v1/rand"
 	"github.com/irisnet/irishub/app/v1/slashing"
 	"github.com/irisnet/irishub/app/v1/stake"
+	"github.com/irisnet/irishub/modules/guardian"
 	stags "github.com/irisnet/irishub/app/v1/stake/tags"
 	staketypes "github.com/irisnet/irishub/app/v1/stake/types"
 	"github.com/irisnet/irishub/client/utils"
@@ -71,6 +72,11 @@ type (
 	AssetCreateGateway        = asset.MsgCreateGateway
 	AssetEditGateWay          = asset.MsgEditGateway
 	AssetTransferGatewayOwner = asset.MsgTransferGatewayOwner
+
+	MsgAddProfiler = guardian.MsgAddProfiler
+	MsgAddTrustee = guardian.MsgAddTrustee
+	MsgDeleteProfiler = guardian.MsgDeleteProfiler
+	MsgDeleteTrustee = guardian.MsgDeleteTrustee
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
