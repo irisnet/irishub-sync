@@ -117,7 +117,7 @@ func (d CommonTx) CalculateTxGasAndGasPrice(txType string, limit int) (
 	return d.Query(query, fields, sort, skip, limit)
 }
 
-func (d CommonTx) GetCommonTx(skip, limit int) (res []CommonTx, err error) {
+func (d CommonTx) GetUnknownOrEmptyTypeTxs(skip, limit int) (res []CommonTx, err error) {
 	q := bson.M{"$or": []bson.M{
 		{Tx_Field_Status: Unknow_Status},
 		{Tx_Field_Type: ""},

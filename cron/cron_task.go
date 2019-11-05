@@ -22,7 +22,7 @@ func (s *CronService) StartCronService() {
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt)
 
-	FnUpdate := func() {
+	fnUpdate := func() {
 		defer func() {
 			if r := recover(); r != nil {
 				logger.Error("CronService have error", logger.Any("err", r))
@@ -47,11 +47,11 @@ func (s *CronService) StartCronService() {
 
 		logger.Info("Finish Update Txs.")
 	}
-	FnUpdate()
+	fnUpdate()
 	for {
 		select {
 		case <-ticker.C:
-			FnUpdate()
+			fnUpdate()
 		case <-stop:
 			close(stop)
 			logger.Info("Update Txs CronService Quit...")
@@ -64,7 +64,7 @@ func (s *CronService) StartCronService() {
 
 func UpdateUnknownOrEmptyTypeTxsByPage(skip, limit int) (int, error) {
 
-	res, err := new(document.CommonTx).GetCommonTx(skip, limit)
+	res, err := new(document.CommonTx).GetUnknownOrEmptyTypeTxs(skip, limit)
 	if err != nil {
 		return 0, err
 	}
