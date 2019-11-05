@@ -12,12 +12,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-	Unknow_Status   = "unknown"
-	Tx_Field_Hash   = "tx_hash"
-	Tx_Field_Height = "height"
-)
-
 type CronService struct{}
 
 func (s *CronService) StartCronService() {
@@ -28,58 +22,36 @@ func (s *CronService) StartCronService() {
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt)
 
-	fn_update := func() {
+	FnUpdate := func() {
 		defer func() {
 			if r := recover(); r != nil {
 				logger.Error("CronService have error", logger.Any("err", r))
 			}
 		}()
 
-		fn_update_unknown_txs := func() {
-			runValue := true
-			skip := 0
-			for runValue {
-				total, err := UpdateUnknownTxsByPage(skip, 20)
-				if err != nil {
-					logger.Error("getCommonTx have error", logger.String("err", err.Error()))
-				}
-				if total < 20 {
-					runValue = false
-					logger.Info("Finish UpdateUnknownTxsByPage.", logger.Int("total", total))
-				} else {
-					skip = skip + total
-					logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
-				}
+		runValue := true
+		skip := 0
+		for runValue {
+			total, err := UpdateUnknownOrEmptyTypeTxsByPage(skip, 20)
+			if err != nil {
+				logger.Error("getCommonTx have error", logger.String("err", err.Error()))
+			}
+			if total < 20 {
+				runValue = false
+				logger.Info("Finish UpdateUnknownTxsByPage.", logger.Int("total", total))
+			} else {
+				skip = skip + total
+				logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
 			}
 		}
-		fn_update_emptytype_txs := func() {
-			runValue := true
-			skip := 0
-			for runValue {
-				total, err := UpdateEmptyTypeTxsByPage(skip, 20)
-				if err != nil {
-					logger.Error("getCommonTx have error", logger.String("err", err.Error()))
-				}
-				if total < 20 {
-					runValue = false
-					logger.Info("Finish UpdateEmptyTypeTxsByPage.", logger.Int("total", total))
-				} else {
-					skip = skip + total
-					logger.Info("Continue UpdateEmptyTypeTxsByPage", logger.Int("skip", skip))
-				}
-			}
-		}
-		fn_update_emptytype_txs()
-		fn_update_unknown_txs()
-
 
 		logger.Info("Finish Update Txs.")
 	}
-	fn_update()
+	FnUpdate()
 	for {
 		select {
 		case <-ticker.C:
-			fn_update()
+			FnUpdate()
 		case <-stop:
 			close(stop)
 			logger.Info("Update Txs CronService Quit...")
@@ -90,16 +62,15 @@ func (s *CronService) StartCronService() {
 
 }
 
-func UpdateUnknownTxsByPage(skip, limit int) (int, error) {
+func UpdateUnknownOrEmptyTypeTxsByPage(skip, limit int) (int, error) {
 
-	q := bson.M{"status": Unknow_Status}
-	res, err := getCommonTx(skip, limit, q)
+	res, err := new(document.CommonTx).GetCommonTx(skip, limit)
 	if err != nil {
 		return 0, err
 	}
 
 	if len(res) > 0 {
-		doWork(res, UpdateUnknowTxs)
+		doWork(res, UpdateUnknowOrEmptyTypeTxs)
 	}
 
 	return len(res), nil
@@ -112,7 +83,7 @@ func doWork(commonTxs []document.CommonTx, fn func([]*document.CommonTx) error) 
 	}()
 
 	for _, val := range commonTxs {
-		txs, err := ParseUnknownTxs(val.Height, client)
+		txs, err := ParseUnknownOrEmptyTypeTxs(val.Height, client)
 		if err != nil {
 			logger.Error("ParseUnknownTxs have error", logger.String("error", err.Error()))
 			continue
@@ -124,7 +95,7 @@ func doWork(commonTxs []document.CommonTx, fn func([]*document.CommonTx) error) 
 
 }
 
-func ParseUnknownTxs(b int64, client *helper.Client) (commontx []*document.CommonTx, err error) {
+func ParseUnknownOrEmptyTypeTxs(b int64, client *helper.Client) (commontx []*document.CommonTx, err error) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -149,7 +120,7 @@ func ParseUnknownTxs(b int64, client *helper.Client) (commontx []*document.Commo
 
 	for _, txByte := range block.Block.Txs {
 		tx := helper.ParseTx(txByte, block.Block)
-		if tx.Status != Unknow_Status {
+		if tx.Status != document.Unknow_Status {
 			commontx = append(commontx, &tx)
 		}
 
@@ -157,68 +128,14 @@ func ParseUnknownTxs(b int64, client *helper.Client) (commontx []*document.Commo
 	return
 }
 
-func UpdateUnknowTxs(commontx []*document.CommonTx) error {
+func UpdateUnknowOrEmptyTypeTxs(commontx []*document.CommonTx) error {
 
 	update_fn := func(tx *document.CommonTx) error {
 		fn := func(c *mgo.Collection) error {
 			return c.Update(bson.M{"tx_hash": tx.TxHash},
-				bson.M{"$set": bson.M{"actual_fee": tx.ActualFee, "status": tx.Status, "tags": tx.Tags, "msgs": tx.Msgs,
+				bson.M{"$set": bson.M{"from": tx.From, "to": tx.To, "type": tx.Type, "amount": tx.Amount,
+					"actual_fee": tx.ActualFee, "status": tx.Status, "tags": tx.Tags, "msgs": tx.Msgs,
 					"code": tx.Code, "log": tx.Log, "gas_wanted": tx.GasWanted}})
-		}
-
-		if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	for _, dbval := range commontx {
-		update_fn(dbval)
-	}
-
-	return nil
-}
-
-func getCommonTx(skip, limit int, q bson.M) (res []document.CommonTx, err error) {
-	sorts := []string{"-height"}
-	selector := bson.M{
-		Tx_Field_Hash:   1,
-		Tx_Field_Height: 1,
-	}
-
-	fn := func(c *mgo.Collection) error {
-		return c.Find(q).Select(selector).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
-	}
-
-	err = store.ExecCollection(document.CollectionNmCommonTx, fn);
-	if err != nil {
-		return nil, err
-	}
-	return
-}
-
-func UpdateEmptyTypeTxsByPage(skip, limit int) (int, error) {
-
-	q := bson.M{"type": ""}
-	res, err := getCommonTx(skip, limit, q)
-	if err != nil {
-		return 0, err
-	}
-
-	if len(res) > 0 {
-		doWork(res, UpdateEmptyTypeTxs)
-	}
-
-	return len(res), nil
-}
-
-func UpdateEmptyTypeTxs(commontx []*document.CommonTx) error {
-
-	update_fn := func(tx *document.CommonTx) error {
-		fn := func(c *mgo.Collection) error {
-			return c.Update(bson.M{"tx_hash": tx.TxHash},
-				bson.M{"$set": bson.M{"from": tx.From, "to": tx.To, "type": tx.Type, "msgs": tx.Msgs,
-					"amount": tx.Amount}})
 		}
 
 		if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {

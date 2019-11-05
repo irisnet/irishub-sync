@@ -11,10 +11,13 @@ const (
 	CollectionNmCommonTx = "tx_common"
 	TxStatusSuccess      = "success"
 	TxStatusFail         = "fail"
+	Unknow_Status        = "unknown"
 
 	Tx_Field_Hash   = "tx_hash"
 	Tx_Field_Type   = "type"
 	Tx_Field_Status = "status"
+	Tx_Field_Height = "height"
+
 )
 
 type CommonTx struct {
@@ -112,4 +115,26 @@ func (d CommonTx) CalculateTxGasAndGasPrice(txType string, limit int) (
 	skip := 0
 
 	return d.Query(query, fields, sort, skip, limit)
+}
+
+func (d CommonTx) GetCommonTx(skip, limit int) (res []CommonTx, err error) {
+	q := bson.M{"$or": []bson.M{
+		{Tx_Field_Status: Unknow_Status},
+		{Tx_Field_Type: ""},
+	}}
+	sorts := []string{"-height"}
+	selector := bson.M{
+		Tx_Field_Hash:   1,
+		Tx_Field_Height: 1,
+	}
+
+	fn := func(c *mgo.Collection) error {
+		return c.Find(q).Select(selector).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
+	}
+
+	err = store.ExecCollection(CollectionNmCommonTx, fn);
+	if err != nil {
+		return nil, err
+	}
+	return
 }
