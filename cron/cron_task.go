@@ -41,7 +41,7 @@ func (s *CronService) StartCronService() {
 			for runValue {
 				total, err := UpdateUnknownTxsByPage(skip, 20)
 				if err != nil {
-					logger.Error("GetUnknownTxsByPage have error", logger.String("err", err.Error()))
+					logger.Error("getCommonTx have error", logger.String("err", err.Error()))
 				}
 				if total < 20 {
 					runValue = false
@@ -58,14 +58,14 @@ func (s *CronService) StartCronService() {
 			for runValue {
 				total, err := UpdateEmptyTypeTxsByPage(skip, 20)
 				if err != nil {
-					logger.Error("GetUnknownTxsByPage have error", logger.String("err", err.Error()))
+					logger.Error("getCommonTx have error", logger.String("err", err.Error()))
 				}
 				if total < 20 {
 					runValue = false
 					logger.Info("Finish UpdateEmptyTypeTxsByPage.", logger.Int("total", total))
 				} else {
 					skip = skip + total
-					logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
+					logger.Info("Continue UpdateEmptyTypeTxsByPage", logger.Int("skip", skip))
 				}
 			}
 		}
