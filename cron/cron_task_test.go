@@ -28,3 +28,17 @@ func TestCronService_StartCronService(t *testing.T) {
 	new(CronService).StartCronService()
 	time.Sleep(1 * time.Minute)
 }
+
+func TestUpdateEmptyTypeTxsByPage(t *testing.T) {
+	store.Start()
+	defer func() {
+		store.Stop()
+	}()
+	num, err := UpdateEmptyTypeTxsByPage(0, 20)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(num)
+
+}

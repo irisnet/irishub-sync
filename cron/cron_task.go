@@ -35,21 +35,43 @@ func (s *CronService) StartCronService() {
 			}
 		}()
 
-		runValue := true
-		skip := 0
-		for runValue {
-			total, err := UpdateUnknownTxsByPage(skip, 20)
-			if err != nil {
-				logger.Error("GetUnknownTxsByPage have error", logger.String("err", err.Error()))
-			}
-			if total < 20 {
-				runValue = false
-				logger.Info("Finish UpdateUnknownTxsByPage.", logger.Int("total", total))
-			} else {
-				skip = skip + total
-				logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
+		fn_update_unknown_txs := func() {
+			runValue := true
+			skip := 0
+			for runValue {
+				total, err := UpdateUnknownTxsByPage(skip, 20)
+				if err != nil {
+					logger.Error("GetUnknownTxsByPage have error", logger.String("err", err.Error()))
+				}
+				if total < 20 {
+					runValue = false
+					logger.Info("Finish UpdateUnknownTxsByPage.", logger.Int("total", total))
+				} else {
+					skip = skip + total
+					logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
+				}
 			}
 		}
+		fn_update_emptytype_txs := func() {
+			runValue := true
+			skip := 0
+			for runValue {
+				total, err := UpdateEmptyTypeTxsByPage(skip, 20)
+				if err != nil {
+					logger.Error("GetUnknownTxsByPage have error", logger.String("err", err.Error()))
+				}
+				if total < 20 {
+					runValue = false
+					logger.Info("Finish UpdateEmptyTypeTxsByPage.", logger.Int("total", total))
+				} else {
+					skip = skip + total
+					logger.Info("Continue UpdateUnknownTxsByPage", logger.Int("skip", skip))
+				}
+			}
+		}
+		fn_update_emptytype_txs()
+		fn_update_unknown_txs()
+
 
 		logger.Info("Finish Update Txs.")
 	}
@@ -70,30 +92,20 @@ func (s *CronService) StartCronService() {
 
 func UpdateUnknownTxsByPage(skip, limit int) (int, error) {
 
-	var res []document.CommonTx
 	q := bson.M{"status": Unknow_Status}
-	sorts := []string{"-height"}
-	selector := bson.M{
-		Tx_Field_Hash:   1,
-		Tx_Field_Height: 1,
-	}
-
-	fn := func(c *mgo.Collection) error {
-		return c.Find(q).Select(selector).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
-	}
-
-	if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
+	res, err := getCommonTx(skip, limit, q)
+	if err != nil {
 		return 0, err
 	}
 
 	if len(res) > 0 {
-		doWork(res)
+		doWork(res, UpdateUnknowTxs)
 	}
 
 	return len(res), nil
 }
 
-func doWork(commonTxs []document.CommonTx) {
+func doWork(commonTxs []document.CommonTx, fn func([]*document.CommonTx) error) {
 	client := helper.GetClient()
 	defer func() {
 		client.Release()
@@ -105,7 +117,7 @@ func doWork(commonTxs []document.CommonTx) {
 			logger.Error("ParseUnknownTxs have error", logger.String("error", err.Error()))
 			continue
 		}
-		if err := UpdateUnknowTxs(txs); err != nil {
+		if err := fn(txs); err != nil {
 			logger.Warn("UpdateUnknowTxs have error", logger.String("error", err.Error()))
 		}
 	}
@@ -152,6 +164,61 @@ func UpdateUnknowTxs(commontx []*document.CommonTx) error {
 			return c.Update(bson.M{"tx_hash": tx.TxHash},
 				bson.M{"$set": bson.M{"actual_fee": tx.ActualFee, "status": tx.Status, "tags": tx.Tags, "msgs": tx.Msgs,
 					"code": tx.Code, "log": tx.Log, "gas_wanted": tx.GasWanted}})
+		}
+
+		if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	for _, dbval := range commontx {
+		update_fn(dbval)
+	}
+
+	return nil
+}
+
+func getCommonTx(skip, limit int, q bson.M) (res []document.CommonTx, err error) {
+	sorts := []string{"-height"}
+	selector := bson.M{
+		Tx_Field_Hash:   1,
+		Tx_Field_Height: 1,
+	}
+
+	fn := func(c *mgo.Collection) error {
+		return c.Find(q).Select(selector).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
+	}
+
+	err = store.ExecCollection(document.CollectionNmCommonTx, fn);
+	if err != nil {
+		return nil, err
+	}
+	return
+}
+
+func UpdateEmptyTypeTxsByPage(skip, limit int) (int, error) {
+
+	q := bson.M{"type": ""}
+	res, err := getCommonTx(skip, limit, q)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(res) > 0 {
+		doWork(res, UpdateEmptyTypeTxs)
+	}
+
+	return len(res), nil
+}
+
+func UpdateEmptyTypeTxs(commontx []*document.CommonTx) error {
+
+	update_fn := func(tx *document.CommonTx) error {
+		fn := func(c *mgo.Collection) error {
+			return c.Update(bson.M{"tx_hash": tx.TxHash},
+				bson.M{"$set": bson.M{"from": tx.From, "to": tx.To, "type": tx.Type, "msgs": tx.Msgs,
+					"amount": tx.Amount}})
 		}
 
 		if err := store.ExecCollection(document.CollectionNmCommonTx, fn); err != nil {
