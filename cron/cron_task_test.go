@@ -6,12 +6,12 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 )
 
-func TestUpdateUnknownTxsByPage(t *testing.T) {
+func TestUpdateUnknownOrEmptyTypeTxsByPage(t *testing.T) {
 	store.Start()
 	defer func() {
 		store.Stop()
 	}()
-	num,err := UpdateUnknownTxsByPage(0, 20)
+	num, err := UpdateUnknownOrEmptyTypeTxsByPage(0, 20)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,3 +28,4 @@ func TestCronService_StartCronService(t *testing.T) {
 	new(CronService).StartCronService()
 	time.Sleep(1 * time.Minute)
 }
+
