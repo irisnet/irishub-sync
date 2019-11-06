@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:20190925
 
 # Set up dependencies
 ENV PACKAGES go make git libc-dev bash
@@ -11,6 +11,7 @@ ENV BASE_PATH    $GOPATH/src/github.com/irisnet
 ENV REPO_PATH    $BASE_PATH/$PROJECT_NAME
 ENV LOG_DIR      /$PROJECT_NAME/log
 ENV PATH         $GOPATH/bin:$PATH
+ENV GO111MODULE  on
 
 # Set volumes
 
