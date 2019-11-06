@@ -640,6 +640,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Sender.String()
 		docTx.To = msg.To.String()
+		docTx.Amount = itypes.ParseCoins(msg.Amount.String())
 		docTx.Type = constant.TxTypeCreateHTLC
 		txMsg := imsg.DocTxMsgCreateHTLC{}
 		txMsg.BuildMsg(msg)
@@ -679,6 +680,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Sender.String()
 		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.MaxToken.String())
 		docTx.Type = constant.TxTypeAddLiquidity
 		txMsg := imsg.DocTxMsgAddLiquidity{}
 		txMsg.BuildMsg(msg)
@@ -692,6 +694,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Sender.String()
 		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.WithdrawLiquidity.String())
 		docTx.Type = constant.TxTypeRemoveLiquidity
 		txMsg := imsg.DocTxMsgRemoveLiquidity{}
 		txMsg.BuildMsg(msg)
@@ -705,6 +708,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Input.Address.String()
 		docTx.To = msg.Output.Address.String()
+		docTx.Amount = itypes.ParseCoins(msg.Input.Coin.String())
 		docTx.Type = constant.TxTypeSwapOrder
 		txMsg := imsg.DocTxMsgSwapOrder{}
 		txMsg.BuildMsg(msg)
