@@ -634,6 +634,90 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Msg:  &txMsg,
 		})
 		return docTx
+
+	case itypes.MsgCreateHTLC:
+		msg := msg.(itypes.MsgCreateHTLC)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = msg.To.String()
+		docTx.Amount = itypes.ParseCoins(msg.Amount.String())
+		docTx.Type = constant.TxTypeCreateHTLC
+		txMsg := imsg.DocTxMsgCreateHTLC{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case itypes.MsgClaimHTLC:
+		msg := msg.(itypes.MsgClaimHTLC)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Type = constant.TxTypeClaimHTLC
+		txMsg := imsg.DocTxMsgClaimHTLC{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case itypes.MsgRefundHTLC:
+		msg := msg.(itypes.MsgRefundHTLC)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Type = constant.TxTypeRefundHTLC
+		txMsg := imsg.DocTxMsgRefundHTLC{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case itypes.MsgAddLiquidity:
+		msg := msg.(itypes.MsgAddLiquidity)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.MaxToken.String())
+		docTx.Type = constant.TxTypeAddLiquidity
+		txMsg := imsg.DocTxMsgAddLiquidity{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case itypes.MsgRemoveLiquidity:
+		msg := msg.(itypes.MsgRemoveLiquidity)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Amount = itypes.ParseCoins(msg.WithdrawLiquidity.String())
+		docTx.Type = constant.TxTypeRemoveLiquidity
+		txMsg := imsg.DocTxMsgRemoveLiquidity{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case itypes.MsgSwapOrder:
+		msg := msg.(itypes.MsgSwapOrder)
+
+		docTx.From = msg.Input.Address.String()
+		docTx.To = msg.Output.Address.String()
+		docTx.Amount = itypes.ParseCoins(msg.Input.Coin.String())
+		docTx.Type = constant.TxTypeSwapOrder
+		txMsg := imsg.DocTxMsgSwapOrder{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
 	default:
 		logger.Warn("unknown msg type")
 	}

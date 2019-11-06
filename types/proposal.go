@@ -37,7 +37,6 @@ type SubmitTokenAdditionProposal struct {
 	Name            string `json:"name"`
 	Decimal         uint8  `json:"decimal"`
 	MinUnitAlias    string `json:"min_unit_alias"`
-	InitialSupply   uint64 `json:"initial_supply"`
 }
 
 type Param struct {
@@ -96,7 +95,6 @@ func NewSubmitTokenAdditionProposal(msg MsgSubmitTokenAdditionProposal) SubmitTo
 		Name:            msg.Name,
 		Decimal:         msg.Decimal,
 		MinUnitAlias:    msg.MinUnitAlias,
-		InitialSupply:   msg.InitialSupply,
 	}
 }
 
