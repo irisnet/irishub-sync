@@ -153,29 +153,6 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
-
-		// struct of createValidator
-		valDes := document.ValDescription{
-			Moniker:  msg.Moniker,
-			Identity: msg.Identity,
-			Website:  msg.Website,
-			Details:  msg.Details,
-		}
-		pubKey, err := itypes.Bech32ifyValPub(msg.PubKey)
-		if err != nil {
-			logger.Error("Can't get pubKey", logger.String("txHash", txHash))
-			pubKey = ""
-		}
-		docTx.StakeCreateValidator = document.StakeCreateValidator{
-			PubKey:      pubKey,
-			Description: valDes,
-			Commission: document.CommissionMsg{
-				Rate:          msg.Commission.Rate.String(),
-				MaxChangeRate: msg.Commission.MaxChangeRate.String(),
-				MaxRate:       msg.Commission.MaxRate.String(),
-			},
-		}
-
 		return docTx
 	case itypes.MsgStakeEdit:
 		msg := msg.(itypes.MsgStakeEdit)
@@ -190,25 +167,6 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
-
-		// struct of editValidator
-		valDes := document.ValDescription{
-			Moniker:  msg.Moniker,
-			Identity: msg.Identity,
-			Website:  msg.Website,
-			Details:  msg.Details,
-		}
-
-		docTx.StakeEditValidator = document.StakeEditValidator{
-			Description: valDes,
-		}
-		commissionRate := msg.CommissionRate
-		if commissionRate == nil {
-			docTx.StakeEditValidator.CommissionRate = ""
-		} else {
-			docTx.StakeEditValidator.CommissionRate = commissionRate.String()
-		}
-
 		return docTx
 	case itypes.MsgStakeDelegate:
 		msg := msg.(itypes.MsgStakeDelegate)

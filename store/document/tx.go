@@ -40,8 +40,8 @@ type CommonTx struct {
 	ProposalId uint64            `bson:"proposal_id"`
 	Tags       map[string]string `bson:"tags"`
 
-	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
-	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
+	//StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
+	//StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
 	//Msg                  store.Msg            `bson:"-"`
 	Signers              []Signer             `bson:"signers"`
 
@@ -66,11 +66,11 @@ type ValDescription struct {
 	Details  string `bson:"details"`
 }
 
-type StakeCreateValidator struct {
-	PubKey      string         `bson:"pub_key"`
-	Description ValDescription `bson:"description"`
-	Commission  CommissionMsg  `bson:"commission"`
-}
+//type StakeCreateValidator struct {
+//	PubKey      string         `bson:"pub_key"`
+//	Description ValDescription `bson:"description"`
+//	Commission  CommissionMsg  `bson:"commission"`
+//}
 
 type CommissionMsg struct {
 	Rate          string `bson:"rate"`            // the commission rate charged to delegators
@@ -78,10 +78,10 @@ type CommissionMsg struct {
 	MaxChangeRate string `bson:"max_change_rate"` // maximum daily increase of the validator commission
 }
 
-type StakeEditValidator struct {
-	CommissionRate string         `bson:"commission_rate"`
-	Description    ValDescription `bson:"description"`
-}
+//type StakeEditValidator struct {
+//	CommissionRate string         `bson:"commission_rate"`
+//	Description    ValDescription `bson:"description"`
+//}
 
 type Signer struct {
 	AddrHex    string `bson:"addr_hex"`
