@@ -255,7 +255,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		}
 		docTx.Amount = []store.Coin{coin}
 		docTx.Type = constant.TxTypeBeginRedelegate
-		docTx.Msg = itypes.NewBeginRedelegate(msg)
+		//docTx.Msg = itypes.NewBeginRedelegate(msg)
 		txMsg := imsg.DocTxMsgBeginRedelegate{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -280,7 +280,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.WithdrawAddr.String()
 		docTx.Type = constant.TxTypeSetWithdrawAddress
-		docTx.Msg = itypes.NewSetWithdrawAddressMsg(msg)
+		//docTx.Msg = itypes.NewSetWithdrawAddressMsg(msg)
 		txMsg := imsg.DocTxMsgSetWithdrawAddress{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -293,7 +293,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeWithdrawDelegatorReward
-		docTx.Msg = itypes.NewWithdrawDelegatorRewardMsg(msg)
+		//docTx.Msg = itypes.NewWithdrawDelegatorRewardMsg(msg)
 		txMsg := imsg.DocTxMsgWithdrawDelegatorReward{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -314,7 +314,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.Type = constant.TxTypeWithdrawDelegatorRewardsAll
-		docTx.Msg = itypes.NewWithdrawDelegatorRewardsAllMsg(msg)
+		//docTx.Msg = itypes.NewWithdrawDelegatorRewardsAllMsg(msg)
 		txMsg := imsg.DocTxMsgWithdrawDelegatorRewardsAll{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -334,7 +334,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeWithdrawValidatorRewardsAll
-		docTx.Msg = itypes.NewWithdrawValidatorRewardsAllMsg(msg)
+		//docTx.Msg = itypes.NewWithdrawValidatorRewardsAllMsg(msg)
 		txMsg := imsg.DocTxMsgWithdrawValidatorRewardsAll{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -356,7 +356,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
-		docTx.Msg = itypes.NewSubmitProposal(msg)
+		//docTx.Msg = itypes.NewSubmitProposal(msg)
 		txMsg := imsg.DocTxMsgSubmitProposal{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -380,7 +380,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
-		docTx.Msg = itypes.NewSubmitSoftwareUpgradeProposal(msg)
+		//docTx.Msg = itypes.NewSubmitSoftwareUpgradeProposal(msg)
 		txMsg := imsg.DocTxMsgSubmitSoftwareUpgradeProposal{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -404,7 +404,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.To = ""
 		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
-		docTx.Msg = itypes.NewSubmitTaxUsageProposal(msg)
+		//docTx.Msg = itypes.NewSubmitTaxUsageProposal(msg)
 		txMsg := imsg.DocTxMsgSubmitCommunityTaxUsageProposal{}
 		txMsg.BuildMsg(msg)
 		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
@@ -433,7 +433,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Type: txMsg.Type(),
 			Msg:  &txMsg,
 		})
-		docTx.Msg = itypes.NewSubmitTokenAdditionProposal(msg)
+		//docTx.Msg = itypes.NewSubmitTokenAdditionProposal(msg)
 		//query proposal_id
 		proposalId, err := getProposalIdFromTags(result.Tags)
 		if err != nil {
@@ -448,7 +448,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Depositor.String()
 		docTx.Amount = itypes.ParseCoins(msg.Amount.String())
 		docTx.Type = constant.TxTypeDeposit
-		docTx.Msg = itypes.NewDeposit(msg)
+		//docTx.Msg = itypes.NewDeposit(msg)
 		docTx.ProposalId = msg.ProposalID
 		txMsg := imsg.DocTxMsgDeposit{}
 		txMsg.BuildMsg(msg)
@@ -463,7 +463,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.Voter.String()
 		docTx.Amount = []store.Coin{}
 		docTx.Type = constant.TxTypeVote
-		docTx.Msg = itypes.NewVote(msg)
+		//docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
 		txMsg := imsg.DocTxMsgVote{}
 		txMsg.BuildMsg(msg)

@@ -3,10 +3,12 @@ package handler
 import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"strconv"
+	"github.com/irisnet/irishub-sync/types/msg"
+	"github.com/irisnet/explorer/backend/utils"
+	"github.com/irisnet/irishub-sync/logger"
 )
 
 func handleProposal(docTx document.CommonTx) {
@@ -36,10 +38,14 @@ func handleProposal(docTx document.CommonTx) {
 			return
 		}
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			voteMsg := docTx.Msg.(types.Vote)
+			msgVote := msg.DocTxMsgVote{}
+			err := msgVote.BuildMsgByUnmarshalJson(utils.MarshalJsonIgnoreErr(docTx.Msgs[0].Msg))
+			if err != nil {
+				logger.Warn("BuildMsgByUnmarshalJson DocTxMsgVote have fail", logger.String("err", err.Error()))
+			}
 			vote := document.PVote{
-				Voter:  voteMsg.Voter,
-				Option: voteMsg.Option,
+				Voter:  msgVote.Voter,
+				Option: msgVote.Option,
 				TxHash: docTx.TxHash,
 				Time:   docTx.Time,
 			}

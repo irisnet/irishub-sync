@@ -42,7 +42,7 @@ type CommonTx struct {
 
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
-	Msg                  store.Msg            `bson:"-"`
+	//Msg                  store.Msg            `bson:"-"`
 	Signers              []Signer             `bson:"signers"`
 
 	Msgs []DocTxMsg `bson:"msgs"`
