@@ -4,6 +4,7 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/store"
 	itypes "github.com/irisnet/irishub-sync/types"
+	"encoding/hex"
 )
 
 type DocTxMsgCreateHTLC struct {
@@ -26,7 +27,7 @@ func (doctx *DocTxMsgCreateHTLC) BuildMsg(txMsg interface{}) {
 	doctx.To = msg.To.String()
 	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
 	doctx.Timestamp = msg.Timestamp
-	doctx.HashLock = string(msg.HashLock)
+	doctx.HashLock = hex.EncodeToString(msg.HashLock)
 	doctx.TimeLock = msg.TimeLock
 	doctx.ReceiverOnOtherChain = msg.ReceiverOnOtherChain
 }
@@ -44,8 +45,8 @@ func (doctx *DocTxMsgClaimHTLC) Type() string {
 func (doctx *DocTxMsgClaimHTLC) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgClaimHTLC)
 	doctx.Sender = msg.Sender.String()
-	doctx.Secret = string(msg.Secret)
-	doctx.HashLock = string(msg.HashLock)
+	doctx.Secret = hex.EncodeToString(msg.Secret)
+	doctx.HashLock = hex.EncodeToString(msg.HashLock)
 }
 
 type DocTxMsgRefundHTLC struct {
@@ -60,5 +61,5 @@ func (doctx *DocTxMsgRefundHTLC) Type() string {
 func (doctx *DocTxMsgRefundHTLC) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgRefundHTLC)
 	doctx.Sender = msg.Sender.String()
-	doctx.HashLock = string(msg.HashLock)
+	doctx.HashLock = hex.EncodeToString(msg.HashLock)
 }
