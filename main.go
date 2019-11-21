@@ -6,6 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/cron"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,7 +17,7 @@ func main() {
 	engine := service.New()
 
 	defer func() {
-		logger.Info("#########################System Exit##########################")
+		logger.Info("Irishub Sync Service Exit...")
 		engine.Stop()
 		helper.ClosePool()
 		store.Stop()
@@ -26,16 +27,17 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-	//监听指定信号
+	//monitor system signal
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	// start monitor
 	go monitor.NewMonitor().Start()
-	//#########################开启数据库服务##########################
-	logger.Info("#########################开启数据库服务##########################")
+	//start databases service
+	logger.Info("Databases Service Start...")
 	store.Start()
-	//#########################开启同步服务##########################
-	logger.Info("#########################开启同步服务##########################")
+	//start sync task service
+	logger.Info("Irishub Sync Service Start...")
+	go new(cron.CronService).StartCronService()
 	engine.Start()
-	//阻塞直至有信号传入
+	//paused until the signal have received
 	<-c
 }

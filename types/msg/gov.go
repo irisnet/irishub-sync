@@ -94,7 +94,7 @@ type DocTxMsgSubmitTokenAdditionProposal struct {
 	Name            string `bson:"name"`
 	Decimal         uint8  `bson:"decimal"`
 	MinUnitAlias    string `bson:"min_unit_alias"`
-	InitialSupply   uint64 `bson:"initial_supply"`
+	//InitialSupply   uint64 `bson:"initial_supply"`
 }
 
 func (doctx *DocTxMsgSubmitTokenAdditionProposal) Type() string {
@@ -122,7 +122,6 @@ func (doctx *DocTxMsgSubmitTokenAdditionProposal) BuildMsg(txMsg interface{}) {
 	doctx.CanonicalSymbol = msg.CanonicalSymbol
 	doctx.Name = msg.Name
 	doctx.Decimal = msg.Decimal
-	doctx.InitialSupply = msg.InitialSupply
 }
 
 // MsgVote

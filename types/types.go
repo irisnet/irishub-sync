@@ -18,6 +18,9 @@ import (
 	"github.com/irisnet/irishub/app/v1/rand"
 	"github.com/irisnet/irishub/app/v1/slashing"
 	"github.com/irisnet/irishub/app/v1/stake"
+	"github.com/irisnet/irishub/app/v2/coinswap"
+	"github.com/irisnet/irishub/app/v2/htlc"
+	"github.com/irisnet/irishub/modules/guardian"
 	stags "github.com/irisnet/irishub/app/v1/stake/tags"
 	staketypes "github.com/irisnet/irishub/app/v1/stake/types"
 	"github.com/irisnet/irishub/client/utils"
@@ -62,6 +65,14 @@ type (
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
 
+	MsgSwapOrder = coinswap.MsgSwapOrder
+	MsgAddLiquidity = coinswap.MsgAddLiquidity
+	MsgRemoveLiquidity = coinswap.MsgRemoveLiquidity
+
+	MsgClaimHTLC = htlc.MsgClaimHTLC
+	MsgCreateHTLC = htlc.MsgCreateHTLC
+	MsgRefundHTLC = htlc.MsgRefundHTLC
+
 	MsgRequestRand = rand.MsgRequestRand
 
 	AssetIssueToken           = asset.MsgIssueToken
@@ -71,6 +82,11 @@ type (
 	AssetCreateGateway        = asset.MsgCreateGateway
 	AssetEditGateWay          = asset.MsgEditGateway
 	AssetTransferGatewayOwner = asset.MsgTransferGatewayOwner
+
+	MsgAddProfiler = guardian.MsgAddProfiler
+	MsgAddTrustee = guardian.MsgAddTrustee
+	MsgDeleteProfiler = guardian.MsgDeleteProfiler
+	MsgDeleteTrustee = guardian.MsgDeleteTrustee
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 

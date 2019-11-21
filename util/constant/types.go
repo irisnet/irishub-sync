@@ -28,6 +28,19 @@ const (
 	TxTypeAssetEditGateway            = "EditGateway"
 	TxTypeAssetTransferGatewayOwner   = "TransferGatewayOwner"
 
+	TxTypeAddProfiler    = "AddProfiler"
+	TxTypeAddTrustee     = "AddTrustee"
+	TxTypeDeleteTrustee  = "DeleteTrustee"
+	TxTypeDeleteProfiler = "DeleteProfiler"
+
+	TxTypeCreateHTLC = "CreateHTLC"
+	TxTypeClaimHTLC  = "ClaimHTLC"
+	TxTypeRefundHTLC = "RefundHTLC"
+
+	TxTypeAddLiquidity    = "AddLiquidity"
+	TxTypeRemoveLiquidity = "RemoveLiquidity"
+	TxTypeSwapOrder       = "SwapOrder"
+
 	TxMsgTypeSubmitProposal                = "SubmitProposal"
 	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
 	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
