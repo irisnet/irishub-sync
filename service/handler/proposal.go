@@ -6,9 +6,6 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"strconv"
-	"github.com/irisnet/irishub-sync/types/msg"
-	"github.com/irisnet/explorer/backend/utils"
-	"github.com/irisnet/irishub-sync/logger"
 )
 
 func handleProposal(docTx document.CommonTx) {
@@ -32,38 +29,38 @@ func handleProposal(docTx document.CommonTx) {
 			proposal.VotingEndTime = propo.VotingEndTime
 			store.SaveOrUpdate(proposal)
 		}
-	case constant.TxTypeVote:
-		//失败的投票不计入统计
-		if docTx.Status == document.TxStatusFail {
-			return
-		}
-		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			msgVote := msg.DocTxMsgVote{}
-			err := msgVote.BuildMsgByUnmarshalJson(utils.MarshalJsonIgnoreErr(docTx.Msgs[0].Msg))
-			if err != nil {
-				logger.Warn("BuildMsgByUnmarshalJson DocTxMsgVote have fail", logger.String("err", err.Error()))
-			}
-			vote := document.PVote{
-				Voter:  msgVote.Voter,
-				Option: msgVote.Option,
-				TxHash: docTx.TxHash,
-				Time:   docTx.Time,
-			}
-			var i int
-			var hasVote = false
-			for i = range proposal.Votes {
-				if proposal.Votes[i].Voter == vote.Voter {
-					hasVote = true
-					break
-				}
-			}
-			if hasVote {
-				proposal.Votes[i] = vote
-			} else {
-				proposal.Votes = append(proposal.Votes, vote)
-			}
-			store.SaveOrUpdate(proposal)
-		}
+		//case constant.TxTypeVote:
+		//	//失败的投票不计入统计
+		//	if docTx.Status == document.TxStatusFail {
+		//		return
+		//	}
+		//	if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
+		//		msgVote := msg.DocTxMsgVote{}
+		//		err := msgVote.BuildMsgByUnmarshalJson(utils.MarshalJsonIgnoreErr(docTx.Msgs[0].Msg))
+		//		if err != nil {
+		//			logger.Warn("BuildMsgByUnmarshalJson DocTxMsgVote have fail", logger.String("err", err.Error()))
+		//		}
+		//		vote := document.PVote{
+		//			Voter:  msgVote.Voter,
+		//			Option: msgVote.Option,
+		//			TxHash: docTx.TxHash,
+		//			Time:   docTx.Time,
+		//		}
+		//		var i int
+		//		var hasVote = false
+		//		for i = range proposal.Votes {
+		//			if proposal.Votes[i].Voter == vote.Voter {
+		//				hasVote = true
+		//				break
+		//			}
+		//		}
+		//		if hasVote {
+		//			proposal.Votes[i] = vote
+		//		} else {
+		//			proposal.Votes = append(proposal.Votes, vote)
+		//		}
+		//		store.SaveOrUpdate(proposal)
+		//	}
 	}
 }
 
