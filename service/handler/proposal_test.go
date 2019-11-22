@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"encoding/json"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	itypes "github.com/irisnet/irishub-sync/types"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"testing"
@@ -39,23 +37,8 @@ func TestHandleProposal(t *testing.T) {
 	if err := store.ExecCollection(tx.Name(), fn); err != nil {
 		t.Fatal(err)
 	} else {
-		var txMsg document.TxMsg
-		fn := func(c *mgo.Collection) error {
-			q := bson.M{"hash": txHash}
-			return c.Find(q).One(&txMsg)
-		}
-		if err := store.ExecCollection(txMsg.Name(), fn); err != nil {
-			t.Fatal(err)
-		} else {
-			var msgVote itypes.Vote
-			if err := json.Unmarshal([]byte(txMsg.Content), &msgVote); err != nil {
-				t.Fatal(err)
-			} else {
-				tx.Msg = msgVote
-				handleProposal(tx)
-				t.Log("success")
-			}
-		}
+		handleProposal(tx)
+		t.Log("success")
 
 	}
 }
