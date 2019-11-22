@@ -5,7 +5,6 @@ import (
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub/app/v1/gov"
-	"encoding/json"
 )
 
 type DocTxMsgSubmitProposal struct {
@@ -149,10 +148,6 @@ func (doctx *DocTxMsgVote) BuildMsg(txMsg interface{}) {
 	doctx.Voter = msg.Voter.String()
 	doctx.Option = msg.Option.String()
 	doctx.ProposalID = msg.ProposalID
-}
-
-func (doctx *DocTxMsgVote) BuildMsgByUnmarshalJson(data []byte) error {
-	return json.Unmarshal(data, doctx)
 }
 
 // MsgDeposit

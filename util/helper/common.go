@@ -99,12 +99,3 @@ func DistinctStringSlice(slice []string) []string {
 
 	return res
 }
-
-func MarshalJsonIgnoreErr(v interface{}) []byte {
-	jsonBytes, err := json.Marshal(v)
-	if err != nil {
-		logger.Error("marshal json fail", logger.String("err", err.Error()), logger.Any("v", v))
-	}
-
-	return jsonBytes
-}
