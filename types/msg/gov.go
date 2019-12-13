@@ -8,13 +8,21 @@ import (
 )
 
 type DocTxMsgSubmitProposal struct {
-	Title          string        `bson:"title"`          //  Title of the proposal
-	Description    string        `bson:"description"`    //  Description of the proposal
-	Proposer       string        `bson:"proposer"`       //  Address of the proposer
-	InitialDeposit store.Coins   `bson:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
-	ProposalType   string        `bson:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
-	Params         itypes.Params `bson:"params"`
+	Title          string      `bson:"title"`          //  Title of the proposal
+	Description    string      `bson:"description"`    //  Description of the proposal
+	Proposer       string      `bson:"proposer"`       //  Address of the proposer
+	InitialDeposit store.Coins `bson:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
+	ProposalType   string      `bson:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
+	Params         Params      `bson:"params"`
 }
+
+type Param struct {
+	Subspace string `json:"subspace" bson:"subspace"`
+	Key      string `json:"key" bson:"key"`
+	Value    string `json:"value" bson:"value"`
+}
+
+type Params []Param
 
 func (doctx *DocTxMsgSubmitProposal) Type() string {
 	return constant.TxTypeSubmitProposal
@@ -30,9 +38,9 @@ func (doctx *DocTxMsgSubmitProposal) BuildMsg(txMsg interface{}) {
 	doctx.InitialDeposit = itypes.ParseCoins(msg.InitialDeposit.String())
 }
 
-func loadParams(params []gov.Param) (result []itypes.Param) {
+func loadParams(params []gov.Param) (result []Param) {
 	for _, val := range params {
-		result = append(result, itypes.Param{Subspace: val.Subspace, Value: val.Value, Key: val.Key})
+		result = append(result, Param{Subspace: val.Subspace, Value: val.Value, Key: val.Key})
 	}
 	return
 }
@@ -103,9 +111,9 @@ func (doctx *DocTxMsgSubmitTokenAdditionProposal) Type() string {
 
 func (doctx *DocTxMsgSubmitTokenAdditionProposal) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgSubmitTokenAdditionProposal)
-	var params itypes.Params
+	var params Params
 	for _, p := range msg.Params {
-		params = append(params, itypes.Param{
+		params = append(params, Param{
 			Subspace: p.Subspace,
 			Key:      p.Key,
 			Value:    p.Value,

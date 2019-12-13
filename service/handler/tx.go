@@ -33,20 +33,6 @@ func HandleTx(block *types.Block) ([]string, error) {
 		}
 		batch = append(batch, txOp)
 
-		// batch insert tx_msg
-		if msg := tx.Msg; msg != nil {
-			txMsg := document.TxMsg{
-				Hash:    tx.TxHash,
-				Type:    msg.Type(),
-				Content: msg.String(),
-			}
-			txOp := txn.Op{
-				C:      document.CollectionNmTxMsg,
-				Id:     bson.NewObjectId(),
-				Insert: txMsg,
-			}
-			batch = append(batch, txOp)
-		}
 
 		// save or update proposal
 		handleProposal(tx)
