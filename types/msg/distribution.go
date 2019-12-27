@@ -57,7 +57,7 @@ type DocTxMsgWithdrawValidatorRewardsAll struct {
 }
 
 func (doctx *DocTxMsgWithdrawValidatorRewardsAll) Type() string {
-	return constant.TxTypeWithdrawDelegatorRewardsAll
+	return constant.TxTypeWithdrawValidatorRewardsAll
 }
 
 func (doctx *DocTxMsgWithdrawValidatorRewardsAll) BuildMsg(txMsg interface{}) {
