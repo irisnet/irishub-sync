@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const maxRecordNumForBatchInsert = 1000
+
 func StartCreateTask() {
 	log := logger.GetLogger("StartCreateTask")
 	var (
@@ -180,12 +182,16 @@ func getBlockChainLatestHeight() (int64, error) {
 	return currentBlockHeight, nil
 }
 
+// limit max num for batch insert
 func createCatchUpTask(maxEndHeight, blockNumPerWorker, blockChainLatestHeight int64) []document.SyncTask {
 	var (
 		syncTasks []document.SyncTask
 	)
 
 	for maxEndHeight+blockNumPerWorker <= blockChainLatestHeight {
+		if len(syncTasks) >= maxRecordNumForBatchInsert {
+			break
+		}
 		syncTask := document.SyncTask{
 			StartHeight:    maxEndHeight + 1,
 			EndHeight:      maxEndHeight + blockNumPerWorker,
