@@ -1,10 +1,10 @@
 package msg
 
 import (
-	"github.com/irisnet/irishub-sync/util/constant"
-	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
+	itypes "github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub/app/v1/stake"
 )
 

@@ -1,15 +1,15 @@
 package cron
 
 import (
-	"time"
-	"os"
-	"os/signal"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"os"
+	"os/signal"
+	"time"
 )
 
 type CronService struct{}

@@ -1,10 +1,10 @@
 package msg
 
 import (
-	"github.com/irisnet/irishub-sync/util/constant"
+	"encoding/hex"
 	"github.com/irisnet/irishub-sync/store"
 	itypes "github.com/irisnet/irishub-sync/types"
-	"encoding/hex"
+	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 type DocTxMsgCreateHTLC struct {

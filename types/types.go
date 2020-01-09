@@ -18,13 +18,13 @@ import (
 	"github.com/irisnet/irishub/app/v1/rand"
 	"github.com/irisnet/irishub/app/v1/slashing"
 	"github.com/irisnet/irishub/app/v1/stake"
-	"github.com/irisnet/irishub/app/v2/coinswap"
-	"github.com/irisnet/irishub/app/v2/htlc"
-	"github.com/irisnet/irishub/modules/guardian"
 	stags "github.com/irisnet/irishub/app/v1/stake/tags"
 	staketypes "github.com/irisnet/irishub/app/v1/stake/types"
+	"github.com/irisnet/irishub/app/v2/coinswap"
+	"github.com/irisnet/irishub/app/v2/htlc"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
+	"github.com/irisnet/irishub/modules/guardian"
 	"github.com/irisnet/irishub/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
@@ -64,11 +64,11 @@ type (
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
 
-	MsgSwapOrder = coinswap.MsgSwapOrder
-	MsgAddLiquidity = coinswap.MsgAddLiquidity
+	MsgSwapOrder       = coinswap.MsgSwapOrder
+	MsgAddLiquidity    = coinswap.MsgAddLiquidity
 	MsgRemoveLiquidity = coinswap.MsgRemoveLiquidity
 
-	MsgClaimHTLC = htlc.MsgClaimHTLC
+	MsgClaimHTLC  = htlc.MsgClaimHTLC
 	MsgCreateHTLC = htlc.MsgCreateHTLC
 	MsgRefundHTLC = htlc.MsgRefundHTLC
 
@@ -82,10 +82,10 @@ type (
 	AssetEditGateWay          = asset.MsgEditGateway
 	AssetTransferGatewayOwner = asset.MsgTransferGatewayOwner
 
-	MsgAddProfiler = guardian.MsgAddProfiler
-	MsgAddTrustee = guardian.MsgAddTrustee
+	MsgAddProfiler    = guardian.MsgAddProfiler
+	MsgAddTrustee     = guardian.MsgAddTrustee
 	MsgDeleteProfiler = guardian.MsgDeleteProfiler
-	MsgDeleteTrustee = guardian.MsgDeleteTrustee
+	MsgDeleteTrustee  = guardian.MsgDeleteTrustee
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
