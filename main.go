@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/irisnet/irishub-sync/cron"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/monitor"
 	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/util/helper"
-	"github.com/irisnet/irishub-sync/cron"
 	"os"
 	"os/signal"
 	"syscall"

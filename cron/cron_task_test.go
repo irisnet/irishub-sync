@@ -1,9 +1,9 @@
 package cron
 
 import (
+	"github.com/irisnet/irishub-sync/store"
 	"testing"
 	"time"
-	"github.com/irisnet/irishub-sync/store"
 )
 
 func TestUpdateUnknownOrEmptyTypeTxsByPage(t *testing.T) {
@@ -28,4 +28,3 @@ func TestCronService_StartCronService(t *testing.T) {
 	new(CronService).StartCronService()
 	time.Sleep(1 * time.Minute)
 }
-

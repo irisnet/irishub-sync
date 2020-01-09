@@ -2,9 +2,9 @@ package types
 
 import (
 	"encoding/json"
-	"testing"
 	"fmt"
 	"strconv"
+	"testing"
 )
 
 func TestParseCoin(t *testing.T) {

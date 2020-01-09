@@ -41,10 +41,10 @@ type PVote struct {
 //-----------------------------------------------------------
 // Tally Results
 type PTallyResult struct {
-	Yes        string `json:"yes" bson:"yes"`
-	Abstain    string `json:"abstain" bson:"abstain"`
-	No         string `json:"no" bson:"no"`
-	NoWithVeto string `json:"no_with_veto" bson:"nowithveto"`
+	Yes               string `json:"yes" bson:"yes"`
+	Abstain           string `json:"abstain" bson:"abstain"`
+	No                string `json:"no" bson:"no"`
+	NoWithVeto        string `json:"no_with_veto" bson:"nowithveto"`
 	SystemVotingPower string `json:"system_voting_power" bson:"system_voting_power"`
 }
 

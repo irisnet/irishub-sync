@@ -1,8 +1,8 @@
 package msg
 
 import (
-	"github.com/irisnet/irishub-sync/util/constant"
 	itypes "github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 // msg struct for changing the withdraw address for a delegator (or validator self-delegation)

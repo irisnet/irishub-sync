@@ -1,9 +1,9 @@
 package msg
 
 import (
-	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/store"
 	itypes "github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 type DocTxMsgAddLiquidity struct {

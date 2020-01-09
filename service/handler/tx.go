@@ -33,7 +33,6 @@ func HandleTx(block *types.Block) ([]string, error) {
 		}
 		batch = append(batch, txOp)
 
-
 		// save or update proposal
 		handleProposal(tx)
 		//handleTokenFlow(blockWithTags, tx, &batch)
