@@ -12,7 +12,7 @@ import (
 var (
 	BlockChainMonitorUrl = []string{"tcp://35.201.147.145:30657"}
 
-	WorkerNumCreateTask  = 2
+	WorkerNumCreateTask  = 1
 	WorkerNumExecuteTask = 60
 
 	InitConnectionNum  = 50              // fast init num of tendermint client pool
@@ -33,11 +33,13 @@ func init() {
 
 	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
 	if found {
-		var err error
-		WorkerNumCreateTask, err = strconv.Atoi(workerNumCreateTask)
-		if err != nil {
-			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumCreateTask, workerNumCreateTask))
-		}
+		//var err error
+		//WorkerNumCreateTask, err = strconv.Atoi(workerNumCreateTask)
+		//if err != nil {
+		//	logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumCreateTask, workerNumCreateTask))
+		//}
+		// worker num for create task no longer set by env value
+		WorkerNumCreateTask = 1
 	}
 	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumCreateTask, WorkerNumCreateTask))
 
