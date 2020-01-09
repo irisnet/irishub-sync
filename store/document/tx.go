@@ -17,7 +17,6 @@ const (
 	Tx_Field_Type   = "type"
 	Tx_Field_Status = "status"
 	Tx_Field_Height = "height"
-
 )
 
 type CommonTx struct {
@@ -43,7 +42,7 @@ type CommonTx struct {
 	//StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	//StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
 	//Msg                  store.Msg            `bson:"-"`
-	Signers              []Signer             `bson:"signers"`
+	Signers []Signer `bson:"signers"`
 
 	Msgs []DocTxMsg `bson:"msgs"`
 }
@@ -132,7 +131,7 @@ func (d CommonTx) GetUnknownOrEmptyTypeTxs(skip, limit int) (res []CommonTx, err
 		return c.Find(q).Select(selector).Sort(sorts...).Skip(skip).Limit(limit).All(&res)
 	}
 
-	err = store.ExecCollection(CollectionNmCommonTx, fn);
+	err = store.ExecCollection(CollectionNmCommonTx, fn)
 	if err != nil {
 		return nil, err
 	}

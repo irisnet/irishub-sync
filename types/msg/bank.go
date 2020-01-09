@@ -1,9 +1,9 @@
 package msg
 
 import (
+	"github.com/irisnet/irishub-sync/store"
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
-	"github.com/irisnet/irishub-sync/store"
 )
 
 type DocTxMsgSetMemoRegexp struct {
@@ -56,11 +56,11 @@ func (doctx *DocTxMsgSend) Type() string {
 func (doctx *DocTxMsgSend) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgTransfer)
 	doctx.Inputs = append(doctx.Inputs, Data{
-		Address:msg.Inputs[0].Address.String(),
-		Coins:itypes.ParseCoins(msg.Inputs[0].Coins.String()),
+		Address: msg.Inputs[0].Address.String(),
+		Coins:   itypes.ParseCoins(msg.Inputs[0].Coins.String()),
 	})
 	doctx.Outputs = append(doctx.Outputs, Data{
-		Address:msg.Outputs[0].Address.String(),
-		Coins:itypes.ParseCoins(msg.Outputs[0].Coins.String()),
+		Address: msg.Outputs[0].Address.String(),
+		Coins:   itypes.ParseCoins(msg.Outputs[0].Coins.String()),
 	})
 }

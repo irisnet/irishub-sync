@@ -157,7 +157,6 @@ type DocTxMsgDeposit struct {
 	Amount     store.Coins `bson:"amount"`      // Coins to add to the proposal's deposit
 }
 
-
 func (doctx *DocTxMsgDeposit) Type() string {
 	return constant.TxTypeDeposit
 }

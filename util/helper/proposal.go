@@ -31,11 +31,11 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 
 	tallyResult := propo.GetTallyResult()
 	proposal.TallyResult = document.PTallyResult{
-		Yes:        tallyResult.Yes.String(),
-		Abstain:    tallyResult.Abstain.String(),
-		No:         tallyResult.No.String(),
-		NoWithVeto: tallyResult.NoWithVeto.String(),
-		SystemVotingPower:tallyResult.SystemVotingPower.String(),
+		Yes:               tallyResult.Yes.String(),
+		Abstain:           tallyResult.Abstain.String(),
+		No:                tallyResult.No.String(),
+		NoWithVeto:        tallyResult.NoWithVeto.String(),
+		SystemVotingPower: tallyResult.SystemVotingPower.String(),
 	}
 
 	return
