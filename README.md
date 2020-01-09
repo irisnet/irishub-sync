@@ -40,3 +40,15 @@ run script `mongodb.js` in `mongodb` folder to create database before run projec
 - WORKER_NUM_EXECUTE_TASK: `required` `string` num of worker to execute tasks（example: `30`）
 
 - NETWORK: `option` `string` network type（example: `testnet,mainnet`）
+
+## Note
+
+If you synchronizes irishub data from specify block height(such as:17908 current time:1576208532)
+1. At first, stop the irishub-sync and run follow sql in mongodb 
+
+```
+db.sync_task.insert({'start_height':NumberLong(17908),'end_height':NumberLong(0),'current_height':NumberLong(0),'status':'unhandled','last_update_time':NumberLong(1576208532)})
+```
+
+2. Then, start irishub-sync
+
