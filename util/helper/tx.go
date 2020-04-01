@@ -206,7 +206,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		msg := msg.(itypes.MsgBeginRedelegate)
 
 		shares := ParseFloat(msg.SharesAmount.String())
-		docTx.From = msg.DelegatorAddr.String()
+		docTx.From = msg.ValidatorSrcAddr.String()
 		docTx.To = msg.ValidatorDstAddr.String()
 		coin := store.Coin{
 			Amount: shares,
