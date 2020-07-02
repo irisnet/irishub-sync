@@ -8,6 +8,7 @@ import (
 	"github.com/irisnet/irishub-sync/util/helper"
 )
 
+// TODO: sync only save account address, let app to update balance, delegation, unbondingDelegation info
 func SaveOrUpdateAccountBalanceInfo(accounts []string, height, timestamp int64) {
 	var (
 		accountModel document.Account
@@ -33,7 +34,8 @@ func SaveOrUpdateAccountDelegationInfo(docTx document.CommonTx) {
 		accountModel document.Account
 	)
 	switch docTx.Type {
-	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding, constant.TxTypeBeginRedelegate:
+	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding, constant.TxTypeBeginRedelegate,
+		constant.TxTypeStakeCreateValidator:
 		delegator = docTx.From
 	}
 	if delegator == "" {
