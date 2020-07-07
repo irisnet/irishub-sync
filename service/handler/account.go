@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: sync only save account address, let app to update balance, delegation, unbondingDelegation info
-func SaveOrUpdateAccountBalanceInfo(accounts []string, height, timestamp int64) {
+func SaveAccountBalanceInfo(accounts []string, height, timestamp int64) {
 	var (
 		accountModel document.Account
 	)
@@ -21,14 +21,14 @@ func SaveOrUpdateAccountBalanceInfo(accounts []string, height, timestamp int64) 
 		coins, accountNumber := helper.QueryAccountInfo(v)
 		coinIris := getCoinIrisFromCoins(coins)
 
-		if err := accountModel.UpsertBalanceInfo(v, coinIris, accountNumber, height, timestamp); err != nil {
+		if err := accountModel.SaveBalanceInfo(v, coinIris, accountNumber, height, timestamp); err != nil {
 			logger.Error("update account balance info fail", logger.Int64("height", height),
 				logger.String("address", v), logger.String("err", err.Error()))
 		}
 	}
 }
 
-func SaveOrUpdateAccountDelegationInfo(docTx document.CommonTx) {
+func SaveAccountDelegationInfo(docTx document.CommonTx) {
 	var (
 		delegator    string
 		accountModel document.Account
@@ -47,13 +47,13 @@ func SaveOrUpdateAccountDelegationInfo(docTx document.CommonTx) {
 		Amount: helper.CalculateDelegatorDelegationTokens(delegations),
 	}
 
-	if err := accountModel.UpsertDelegationInfo(delegator, delegation, docTx.Height, docTx.Time.Unix()); err != nil {
+	if err := accountModel.SaveDelegationInfo(delegator, delegation, docTx.Height, docTx.Time.Unix()); err != nil {
 		logger.Error("update account delegation info fail", logger.Int64("height", docTx.Height),
 			logger.String("address", delegator), logger.String("err", err.Error()))
 	}
 }
 
-func SaveOrUpdateAccountUnbondingDelegationInfo(accounts []string, height, timestamp int64) {
+func SaveAccountUnbondingDelegationInfo(accounts []string, height, timestamp int64) {
 	var (
 		accountModel document.Account
 	)
@@ -68,7 +68,7 @@ func SaveOrUpdateAccountUnbondingDelegationInfo(accounts []string, height, times
 			Amount: helper.CalculateDelegatorUnbondingDelegationTokens(unbondingDelegations),
 		}
 
-		if err := accountModel.UpsertUnbondingDelegationInfo(v, unbondingDelegation, height, timestamp); err != nil {
+		if err := accountModel.SaveUnbondingDelegationInfo(v, unbondingDelegation, height, timestamp); err != nil {
 			logger.Error("update account unbonding delegation info fail", logger.Int64("height", height),
 				logger.String("address", v), logger.String("err", err.Error()))
 		}

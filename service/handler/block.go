@@ -144,9 +144,9 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 		docBlock.Result.EndBlock.Tags, docBlock.Height)
 
 	accsBalanceNeedUpdated = helper.DistinctStringSlice(append(accsBalanceNeedUpdated, accsBalanceNeedUpdatedByParseTxs...))
-	SaveOrUpdateAccountBalanceInfo(accsBalanceNeedUpdated, docBlock.Height, docBlock.Time.Unix())
+	SaveAccountBalanceInfo(accsBalanceNeedUpdated, docBlock.Height, docBlock.Time.Unix())
 
-	SaveOrUpdateAccountUnbondingDelegationInfo(accsUnbondingDelegationNeedUpdated, docBlock.Height, docBlock.Time.Unix())
+	SaveAccountUnbondingDelegationInfo(accsUnbondingDelegationNeedUpdated, docBlock.Height, docBlock.Time.Unix())
 
 	return docBlock
 }

@@ -38,11 +38,11 @@ func HandleTx(block *types.Block) ([]string, error) {
 		//handleTokenFlow(blockWithTags, tx, &batch)
 
 		// save or update account delegations info and unbonding delegation info
-		SaveOrUpdateAccountDelegationInfo(tx)
+		SaveAccountDelegationInfo(tx)
 		switch tx.Type {
 		case constant.TxTypeStakeBeginUnbonding:
 			accounts := []string{tx.From}
-			SaveOrUpdateAccountUnbondingDelegationInfo(accounts, tx.Height, tx.Time.Unix())
+			SaveAccountUnbondingDelegationInfo(accounts, tx.Height, tx.Time.Unix())
 		}
 
 		// get accounts which balance need updated by parse tx

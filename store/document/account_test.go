@@ -49,14 +49,14 @@ func TestAccount_UpsertBalanceInfo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := Account{}
-			if err := d.UpsertBalanceInfo(tt.args.address, tt.args.balance, tt.args.accountNumber, tt.args.height, tt.args.timestamp); err != nil {
+			if err := d.SaveBalanceInfo(tt.args.address, tt.args.balance, tt.args.accountNumber, tt.args.height, tt.args.timestamp); err != nil {
 				t.Fatal(err)
 			}
 		})
 	}
 }
 
-func TestAccount_UpsertDelegationInfo(t *testing.T) {
+func TestAccount_SaveDelegationInfo(t *testing.T) {
 	type fields struct {
 	}
 	type args struct {
@@ -76,8 +76,8 @@ func TestAccount_UpsertDelegationInfo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := Account{}
-			if err := d.UpsertDelegationInfo(tt.args.address, tt.args.delegation, tt.args.height, tt.args.timestamp); (err != nil) != tt.wantErr {
-				t.Errorf("Account.UpsertDelegationInfo() error = %v, wantErr %v", err, tt.wantErr)
+			if err := d.SaveDelegationInfo(tt.args.address, tt.args.delegation, tt.args.height, tt.args.timestamp); (err != nil) != tt.wantErr {
+				t.Errorf("Account.SaveDelegationInfo() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -103,8 +103,8 @@ func TestAccount_UpsertUnbondingDelegationInfo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := Account{}
-			if err := d.UpsertUnbondingDelegationInfo(tt.args.address, tt.args.unbondingDelegation, tt.args.height, tt.args.timestamp); (err != nil) != tt.wantErr {
-				t.Errorf("Account.UpsertUnbondingDelegationInfo() error = %v, wantErr %v", err, tt.wantErr)
+			if err := d.SaveUnbondingDelegationInfo(tt.args.address, tt.args.unbondingDelegation, tt.args.height, tt.args.timestamp); (err != nil) != tt.wantErr {
+				t.Errorf("Account.SaveUnbondingDelegationInfo() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

@@ -67,8 +67,8 @@ func (d Account) getAccountByPK() (Account, error) {
 	return res, nil
 }
 
-// save or update account balance info
-func (d Account) UpsertBalanceInfo(address string, balance store.Coin, accountNumber uint64, height, timestamp int64) error {
+// save  account balance info
+func (d Account) SaveBalanceInfo(address string, balance store.Coin, accountNumber uint64, height, timestamp int64) error {
 	d.Address = address
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
@@ -85,19 +85,21 @@ func (d Account) UpsertBalanceInfo(address string, balance store.Coin, accountNu
 			account.Address = address
 			account.Total = balance
 			return d.Save(account)
-		} else {
-			// record already exist
-			account.Total = store.Coin{
-				Denom:  balance.Denom,
-				Amount: balance.Amount + account.Delegation.Amount + account.UnbondingDelegation.Amount,
-			}
-			return store.Update(account)
 		}
+		//else {
+		//	// record already exist
+		//	account.Total = store.Coin{
+		//		Denom:  balance.Denom,
+		//		Amount: balance.Amount + account.Delegation.Amount + account.UnbondingDelegation.Amount,
+		//	}
+		//	return store.Update(account)
+		//}
+		return nil
 	}
 }
 
-// save or update delegation info
-func (d Account) UpsertDelegationInfo(address string, delegation store.Coin, height, timestamp int64) error {
+// save  delegation info
+func (d Account) SaveDelegationInfo(address string, delegation store.Coin, height, timestamp int64) error {
 	d.Address = address
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
@@ -112,19 +114,21 @@ func (d Account) UpsertDelegationInfo(address string, delegation store.Coin, hei
 			account.Address = address
 			account.Total = delegation
 			return d.Save(account)
-		} else {
-			// record exist
-			account.Total = store.Coin{
-				Denom:  delegation.Denom,
-				Amount: account.CoinIris.Amount + delegation.Amount + account.UnbondingDelegation.Amount,
-			}
-			return store.Update(account)
 		}
+		//else {
+		//	// record exist
+		//	account.Total = store.Coin{
+		//		Denom:  delegation.Denom,
+		//		Amount: account.CoinIris.Amount + delegation.Amount + account.UnbondingDelegation.Amount,
+		//	}
+		//	return store.Update(account)
+		//}
+		return nil
 	}
 }
 
-// save or update unbondingDelegation info
-func (d Account) UpsertUnbondingDelegationInfo(address string, unbondingDelegation store.Coin, height, timestamp int64) error {
+// save unbondingDelegation info
+func (d Account) SaveUnbondingDelegationInfo(address string, unbondingDelegation store.Coin, height, timestamp int64) error {
 	d.Address = address
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
@@ -140,13 +144,15 @@ func (d Account) UpsertUnbondingDelegationInfo(address string, unbondingDelegati
 			account.Address = address
 			account.Total = unbondingDelegation
 			return d.Save(account)
-		} else {
-			// record exist
-			account.Total = store.Coin{
-				Denom:  unbondingDelegation.Denom,
-				Amount: account.CoinIris.Amount + account.Delegation.Amount + unbondingDelegation.Amount,
-			}
-			return store.Update(account)
 		}
+		//else {
+		//	// record exist
+		//	account.Total = store.Coin{
+		//		Denom:  unbondingDelegation.Denom,
+		//		Amount: account.CoinIris.Amount + account.Delegation.Amount + unbondingDelegation.Amount,
+		//	}
+		//	return store.Update(account)
+		//}
+		return nil
 	}
 }
