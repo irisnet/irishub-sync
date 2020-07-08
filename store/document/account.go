@@ -73,28 +73,20 @@ func (d Account) SaveBalanceInfo(address string, balance store.Coin, accountNumb
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
 	} else {
+		if account.Address != "" {
+			return nil
+		}
+		// record not exist
 		account.AccountNumber = accountNumber
 		account.CoinIris = balance
 		account.CoinIrisUpdateHeight = height
 		account.CoinIrisUpdateAt = timestamp
 		account.TotalUpdateHeight = height
 		account.TotalUpdateAt = timestamp
+		account.Address = address
+		account.Total = balance
+		return d.Save(account)
 
-		if account.Address == "" {
-			// record not exist
-			account.Address = address
-			account.Total = balance
-			return d.Save(account)
-		}
-		//else {
-		//	// record already exist
-		//	account.Total = store.Coin{
-		//		Denom:  balance.Denom,
-		//		Amount: balance.Amount + account.Delegation.Amount + account.UnbondingDelegation.Amount,
-		//	}
-		//	return store.Update(account)
-		//}
-		return nil
 	}
 }
 
@@ -104,26 +96,19 @@ func (d Account) SaveDelegationInfo(address string, delegation store.Coin, heigh
 	if account, err := d.getAccountByPK(); err != nil {
 		return err
 	} else {
+		if account.Address != "" {
+			return nil
+		}
+		// record not exist
 		account.Delegation = delegation
 		account.DelegationUpdateHeight = height
 		account.DelegationUpdateAt = timestamp
 		account.TotalUpdateHeight = height
 		account.TotalUpdateAt = timestamp
-		if account.Address == "" {
-			// record not exist
-			account.Address = address
-			account.Total = delegation
-			return d.Save(account)
-		}
-		//else {
-		//	// record exist
-		//	account.Total = store.Coin{
-		//		Denom:  delegation.Denom,
-		//		Amount: account.CoinIris.Amount + delegation.Amount + account.UnbondingDelegation.Amount,
-		//	}
-		//	return store.Update(account)
-		//}
-		return nil
+		account.Address = address
+		account.Total = delegation
+		return d.Save(account)
+
 	}
 }
 
@@ -134,25 +119,18 @@ func (d Account) SaveUnbondingDelegationInfo(address string, unbondingDelegation
 		return err
 	} else {
 
+		if account.Address != "" {
+			return nil
+		}
+		// record not exist
 		account.UnbondingDelegation = unbondingDelegation
 		account.UnbondingDelegationUpdateHeight = height
 		account.UnbondingDelegationUpdateAt = timestamp
 		account.TotalUpdateHeight = height
 		account.TotalUpdateAt = timestamp
-		if account.Address == "" {
-			// record not exist
-			account.Address = address
-			account.Total = unbondingDelegation
-			return d.Save(account)
-		}
-		//else {
-		//	// record exist
-		//	account.Total = store.Coin{
-		//		Denom:  unbondingDelegation.Denom,
-		//		Amount: account.CoinIris.Amount + account.Delegation.Amount + unbondingDelegation.Amount,
-		//	}
-		//	return store.Update(account)
-		//}
-		return nil
+		account.Address = address
+		account.Total = unbondingDelegation
+		return d.Save(account)
+
 	}
 }
