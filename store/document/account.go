@@ -4,6 +4,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 const (
@@ -34,6 +35,7 @@ func (d Account) PkKvPair() map[string]interface{} {
 // override store.Save()
 // not to check record if exist before save document
 func (d Account) Save(account Account) error {
+	account.CreateAt = time.Now().Unix()
 	fn := func(c *mgo.Collection) error {
 		return c.Insert(account)
 	}
