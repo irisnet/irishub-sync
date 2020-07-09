@@ -299,8 +299,7 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 		}
 	}
 
-	accsBalanceNeedUpdatedByParseTxs, err := handler.HandleTx(block.Block)
-	if err != nil {
+	if err := handler.HandleTx(block.Block); err != nil {
 		return blockDoc, err
 	}
 
@@ -313,7 +312,7 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 		validators = res.Validators
 	}
 
-	return handler.ParseBlock(block.BlockMeta, block.Block, validators, accsBalanceNeedUpdatedByParseTxs), nil
+	return handler.ParseBlock(block.BlockMeta, block.Block, validators), nil
 }
 
 // assert task worker unchanged

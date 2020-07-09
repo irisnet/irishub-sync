@@ -65,7 +65,7 @@ func TestParseBlock(t *testing.T) {
 		} else {
 			validators = valRes.Validators
 		}
-		blockDoc := ParseBlock(res.BlockMeta, res.Block, validators, nil)
+		blockDoc := ParseBlock(res.BlockMeta, res.Block, validators)
 
 		resBytes, _ := json.MarshalIndent(blockDoc, "", "\t")
 		t.Log(string(resBytes))
