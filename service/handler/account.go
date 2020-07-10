@@ -30,7 +30,8 @@ func saveNewAccount(tx document.CommonTx) {
 			}
 		}
 	}
-	if accountModel.Address == "" {
+	//when new address not found or the tx is not success,this address will  not be collected
+	if accountModel.Address == "" || document.TxStatusSuccess != tx.Status {
 		return
 	}
 	if err := accountModel.SaveAddress(accountModel.Address); err != nil {
