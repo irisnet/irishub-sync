@@ -30,7 +30,7 @@ func HandleTx(block *types.Block) (error) {
 		//handleTokenFlow(blockWithTags, tx, &batch)
 
 		// save new account address
-		saveNewAccount(tx)
+		saveNewAccount(&tx)
 	}
 
 	if len(batch) > 0 {

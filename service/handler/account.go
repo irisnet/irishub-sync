@@ -9,8 +9,12 @@ import (
 	"encoding/json"
 )
 
-func saveNewAccount(tx document.CommonTx) {
+//when new address not found or the tx is not success,this address will  not be collected
+func saveNewAccount(tx *document.CommonTx) {
 	var accountModel document.Account
+	if document.TxStatusSuccess != tx.Status {
+		return
+	}
 	switch tx.Type {
 	case constant.TxTypeTransfer:
 		accountModel.Address = tx.To
