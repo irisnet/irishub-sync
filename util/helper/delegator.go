@@ -3,7 +3,7 @@ package helper
 import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub/app/v1/stake"
+	stake "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdktypes "github.com/irisnet/irishub/types"
 )
 
@@ -91,7 +91,7 @@ func CalculateDelegatorDelegationTokens(delegations []types.Delegation) float64 
 	token = sdktypes.ZeroDec()
 	if len(delegations) > 0 {
 		for _, v := range delegations {
-			validatorAddr := v.ValidatorAddr.String()
+			validatorAddr := v.ValidatorAddress.String()
 			if validator, err := GetValidator(validatorAddr); err != nil {
 				logger.Error("get validator fail", logger.String("validatorAddr", validatorAddr),
 					logger.String("err", err.Error()))

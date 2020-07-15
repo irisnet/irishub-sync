@@ -65,12 +65,15 @@ func handleProposal(docTx document.CommonTx) {
 }
 
 func isContainVotingPeriodStartTag(docTx document.CommonTx) bool {
-	tags := docTx.Tags
-	if len(tags) > 0 {
-		for k, _ := range tags {
-			if k == constant.TxTagVotingPeriodStart {
-				return true
+	events := docTx.Events
+	if len(events) > 0 {
+		for _, one := range events {
+			for k, _ := range one.Attributes {
+				if k == constant.TxTagVotingPeriodStart {
+					return true
+				}
 			}
+
 		}
 	}
 

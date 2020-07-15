@@ -22,7 +22,7 @@ func (doctx *DocTxMsgAddLiquidity) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgAddLiquidity)
 	doctx.Sender = msg.Sender.String()
 	doctx.MinLiquidity = msg.MinLiquidity.String()
-	doctx.ExactIrisAmt = msg.ExactIrisAmt.String()
+	doctx.ExactIrisAmt = msg.ExactStandardAmt.String()
 	doctx.Deadline = msg.Deadline
 	doctx.MaxToken = itypes.ParseCoin(msg.MaxToken.String())
 }
@@ -42,7 +42,7 @@ func (doctx *DocTxMsgRemoveLiquidity) Type() string {
 func (doctx *DocTxMsgRemoveLiquidity) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgRemoveLiquidity)
 	doctx.Sender = msg.Sender.String()
-	doctx.MinIrisAmt = msg.MinIrisAmt.String()
+	doctx.MinIrisAmt = msg.MinStandardAmt.String()
 	doctx.MinToken = msg.MinToken.String()
 	doctx.Deadline = msg.Deadline
 	doctx.WithdrawLiquidity = itypes.ParseCoin(msg.WithdrawLiquidity.String())

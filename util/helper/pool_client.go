@@ -71,7 +71,7 @@ func (c *Client) Release() {
 }
 
 func (c *Client) HeartBeat() error {
-	http := c.Client.(*types.HTTP)
+	http := c.Client
 	_, err := http.Health()
 	return err
 }

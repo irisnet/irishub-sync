@@ -15,7 +15,7 @@ func (doctx *DocTxMsgRequestRand) Type() string {
 }
 
 func (doctx *DocTxMsgRequestRand) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgRequestRand)
+	msg := txMsg.(itypes.MsgRequestRandom)
 	doctx.Consumer = msg.Consumer.String()
 	doctx.BlockInterval = msg.BlockInterval
 }

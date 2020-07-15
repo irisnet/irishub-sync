@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Addrs    = "192.168.150.7:30000"
+	Addrs    = "localhost:27018"
 	User     = "iris"
 	Passwd   = "irispassword"
 	Database = "sync-iris"
