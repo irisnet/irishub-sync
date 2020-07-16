@@ -18,24 +18,24 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	cdc.UnmarshalBinaryLengthPrefixed(res, &propo) //TODO
 	proposal.ProposalId = proposalID
 	proposal.Title = propo.GetTitle()
-	proposal.Type = propo.GetProposalType().String()
-	proposal.Description = propo.GetDescription()
-	proposal.Status = propo.GetStatus().String()
+	//proposal.Type = propo.GetProposalType().String()
+	//proposal.Description = propo.GetDescription()
+	proposal.Status = propo.Status.String()
 
-	proposal.SubmitTime = propo.GetSubmitTime()
-	proposal.VotingStartTime = propo.GetVotingStartTime()
-	proposal.VotingEndTime = propo.GetVotingEndTime()
-	proposal.DepositEndTime = propo.GetDepositEndTime()
-	proposal.TotalDeposit = types.ParseCoins(propo.GetTotalDeposit().String())
+	proposal.SubmitTime = propo.SubmitTime
+	proposal.VotingStartTime = propo.VotingStartTime
+	proposal.VotingEndTime = propo.VotingEndTime
+	proposal.DepositEndTime = propo.DepositEndTime
+	proposal.TotalDeposit = types.ParseCoins(propo.TotalDeposit.String())
 	proposal.Votes = []document.PVote{}
 
-	tallyResult := propo.GetTallyResult()
+	tallyResult := propo.FinalTallyResult
 	proposal.TallyResult = document.PTallyResult{
 		Yes:               tallyResult.Yes.String(),
 		Abstain:           tallyResult.Abstain.String(),
 		No:                tallyResult.No.String(),
 		NoWithVeto:        tallyResult.NoWithVeto.String(),
-		SystemVotingPower: tallyResult.SystemVotingPower.String(),
+		//SystemVotingPower: tallyResult.SystemVotingPower.String(),
 	}
 
 	return

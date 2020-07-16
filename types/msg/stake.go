@@ -116,12 +116,12 @@ func (doctx *DocTxMsgStakeCreate) Type() string {
 
 func (doctx *DocTxMsgStakeCreate) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgStakeCreate)
-	pubKey, err := itypes.Bech32ifyValPub(msg.Pubkey)
-	if err != nil {
-		pubKey = ""
-	}
+	//pubKey, err := itypes.Bech32ifyValPub(msg.Pubkey)
+	//if err != nil {
+	//	pubKey = ""
+	//}
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
-	doctx.PubKey = pubKey
+	doctx.PubKey = msg.Pubkey
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
 	doctx.Delegation = itypes.ParseCoin(msg.Description.String())
 	doctx.Commission = document.CommissionMsg{

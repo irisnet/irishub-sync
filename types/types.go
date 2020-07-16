@@ -120,16 +120,17 @@ var (
 
 	NewDecFromStr = types.NewDecFromStr
 
-	AddressStoreKey = auth.AddressStoreKey
-	//GetAccountDecoder = utils.GetAccountDecoder
+	//AddressStoreKey   = auth.AddressStoreKey
+	//StoreName         = auth.StoreKey
+	//GetAccountDecoder = auth.NewAccountRetriever
 
-	//KeyProposal      = gov.KeyProposal
-	//KeyVotesSubspace = gov.KeyVotesSubspace
+	KeyProposal      = gov.ProposalKey
+	KeyVotesSubspace = gov.VotesKey
 	//
 	NewHTTP = rpcclienthttp.New
 
 	//tags
-	//TagGovProposalID                   = tags.ProposalID
+	EventGovProposalID = gov.AttributeKeyProposalID
 	//TagDistributionReward              = dtags.Reward
 	//TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
 	//TagStakeDelegator                  = stags.Delegator

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	BlockChainMonitorUrl = []string{"http://192.168.150.32:26657"}
+	BlockChainMonitorUrl = []string{"tcp://10.1.4.66:32780"}
 
 	WorkerNumCreateTask  = 1
 	WorkerNumExecuteTask = 60
@@ -19,7 +19,7 @@ var (
 	MaxConnectionNum   = 100             // max size of tendermint client pool
 	SyncProposalStatus = "0 */1 * * * *" // every minute
 
-	Network = "testnet"
+	//Network = "testnet"
 )
 
 // get value of env var
@@ -53,9 +53,9 @@ func init() {
 	}
 	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
 
-	network, found := os.LookupEnv(constant.EnvNameNetwork)
-	if found {
-		Network = network
-	}
-	logger.Info("Env Value", logger.String(constant.EnvNameNetwork, Network))
+	//network, found := os.LookupEnv(constant.EnvNameNetwork)
+	//if found {
+	//	Network = network
+	//}
+	//logger.Info("Env Value", logger.String(constant.EnvNameNetwork, Network))
 }

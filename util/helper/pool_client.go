@@ -17,8 +17,12 @@ type Client struct {
 }
 
 func newClient(addr string) *Client {
+	cli, err := types.NewHTTP(addr, "/websocket")
+	if err != nil {
+		panic(err.Error())
+	}
 	return &Client{
-		Client: types.NewHTTP(addr, "/websocket"),
+		Client: cli,
 		Id:     generateId(addr),
 	}
 }
