@@ -39,7 +39,7 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 		Height:          meta.Header.Height,
 		Hash:            hexFunc(meta.BlockID.Hash),
 		Time:            meta.Header.Time,
-		NumTxs:          meta.Header.NumTxs,
+		NumTxs:          int64(len(block.Data.Txs)),
 		ProposalAddress: block.Header.ProposerAddress.String(),
 	}
 
@@ -66,7 +66,7 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 			//Time:            meta.Header.Time,
 			//NumTxs:          meta.Header.NumTxs,
 			//LastBlockID:     lastBlockId,
-			TotalTxs:        meta.Header.TotalTxs,
+			TotalTxs: int64(meta.NumTxs),
 			//LastCommitHash:  hexFunc(meta.Header.LastCommitHash),
 			//DataHash:        hexFunc(meta.Header.DataHash),
 			//ValidatorsHash:  hexFunc(meta.Header.ValidatorsHash),
@@ -128,11 +128,11 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	docBlock.Validators = vals
 	//docBlock.Result = parseBlockResult(docBlock.Height)
 
-	if proposalId,ok := IsContainVotingEndTag(docBlock.Result.EndBlock);ok {
-		if proposal,err := document.QueryProposal(proposalId);err == nil {
+	if proposalId, ok := IsContainVotingEndTag(docBlock.Result.EndBlock); ok {
+		if proposal, err := document.QueryProposal(proposalId); err == nil {
 			proposal.VotingEndHeight = docBlock.Height
 			store.SaveOrUpdate(proposal)
-		}else{
+		} else {
 			logger.Error("QueryProposal fail", logger.Int64("block", docBlock.Height),
 				logger.String("err", err.Error()))
 		}
