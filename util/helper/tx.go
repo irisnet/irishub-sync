@@ -29,7 +29,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 
 	cdc := types.GetCodec()
 
-	err := cdc.UnmarshalBinaryLengthPrefixed(txBytes, &authTx)
+	err := cdc.UnmarshalBinaryBare(txBytes, &authTx)
 	if err != nil {
 		logger.Error(err.Error())
 		return docTx
@@ -119,8 +119,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgStakeCreate
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgStakeCreate:
-		//	msg := msg.(types.MsgStakeCreate)
 
 		docTx.From = msg.DelegatorAddress.String()
 		docTx.To = msg.ValidatorAddress.String()
@@ -137,8 +135,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgStakeEdit
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgStakeEdit:
-		//	msg := msg.(types.MsgStakeEdit)
 
 		docTx.From = msg.ValidatorAddress.String()
 		docTx.To = ""
@@ -155,8 +151,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgStakeDelegate
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgStakeDelegate:
-		//	msg := msg.(types.MsgStakeDelegate)
 
 		docTx.From = msg.DelegatorAddress.String()
 		docTx.To = msg.ValidatorAddress.String()
@@ -174,8 +168,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgStakeBeginUnbonding
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgStakeBeginUnbonding:
-		//	msg := msg.(types.MsgStakeBeginUnbonding)
 
 		shares := ParseFloat(msg.Amount.String())
 		docTx.From = msg.DelegatorAddress.String()
@@ -197,8 +189,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgBeginRedelegate
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgBeginRedelegate:
-		//	msg := msg.(types.MsgBeginRedelegate)
 
 		shares := ParseFloat(msg.Amount.String())
 		docTx.From = msg.ValidatorSrcAddress.String()
@@ -219,8 +209,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgUnjail
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgUnjail:
-		//	msg := msg.(types.MsgUnjail)
 
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.Type = constant.TxTypeUnjail
@@ -234,8 +222,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgSetWithdrawAddress
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgSetWithdrawAddress:
-		//	msg := msg.(types.MsgSetWithdrawAddress)
 
 		docTx.From = msg.DelegatorAddress.String()
 		docTx.To = msg.WithdrawAddress.String()
@@ -250,8 +236,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgWithdrawDelegatorReward
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgWithdrawDelegatorReward:
-		//	msg := msg.(types.MsgWithdrawDelegatorReward)
 
 		docTx.From = msg.DelegatorAddress.String()
 		docTx.To = msg.ValidatorAddress.String()
@@ -267,8 +251,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgFundCommunityPool
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgFundCommunityPool:
-		//	msg := msg.(types.MsgFundCommunityPool)
 
 		docTx.From = msg.Depositor.String()
 		docTx.Amount = types.ParseCoins(msg.Amount.String())
@@ -283,9 +265,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgWithdrawValidatorCommission
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgWithdrawValidatorCommission:
-		//	msg := msg.(types.MsgWithdrawValidatorCommission)
-
 
 		docTx.From = msg.ValidatorAddress.String()
 		docTx.Type = constant.TxTypeMsgWithdrawValidatorCommission
@@ -300,8 +279,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgSubmitProposal
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgSubmitProposal:
-		//	msg := msg.(types.MsgSubmitProposal)
 
 		docTx.From = msg.Proposer.String()
 		docTx.To = ""
@@ -328,8 +305,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		var msg types.MsgDeposit
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-		//case types.MsgDeposit:
-		//	msg := msg.(types.MsgDeposit)
 
 		docTx.From = msg.Depositor.String()
 		docTx.Amount = types.ParseCoins(msg.Amount.String())
@@ -342,226 +317,259 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 			Msg:  &txMsg,
 		})
 		return docTx
-		//case types.MsgVote:
-		//	msg := msg.(types.MsgVote)
-		//
-		//	docTx.From = msg.Voter.String()
-		//	docTx.Amount = []store.Coin{}
-		//	docTx.Type = constant.TxTypeVote
-		//	docTx.ProposalId = msg.ProposalID
-		//	txMsg := imsg.DocTxMsgVote{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.MsgRequestRandom:
-		//	msg := msg.(types.MsgRequestRandom)
-		//
-		//	docTx.From = msg.Consumer.String()
-		//	docTx.Amount = []store.Coin{}
-		//	docTx.Type = constant.TxTypeRequestRand
-		//	txMsg := imsg.DocTxMsgRequestRand{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.AssetIssueToken:
-		//	msg := msg.(types.AssetIssueToken)
-		//
-		//	docTx.From = msg.Owner.String()
-		//	docTx.Type = constant.TxTypeAssetIssueToken
-		//	txMsg := imsg.DocTxMsgIssueToken{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//
-		//	return docTx
-		//case types.AssetEditToken:
-		//	msg := msg.(types.AssetEditToken)
-		//
-		//	docTx.From = msg.Owner.String()
-		//	docTx.Type = constant.TxTypeAssetEditToken
-		//	txMsg := imsg.DocTxMsgEditToken{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//
-		//	return docTx
-		//case types.AssetMintToken:
-		//	msg := msg.(types.AssetMintToken)
-		//
-		//	docTx.From = msg.Owner.String()
-		//	docTx.To = msg.To.String()
-		//	docTx.Type = constant.TxTypeAssetMintToken
-		//	txMsg := imsg.DocTxMsgMintToken{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//
-		//	return docTx
-		//case types.AssetTransferTokenOwner:
-		//	msg := msg.(types.AssetTransferTokenOwner)
-		//
-		//	docTx.From = msg.SrcOwner.String()
-		//	docTx.To = msg.DstOwner.String()
-		//	docTx.Type = constant.TxTypeAssetTransferTokenOwner
-		//	txMsg := imsg.DocTxMsgTransferTokenOwner{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//
-		//	return docTx
-		//
-		//case types.MsgAddProfiler:
-		//	msg := msg.(types.MsgAddProfiler)
-		//
-		//	docTx.From = msg.AddGuardian.AddedBy.String()
-		//	docTx.To = msg.AddGuardian.Address.String()
-		//	docTx.Type = constant.TxTypeAddProfiler
-		//	txMsg := imsg.DocTxMsgAddProfiler{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//
-		//case types.MsgAddTrustee:
-		//	msg := msg.(types.MsgAddTrustee)
-		//
-		//	docTx.From = msg.AddGuardian.AddedBy.String()
-		//	docTx.To = msg.AddGuardian.Address.String()
-		//	docTx.Type = constant.TxTypeAddTrustee
-		//	txMsg := imsg.DocTxMsgAddTrustee{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//
-		//case types.MsgDeleteTrustee:
-		//	msg := msg.(types.MsgDeleteTrustee)
-		//
-		//	docTx.From = msg.DeleteGuardian.DeletedBy.String()
-		//	docTx.To = msg.DeleteGuardian.Address.String()
-		//	docTx.Type = constant.TxTypeDeleteTrustee
-		//	txMsg := imsg.DocTxMsgDeleteTrustee{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//
-		//case types.MsgDeleteProfiler:
-		//	msg := msg.(types.MsgDeleteProfiler)
-		//
-		//	docTx.From = msg.DeleteGuardian.DeletedBy.String()
-		//	docTx.To = msg.DeleteGuardian.Address.String()
-		//	docTx.Type = constant.TxTypeDeleteProfiler
-		//	txMsg := imsg.DocTxMsgDeleteProfiler{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//
-		//case types.MsgCreateHTLC:
-		//	msg := msg.(types.MsgCreateHTLC)
-		//
-		//	docTx.From = msg.Sender.String()
-		//	docTx.To = msg.To.String()
-		//	docTx.Amount = types.ParseCoins(msg.Amount.String())
-		//	docTx.Type = constant.TxTypeCreateHTLC
-		//	txMsg := imsg.DocTxMsgCreateHTLC{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.MsgClaimHTLC:
-		//	msg := msg.(types.MsgClaimHTLC)
-		//
-		//	docTx.From = msg.Sender.String()
-		//	docTx.To = ""
-		//	docTx.Type = constant.TxTypeClaimHTLC
-		//	txMsg := imsg.DocTxMsgClaimHTLC{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.MsgRefundHTLC:
-		//	msg := msg.(types.MsgRefundHTLC)
-		//
-		//	docTx.From = msg.Sender.String()
-		//	docTx.To = ""
-		//	docTx.Type = constant.TxTypeRefundHTLC
-		//	txMsg := imsg.DocTxMsgRefundHTLC{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.MsgAddLiquidity:
-		//	msg := msg.(types.MsgAddLiquidity)
-		//
-		//	docTx.From = msg.Sender.String()
-		//	docTx.To = ""
-		//	docTx.Amount = types.ParseCoins(msg.MaxToken.String())
-		//	docTx.Type = constant.TxTypeAddLiquidity
-		//	txMsg := imsg.DocTxMsgAddLiquidity{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.MsgRemoveLiquidity:
-		//	msg := msg.(types.MsgRemoveLiquidity)
-		//
-		//	docTx.From = msg.Sender.String()
-		//	docTx.To = ""
-		//	docTx.Amount = types.ParseCoins(msg.WithdrawLiquidity.String())
-		//	docTx.Type = constant.TxTypeRemoveLiquidity
-		//	txMsg := imsg.DocTxMsgRemoveLiquidity{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
-		//case types.MsgSwapOrder:
-		//	msg := msg.(types.MsgSwapOrder)
-		//
-		//	docTx.From = msg.Input.Address.String()
-		//	docTx.To = msg.Output.Address.String()
-		//	docTx.Amount = types.ParseCoins(msg.Input.Coin.String())
-		//	docTx.Type = constant.TxTypeSwapOrder
-		//	txMsg := imsg.DocTxMsgSwapOrder{}
-		//	txMsg.BuildMsg(msg)
-		//	docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
-		//		Type: txMsg.Type(),
-		//		Msg:  &txMsg,
-		//	})
-		//	return docTx
+
+	case new(types.MsgVote).Type():
+		var msg types.MsgVote
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Voter.String()
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeVote
+		docTx.ProposalId = msg.ProposalID
+		txMsg := imsg.DocTxMsgVote{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.MsgRequestRandom).Type():
+		var msg types.MsgRequestRandom
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Consumer.String()
+		docTx.Amount = []store.Coin{}
+		docTx.Type = constant.TxTypeRequestRand
+		txMsg := imsg.DocTxMsgRequestRand{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.AssetIssueToken).Type():
+		var msg types.AssetIssueToken
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Owner.String()
+		docTx.Type = constant.TxTypeAssetIssueToken
+		txMsg := imsg.DocTxMsgIssueToken{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case new(types.AssetEditToken).Type():
+		var msg types.AssetEditToken
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Owner.String()
+		docTx.Type = constant.TxTypeAssetEditToken
+		txMsg := imsg.DocTxMsgEditToken{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case new(types.AssetMintToken).Type():
+		var msg types.AssetMintToken
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Owner.String()
+		docTx.To = msg.To.String()
+		docTx.Type = constant.TxTypeAssetMintToken
+		txMsg := imsg.DocTxMsgMintToken{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+	case new(types.AssetTransferTokenOwner).Type():
+		var msg types.AssetTransferTokenOwner
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.SrcOwner.String()
+		docTx.To = msg.DstOwner.String()
+		docTx.Type = constant.TxTypeAssetTransferTokenOwner
+		txMsg := imsg.DocTxMsgTransferTokenOwner{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+
+		return docTx
+
+	case new(types.MsgAddProfiler).Type():
+		var msg types.MsgAddProfiler
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.AddGuardian.AddedBy.String()
+		docTx.To = msg.AddGuardian.Address.String()
+		docTx.Type = constant.TxTypeAddProfiler
+		txMsg := imsg.DocTxMsgAddProfiler{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case new(types.MsgAddTrustee).Type():
+		var msg types.MsgAddTrustee
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.AddGuardian.AddedBy.String()
+		docTx.To = msg.AddGuardian.Address.String()
+		docTx.Type = constant.TxTypeAddTrustee
+		txMsg := imsg.DocTxMsgAddTrustee{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case new(types.MsgDeleteTrustee).Type():
+		var msg types.MsgDeleteTrustee
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.DeleteGuardian.DeletedBy.String()
+		docTx.To = msg.DeleteGuardian.Address.String()
+		docTx.Type = constant.TxTypeDeleteTrustee
+		txMsg := imsg.DocTxMsgDeleteTrustee{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case new(types.MsgDeleteProfiler).Type():
+		var msg types.MsgDeleteProfiler
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.DeleteGuardian.DeletedBy.String()
+		docTx.To = msg.DeleteGuardian.Address.String()
+		docTx.Type = constant.TxTypeDeleteProfiler
+		txMsg := imsg.DocTxMsgDeleteProfiler{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+
+	case new(types.MsgCreateHTLC).Type():
+		var msg types.MsgCreateHTLC
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = msg.To.String()
+		docTx.Amount = types.ParseCoins(msg.Amount.String())
+		docTx.Type = constant.TxTypeCreateHTLC
+		txMsg := imsg.DocTxMsgCreateHTLC{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.MsgClaimHTLC).Type():
+		var msg types.MsgClaimHTLC
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Type = constant.TxTypeClaimHTLC
+		txMsg := imsg.DocTxMsgClaimHTLC{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.MsgRefundHTLC).Type():
+		var msg types.MsgRefundHTLC
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Type = constant.TxTypeRefundHTLC
+		txMsg := imsg.DocTxMsgRefundHTLC{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.MsgAddLiquidity).Type():
+		var msg types.MsgAddLiquidity
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Amount = types.ParseCoins(msg.MaxToken.String())
+		docTx.Type = constant.TxTypeAddLiquidity
+		txMsg := imsg.DocTxMsgAddLiquidity{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.MsgRemoveLiquidity).Type():
+		var msg types.MsgRemoveLiquidity
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Sender.String()
+		docTx.To = ""
+		docTx.Amount = types.ParseCoins(msg.WithdrawLiquidity.String())
+		docTx.Type = constant.TxTypeRemoveLiquidity
+		txMsg := imsg.DocTxMsgRemoveLiquidity{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
+	case new(types.MsgSwapOrder).Type():
+		var msg types.MsgSwapOrder
+		data, _ := json.Marshal(msgData)
+		json.Unmarshal(data, &msg)
+
+		docTx.From = msg.Input.Address.String()
+		docTx.To = msg.Output.Address.String()
+		docTx.Amount = types.ParseCoins(msg.Input.Coin.String())
+		docTx.Type = constant.TxTypeSwapOrder
+		txMsg := imsg.DocTxMsgSwapOrder{}
+		txMsg.BuildMsg(msg)
+		docTx.Msgs = append(docTxMsgs, document.DocTxMsg{
+			Type: txMsg.Type(),
+			Msg:  &txMsg,
+		})
+		return docTx
 
 	default:
 		logger.Warn("unknown msg type")
