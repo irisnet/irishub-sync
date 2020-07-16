@@ -87,7 +87,8 @@ type (
 	Validator = tm.Validator
 	Tx = tm.Tx
 	Block = tm.Block
-	BlockMeta = tm.BlockMeta
+	BlockID = tm.BlockID
+	//BlockMeta = tm.BlockMeta
 	HexBytes = cmn.HexBytes
 	TmKVPair = cmnk.KVPair
 

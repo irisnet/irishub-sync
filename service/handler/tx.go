@@ -16,6 +16,9 @@ func HandleTx(block *types.Block) (error) {
 
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
+		if tx.TxHash == "" {
+			continue
+		}
 
 		// batch insert tx
 		txOp := txn.Op{

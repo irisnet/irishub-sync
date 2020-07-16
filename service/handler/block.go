@@ -28,7 +28,7 @@ import (
 //	unDelegationSubject = "Undelegation"
 //)
 
-func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) document.Block {
+func ParseBlock(meta *types.BlockID, block *types.Block, validators []*types.Validator) document.Block {
 	//cdc := types.GetCodec()
 
 	hexFunc := func(bytes []byte) string {
@@ -36,9 +36,9 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 	}
 
 	docBlock := document.Block{
-		Height:          meta.Header.Height,
-		Hash:            hexFunc(meta.BlockID.Hash),
-		Time:            meta.Header.Time,
+		Height:          block.Header.Height,
+		Hash:            hexFunc(meta.Hash),
+		Time:            block.Header.Time,
 		NumTxs:          int64(len(block.Data.Txs)),
 		ProposalAddress: block.Header.ProposerAddress.String(),
 	}
@@ -66,7 +66,7 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 			//Time:            meta.Header.Time,
 			//NumTxs:          meta.Header.NumTxs,
 			//LastBlockID:     lastBlockId,
-			TotalTxs: int64(meta.NumTxs),
+			//TotalTxs: int64(block.NumTxs),
 			//LastCommitHash:  hexFunc(meta.Header.LastCommitHash),
 			//DataHash:        hexFunc(meta.Header.DataHash),
 			//ValidatorsHash:  hexFunc(meta.Header.ValidatorsHash),
@@ -82,9 +82,9 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 		preCommits []document.Vote
 	)
 
-	if len(block.LastCommit.Precommits) > 0 {
-		for _, v := range block.LastCommit.Precommits {
-			if v != nil {
+	if len(block.LastCommit.Signatures) > 0 {
+		for _, v := range block.LastCommit.Signatures {
+			if v.Signature != nil {
 				//var sig document.Signature
 				//out, _ := cdc.MarshalJSON(v.Signature)
 				//json.Unmarshal(out, &sig)

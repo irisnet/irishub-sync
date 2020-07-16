@@ -11,7 +11,7 @@ var (
 	Addrs    = "localhost:27018"
 	User     = "iris"
 	Passwd   = "irispassword"
-	Database = "sync-iris"
+	Database = "bifrost-sync"
 )
 
 // get value of env var

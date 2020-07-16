@@ -134,7 +134,7 @@ func UpdateUnknowOrEmptyTypeTxs(commontx []*document.CommonTx) error {
 		fn := func(c *mgo.Collection) error {
 			return c.Update(bson.M{"tx_hash": tx.TxHash},
 				bson.M{"$set": bson.M{"from": tx.From, "to": tx.To, "type": tx.Type, "amount": tx.Amount,
-					"actual_fee": tx.ActualFee, "status": tx.Status, "tags": tx.Tags, "msgs": tx.Msgs,
+					"actual_fee": tx.ActualFee, "status": tx.Status, "events": tx.Events, "msgs": tx.Msgs,
 					"code": tx.Code, "log": tx.Log, "gas_wanted": tx.GasWanted}})
 		}
 

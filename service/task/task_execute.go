@@ -305,14 +305,14 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 
 	// get validatorSet at given height
 	var validators []*types.Validator
-	res, err := client.Validators(&b)
+	res, err := client.Validators(&b, 0, 0)
 	if err != nil {
 		logger.Error("Can't get validatorSet at height", logger.Int64("Height", b))
 	} else {
 		validators = res.Validators
 	}
 
-	return handler.ParseBlock(block.BlockMeta, block.Block, validators), nil
+	return handler.ParseBlock(&block.BlockID, block.Block, validators), nil
 }
 
 // assert task worker unchanged
