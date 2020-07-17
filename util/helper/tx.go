@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 	"encoding/json"
+	"gopkg.in/yaml.v2"
 )
 
 func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
@@ -277,12 +278,8 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 
 	case new(types.MsgSubmitProposal).Type():
 		var msg types.MsgSubmitProposal
-		data, _ := json.Marshal(msgData)
-		json.Unmarshal(data, &msg)
+		yaml.Unmarshal([]byte(msgData.String()), &msg)
 
-		docTx.From = msg.Proposer.String()
-		docTx.To = ""
-		docTx.Amount = types.ParseCoins(msg.InitialDeposit.String())
 		docTx.Type = constant.TxTypeSubmitProposal
 		txMsg := imsg.DocTxMsgSubmitProposal{}
 		txMsg.BuildMsg(msg)
@@ -292,12 +289,14 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		})
 
 		//query proposal_id
-		proposalId, err := getProposalIdFromTags(result)
+		proposalId, amount, err := getProposalIdFromEvents(result)
 		if err != nil {
 			logger.Error("can't get proposal id from tags", logger.String("txHash", docTx.TxHash),
 				logger.String("err", err.Error()))
 		}
 		docTx.ProposalId = proposalId
+		docTx.Amount = store.Coins{amount}
+		docTx.From = getProposerFromEvents(result)
 
 		return docTx
 
@@ -349,8 +348,8 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 			Msg:  &txMsg,
 		})
 		return docTx
-	case new(types.AssetIssueToken).Type():
-		var msg types.AssetIssueToken
+	case new(types.MsgIssueToken).Type():
+		var msg types.MsgIssueToken
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
 
@@ -364,8 +363,8 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		})
 
 		return docTx
-	case new(types.AssetEditToken).Type():
-		var msg types.AssetEditToken
+	case new(types.MsgEditToken).Type():
+		var msg types.MsgEditToken
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
 
@@ -379,8 +378,8 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		})
 
 		return docTx
-	case new(types.AssetMintToken).Type():
-		var msg types.AssetMintToken
+	case new(types.MsgMintToken).Type():
+		var msg types.MsgMintToken
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
 
@@ -395,8 +394,8 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		})
 
 		return docTx
-	case new(types.AssetTransferTokenOwner).Type():
-		var msg types.AssetTransferTokenOwner
+	case new(types.MsgTransferTokenOwner).Type():
+		var msg types.MsgTransferTokenOwner
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
 
@@ -595,8 +594,22 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 	return events
 }
 
+func getProposerFromEvents(result types.ResponseDeliverTx) (string) {
+	for _, val := range result.GetEvents() {
+		if val.Type != "message" {
+			continue
+		}
+		for _, attr := range val.Attributes {
+			if string(attr.Key) == "sender" {
+				return string(attr.Value)
+			}
+		}
+	}
+	return ""
+}
+
 // get proposalId from tags
-func getProposalIdFromTags(result types.ResponseDeliverTx) (uint64, error) {
+func getProposalIdFromEvents(result types.ResponseDeliverTx) (uint64, store.Coin, error) {
 	//query proposal_id
 	//for _, tag := range tags {
 	//	key := string(tag.Key)
@@ -608,18 +621,26 @@ func getProposalIdFromTags(result types.ResponseDeliverTx) (uint64, error) {
 	//		}
 	//	}
 	//}
+	var proposalId uint64
+	var amount store.Coin
 	for _, val := range result.GetEvents() {
-		for key, attr := range val.Attributes {
-			if string(key) == types.EventGovProposalID {
-				if proposalId, err := strconv.ParseInt(string(attr.Value), 10, 0); err != nil {
-					return 0, err
-				} else {
-					return uint64(proposalId), nil
+		if val.Type != types.EventTypeGovProposal {
+			continue
+		}
+		for _, attr := range val.Attributes {
+			if string(attr.Key) == types.EventGovProposalID {
+				if id, err := strconv.ParseInt(string(attr.Value), 10, 0); err == nil {
+					proposalId = uint64(id)
 				}
+			}
+			if string(attr.Key) == "amount" && string(attr.Value) != "" {
+				value := string(attr.Value)
+				amount = types.ParseCoin(value)
 			}
 		}
 	}
-	return 0, nil
+
+	return proposalId, amount, nil
 }
 
 func BuildHex(bytes []byte) string {

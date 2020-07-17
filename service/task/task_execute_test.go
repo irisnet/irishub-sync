@@ -4,7 +4,6 @@ import (
 	"sync"
 	"testing"
 
-	"encoding/json"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/helper"
@@ -109,21 +108,21 @@ func Test_parseBlock(t *testing.T) {
 			name: "test parse block",
 			args: args{
 				client: client,
-				b:      4379192,
+				b:      1816,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := parseBlock(tt.args.b, tt.args.client)
+			_, err := parseBlock(tt.args.b, tt.args.client)
 			if err != nil {
 				t.Fatal(err)
 			}
-			resBytes, err := json.MarshalIndent(res, "", "\t")
-			if err != nil {
-				t.Error(err)
-			}
-			t.Log(string(resBytes))
+			//resBytes, err := json.MarshalIndent(res, "", "\t")
+			//if err != nil {
+			//	t.Error(err)
+			//}
+			//t.Log(string(resBytes))
 		})
 	}
 }

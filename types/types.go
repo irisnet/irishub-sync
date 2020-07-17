@@ -5,7 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub/app"
-	asset "github.com/irismod/token/types"
+	token "github.com/irismod/token/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -17,6 +17,8 @@ import (
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	coinswap "github.com/irismod/coinswap/types"
 	htlc "github.com/irismod/htlc/types"
+	nft "github.com/irismod/nft/types"
+	service "github.com/irismod/service/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	guardian "github.com/irisnet/irishub/modules/guardian/types"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -65,10 +67,31 @@ type (
 
 	MsgRequestRandom = rand.MsgRequestRandom
 
-	AssetIssueToken = asset.MsgIssueToken
-	AssetEditToken = asset.MsgEditToken
-	AssetMintToken = asset.MsgMintToken
-	AssetTransferTokenOwner = asset.MsgTransferTokenOwner
+	MsgIssueDenom = nft.MsgIssueDenom
+	MsgMintNFT = nft.MsgMintNFT
+	MsgEditNFT = nft.MsgEditNFT
+	MsgTransferNFT = nft.MsgTransferNFT
+	MsgBurnNFT = nft.MsgBurnNFT
+
+	MsgDefineService = service.MsgDefineService
+	MsgBindService = service.MsgBindService
+	MsgRespondService = service.MsgRespondService
+	MsgCallService = service.MsgCallService
+	MsgDisableServiceBinding = service.MsgDisableServiceBinding
+	MsgEnableServiceBinding = service.MsgEnableServiceBinding
+	MsgKillRequestContext = service.MsgKillRequestContext
+	MsgPauseRequestContext = service.MsgPauseRequestContext
+	MsgRefundServiceDeposit = service.MsgRefundServiceDeposit
+	MsgSetWithdrawAddressFee = service.MsgSetWithdrawAddress
+	MsgStartRequestContext = service.MsgStartRequestContext
+	MsgUpdateRequestContext = service.MsgUpdateRequestContext
+	MsgWithdrawEarnedFees = service.MsgWithdrawEarnedFees
+	MsgUpdateServiceBinding = service.MsgUpdateServiceBinding
+
+	MsgIssueToken = token.MsgIssueToken
+	MsgEditToken = token.MsgEditToken
+	MsgMintToken = token.MsgMintToken
+	MsgTransferTokenOwner = token.MsgTransferTokenOwner
 
 	MsgAddProfiler = guardian.MsgAddProfiler
 	MsgAddTrustee = guardian.MsgAddTrustee
@@ -130,7 +153,8 @@ var (
 	NewHTTP = rpcclienthttp.New
 
 	//tags
-	EventGovProposalID = gov.AttributeKeyProposalID
+	EventGovProposalID   = gov.AttributeKeyProposalID
+	EventTypeGovProposal = gov.EventTypeProposalDeposit
 	//TagDistributionReward              = dtags.Reward
 	//TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
 	//TagStakeDelegator                  = stags.Delegator

@@ -28,6 +28,27 @@ const (
 	TxTypeAssetEditGateway               = "EditGateway"
 	TxTypeAssetTransferGatewayOwner      = "TransferGatewayOwner"
 
+	MsgTypeNFTMint     = "NFTMint"
+	MsgTypeNFTEdit     = "NFTEdit"
+	MsgTypeNFTTransfer = "NFTTransfer"
+	MsgTypeNFTBurn     = "NFTBurn"
+	MsgTypeIssueDenom  = "IssueDenom"
+
+	MsgTypeDefineService         = "DefineService"         // type for MsgDefineService
+	MsgTypeBindService           = "BindService"           // type for MsgBindService
+	MsgTypeUpdateServiceBinding  = "UpdateServiceBinding"  // type for MsgUpdateServiceBinding
+	MsgTypeSetWithdrawAddress    = "SetWithdrawAddress"    // type for MsgSetWithdrawAddress
+	MsgTypeDisableServiceBinding = "DisableServiceBinding" // type for MsgDisableServiceBinding
+	MsgTypeEnableServiceBinding  = "EnableServiceBinding"  // type for MsgEnableServiceBinding
+	MsgTypeRefundServiceDeposit  = "RefundServiceDeposit"  // type for MsgRefundServiceDeposit
+	MsgTypeCallService           = "CallService"           // type for MsgCallService
+	MsgTypeRespondService        = "RespondService"        // type for MsgRespondService
+	MsgTypePauseRequestContext   = "PauseRequestContext"   // type for MsgPauseRequestContext
+	MsgTypeStartRequestContext   = "StartRequestContex"    // type for MsgStartRequestContext
+	MsgTypeKillRequestContext    = "KillRequestContex"     // type for MsgKillRequestContext
+	MsgTypeUpdateRequestContext  = "UpdateRequestContext"  // type for MsgUpdateRequestContext
+	MsgTypeWithdrawEarnedFees    = "WithdrawEarnedFees"    // type for MsgWithdrawEarnedFees
+
 	TxTypeAddProfiler    = "AddProfiler"
 	TxTypeAddTrustee     = "AddTrustee"
 	TxTypeDeleteTrustee  = "DeleteTrustee"
