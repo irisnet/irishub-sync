@@ -1,54 +1,21 @@
-# IRISHUB-SYNC
-A server that synchronize IRIS blockChain data into a database
+# How to use grpc client to query data of cosmoshub or irishub
 
-# Structure
+## Install protoc-gen-gocosmos
 
-- `conf`: config of project
-- `module`: project module
-- `mongodb`: mongodb script to create database
-- `service`: main logic of sync-server, sync data from blockChain and write to database
-- `store`: database model
-- `util`: common constants and helper functions
-- `main.go`: bootstrap project
+1. checkout source code from [cosmos-proto](https://github.com/regen-network/cosmos-proto)
+2. exec `make proto-gen`
+3. `cd ./protoc-gen-gocosmos & go build`
+4. copy `protoc-gen-gocosmos` into path-of-go-bin
 
-# SetUp
+## Add third party proto files
 
-## Create mongodb database
+1. copy [third_party/proto](https://github.com/cosmos/cosmos-sdk/tree/master/third_party/proto) into current dir
 
-run script `mongodb.js` in `mongodb` folder to create database before run project
+## Gen client code
 
-# Build And Run
+1. download [protocgen.sh](https://github.com/cosmos/cosmos-sdk/blob/master/scripts/protocgen.sh) into `scripts` dir
+2. run `./scripts/protocgen.sh`
 
-- Build: `make all`
-- Run: `make run`
-- Cross compilation: `make build-linux`
+## Use GRPCClient connect to GRPCServer
 
-## Env Variables
-
-### Db config
-
-- DB_ADDR: `required` `string` mongodb addrs（example: `127.0.0.1:27017, 127.0.0.2:27017, ...`）
-- DB_USER: `required` `string` mongodb user（example: `user`）
-- DB_PASSWD: `required` `string` mongodb password（example: `DB_PASSWD`）
-- DB_DATABASE：`required` `string` mongodb database name（example：`DB_DATABASE`）
-
-### Server config
-
-- SER_BC_FULL_NODE: `required` `string`  full node url（example: `tcp://127.0.0.1:26657, tcp://127.0.0.2:26657, ...`）
-- SER_BC_CHAIN_ID: `required` `string`  chain id（example: `rainbow-dev`）
-- WORKER_NUM_CREATE_TASK: `required` `string` num of worker to create tasks（example: `2`）
-- WORKER_NUM_EXECUTE_TASK: `required` `string` num of worker to execute tasks（example: `30`）
-
-- NETWORK: `option` `string` network type（example: `testnet,mainnet`）
-
-## Note
-
-If you synchronizes irishub data from specify block height(such as:17908 current time:1576208532)
-1. At first, stop the irishub-sync and run follow sql in mongodb 
-
-```
-db.sync_task.insert({'start_height':NumberLong(17908),'end_height':NumberLong(0),'current_height':NumberLong(0),'status':'unhandled','last_update_time':NumberLong(1576208532)})
-```
-
-2. Then, start irishub-sync
-
+- See detail in `grpc/client/client_test.go`
