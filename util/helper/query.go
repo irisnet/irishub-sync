@@ -52,6 +52,6 @@ func QuerySubspace(subspace []byte, storeName string) (res []types.KVPair, err e
 	if err != nil {
 		return res, err
 	}
-	cdc.MustUnmarshalBinaryLengthPrefixed(resRaw, &res)
+	cdc.MustUnmarshalBinaryBare(resRaw, &res)
 	return
 }

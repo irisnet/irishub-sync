@@ -30,7 +30,6 @@ func HandleTx(block *types.Block) (error) {
 
 		// save or update proposal
 		handleProposal(tx)
-		//handleTokenFlow(blockWithTags, tx, &batch)
 
 		// save new account address
 		saveNewAccount(&tx)

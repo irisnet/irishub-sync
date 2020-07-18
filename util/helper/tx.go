@@ -8,7 +8,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	imsg "github.com/irisnet/irishub-sync/types/msg"
+	imsg "github.com/irisnet/irishub-sync/msg"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"strconv"
 	"strings"
@@ -296,7 +296,9 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		}
 		docTx.ProposalId = proposalId
 		docTx.Amount = store.Coins{amount}
-		docTx.From = getProposerFromEvents(result)
+		if len(docTx.Signers) > 0 {
+			docTx.From = docTx.Signers[0].AddrBech32
+		}
 
 		return docTx
 
@@ -594,19 +596,19 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 	return events
 }
 
-func getProposerFromEvents(result types.ResponseDeliverTx) (string) {
-	for _, val := range result.GetEvents() {
-		if val.Type != "message" {
-			continue
-		}
-		for _, attr := range val.Attributes {
-			if string(attr.Key) == "sender" {
-				return string(attr.Value)
-			}
-		}
-	}
-	return ""
-}
+//func getProposerFromEvents(result types.ResponseDeliverTx) (string) {
+//	for _, val := range result.GetEvents() {
+//		if val.Type != "message" {
+//			continue
+//		}
+//		for _, attr := range val.Attributes {
+//			if string(attr.Key) == "sender" {
+//				return string(attr.Value)
+//			}
+//		}
+//	}
+//	return ""
+//}
 
 // get proposalId from tags
 func getProposalIdFromEvents(result types.ResponseDeliverTx) (uint64, store.Coin, error) {
@@ -624,7 +626,7 @@ func getProposalIdFromEvents(result types.ResponseDeliverTx) (uint64, store.Coin
 	var proposalId uint64
 	var amount store.Coin
 	for _, val := range result.GetEvents() {
-		if val.Type != types.EventTypeGovProposal {
+		if val.Type != types.EventTypeProposalDeposit {
 			continue
 		}
 		for _, attr := range val.Attributes {

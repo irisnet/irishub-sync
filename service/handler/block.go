@@ -128,7 +128,7 @@ func ParseBlock(meta *types.BlockID, block *types.Block, validators []*types.Val
 	docBlock.Validators = vals
 	//docBlock.Result = parseBlockResult(docBlock.Height)
 
-	if proposalId, ok := IsContainVotingEndTag(docBlock.Result.EndBlock); ok {
+	if proposalId, ok := IsContainVotingEndEvent(docBlock.Result.EndBlock); ok {
 		if proposal, err := document.QueryProposal(proposalId); err == nil {
 			proposal.VotingEndHeight = docBlock.Height
 			store.SaveOrUpdate(proposal)

@@ -4,7 +4,7 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/types/msg"
+	"github.com/irisnet/irishub-sync/msg"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"encoding/json"
 )

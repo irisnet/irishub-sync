@@ -5,6 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub/app"
+	"github.com/irisnet/irishub/address"
 	token "github.com/irismod/token/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -21,7 +22,7 @@ import (
 	service "github.com/irismod/service/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	guardian "github.com/irisnet/irishub/modules/guardian/types"
-	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/bytes"
 	cmnk "github.com/tendermint/tendermint/crypto/merkle"
@@ -101,12 +102,12 @@ type (
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
 	StdTx = auth.StdTx
-	SdkCoins = types.Coins
-	KVPair = types.KVPair
-	AccAddress = types.AccAddress
-	ValAddress = types.ValAddress
-	Dec = types.Dec
-	Int = types.Int
+	SdkCoins = sdk.Coins
+	KVPair = sdk.KVPair
+	AccAddress = sdk.AccAddress
+	ValAddress = sdk.ValAddress
+	Dec = sdk.Dec
+	Int = sdk.Int
 	Validator = tm.Validator
 	Tx = tm.Tx
 	Block = tm.Block
@@ -127,7 +128,7 @@ var (
 	GetDelegationsKey    = stake.GetDelegationsKey
 	GetUBDKey            = stake.GetUBDKey
 	GetUBDsKey           = stake.GetUBDsKey
-	ValAddressFromBech32 = types.ValAddressFromBech32
+	ValAddressFromBech32 = sdk.ValAddressFromBech32
 
 	UnmarshalValidator      = staketypes.UnmarshalValidator
 	MustUnmarshalValidator  = staketypes.MustUnmarshalValidator
@@ -137,11 +138,11 @@ var (
 
 	//Bech32ifyValPub         = types.Bech32ifyValPub
 	Bech32AccountAddrPrefix string
-	RegisterCodec           = types.RegisterCodec
-	AccAddressFromBech32    = types.AccAddressFromBech32
+	RegisterCodec           = sdk.RegisterCodec
+	AccAddressFromBech32    = sdk.AccAddressFromBech32
 	//BondStatusToString      = types.BondStatusToString
 
-	NewDecFromStr = types.NewDecFromStr
+	NewDecFromStr = sdk.NewDecFromStr
 
 	//AddressStoreKey   = auth.AddressStoreKey
 	//StoreName         = auth.StoreKey
@@ -153,8 +154,11 @@ var (
 	NewHTTP = rpcclienthttp.New
 
 	//tags
-	EventGovProposalID   = gov.AttributeKeyProposalID
-	EventTypeGovProposal = gov.EventTypeProposalDeposit
+	EventGovProposalID        = gov.AttributeKeyProposalID
+	EventGovProposalType      = gov.AttributeKeyProposalType
+	EventGovVotingPeriodStart = gov.AttributeKeyVotingPeriodStart
+	EventTypeProposalDeposit  = gov.EventTypeProposalDeposit
+	EventTypeSubmitProposal   = gov.EventTypeSubmitProposal
 	//TagDistributionReward              = dtags.Reward
 	//TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
 	//TagStakeDelegator                  = stags.Delegator
@@ -166,7 +170,12 @@ var (
 
 // 初始化账户地址前缀
 func init() {
-	Bech32AccountAddrPrefix = types.GetConfig().GetBech32AccountAddrPrefix()
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(address.Bech32PrefixAccAddr, address.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
+	config.Seal()
+	Bech32AccountAddrPrefix = sdk.GetConfig().GetBech32AccountAddrPrefix()
 	_, cdc = app.MakeCodecs()
 }
 
