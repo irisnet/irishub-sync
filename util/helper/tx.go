@@ -15,6 +15,8 @@ import (
 	"time"
 	"encoding/json"
 	"gopkg.in/yaml.v2"
+	"github.com/irisnet/irishub-sync/msg/nft"
+	"github.com/irisnet/irishub-sync/msg/iservice"
 )
 
 func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
@@ -97,6 +99,12 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 		ActualFee: actualFee,
 		Events:    parseEvents(result),
 		Signers:   signers,
+	}
+	if NftTx, ok := nft.HandleTxMsg(msgData, &docTx); ok {
+		return *NftTx
+	}
+	if iServiceTx, ok := iservice.HandleTxMsg(msgData, &docTx); ok {
+		return *iServiceTx
 	}
 
 	switch msgData.Type() {

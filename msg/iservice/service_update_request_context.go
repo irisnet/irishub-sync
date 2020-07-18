@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/store"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type (
