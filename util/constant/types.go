@@ -54,6 +54,11 @@ const (
 	TxTypeDeleteTrustee  = "DeleteTrustee"
 	TxTypeDeleteProfiler = "DeleteProfiler"
 
+	TxTypeCreateFeed = "CreateFeed"
+	TxTypeEditFeed   = "EditFeed"
+	TxTypePauseFeed  = "PauseFeed"
+	TxTypeStartFeed  = "StartFeed"
+
 	TxTypeCreateHTLC = "CreateHTLC"
 	TxTypeClaimHTLC  = "ClaimHTLC"
 	TxTypeRefundHTLC = "RefundHTLC"

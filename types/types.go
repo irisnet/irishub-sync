@@ -13,6 +13,7 @@ import (
 	dtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	rand "github.com/irisnet/irishub/modules/random/types"
+	oracle "github.com/irisnet/irishub/modules/oracle/types"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stake "github.com/cosmos/cosmos-sdk/x/staking/types"
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -98,6 +99,11 @@ type (
 	MsgAddTrustee = guardian.MsgAddTrustee
 	MsgDeleteProfiler = guardian.MsgDeleteProfiler
 	MsgDeleteTrustee = guardian.MsgDeleteTrustee
+
+	MsgCreateFeed = oracle.MsgCreateFeed
+	MsgEditFeed = oracle.MsgEditFeed
+	MsgPauseFeed = oracle.MsgPauseFeed
+	MsgStartFeed = oracle.MsgStartFeed
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 

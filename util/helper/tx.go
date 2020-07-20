@@ -17,6 +17,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"github.com/irisnet/irishub-sync/msg/nft"
 	"github.com/irisnet/irishub-sync/msg/iservice"
+	"github.com/irisnet/irishub-sync/msg/oracle"
 )
 
 func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
@@ -105,6 +106,9 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 	}
 	if iServiceTx, ok := iservice.HandleTxMsg(msgData, &docTx); ok {
 		return *iServiceTx
+	}
+	if OracleTx, ok := oracle.HandleTxMsg(msgData, &docTx); ok {
+		return *OracleTx
 	}
 
 	switch msgData.Type() {
