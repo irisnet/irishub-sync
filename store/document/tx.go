@@ -99,6 +99,16 @@ func (d CommonTx) Name() string {
 func (d CommonTx) PkKvPair() map[string]interface{} {
 	return bson.M{Tx_Field_Hash: d.TxHash}
 }
+func (d CommonTx) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-tx_hash"},
+		Unique:     true,
+		Background: true,
+	})
+
+	return indexes
+}
 
 func (d CommonTx) Query(query, fields bson.M, sort []string, skip, limit int) (
 	results []CommonTx, err error) {

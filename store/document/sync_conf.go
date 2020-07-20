@@ -22,6 +22,15 @@ func (d SyncConf) Name() string {
 func (d SyncConf) PkKvPair() map[string]interface{} {
 	return bson.M{}
 }
+func (d SyncConf) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-block_num_per_worker_handle"},
+		Unique:     true,
+		Background: true,
+	})
+	return indexes
+}
 
 func (d SyncConf) GetConf() (SyncConf, error) {
 	var syncConf SyncConf

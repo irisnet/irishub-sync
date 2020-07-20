@@ -2,6 +2,10 @@
 
 package store
 
+import (
+	"gopkg.in/mgo.v2"
+)
+
 const (
 	CollectionNameTxn = "mgo_txn"
 )
@@ -11,6 +15,8 @@ type Docs interface {
 	Name() string
 	// primary key pair(used to find a unique record)
 	PkKvPair() map[string]interface{}
+	// index
+	EnsureIndexs() []mgo.Index
 }
 
 type Coin struct {

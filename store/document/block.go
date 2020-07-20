@@ -169,6 +169,15 @@ func (d Block) Name() string {
 func (d Block) PkKvPair() map[string]interface{} {
 	return bson.M{Block_Field_Height: d.Height}
 }
+func (d Block) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-height"},
+		Unique:     true,
+		Background: true,
+	})
+	return indexes
+}
 
 type ResValidatorPreCommits struct {
 	Address       string `bson:"_id"`

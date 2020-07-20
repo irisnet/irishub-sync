@@ -47,6 +47,19 @@ func (d SyncTask) Name() string {
 func (d SyncTask) PkKvPair() map[string]interface{} {
 	return bson.M{"start_height": d.CurrentHeight, "end_height": d.EndHeight}
 }
+func (d SyncTask) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-start_height", "-end_height"},
+		Unique:     true,
+		Background: true,
+	})
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-status"},
+		Background: true,
+	})
+	return indexes
+}
 
 // get max block height in sync task
 func (d SyncTask) GetMaxBlockHeight() (int64, error) {
