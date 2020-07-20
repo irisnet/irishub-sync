@@ -79,8 +79,8 @@ const (
 	TxMsgTypeAssetEditGateway              = "EditGateway"
 	TxMsgTypeAssetTransferGatewayOwner     = "TransferGatewayOwner"
 
-	TxTagVotingPeriodStart = "voting-period-start"
-	BlockTagProposalId     = "proposal-id"
+	TxTypeSubmitEvidence  = "SubmitEvidence"
+	TxTypeVerifyInvariant = "VerifyInvariant"
 
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"

@@ -17,6 +17,8 @@ import (
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stake "github.com/cosmos/cosmos-sdk/x/staking/types"
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	crisis "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	coinswap "github.com/irismod/coinswap/types"
 	htlc "github.com/irismod/htlc/types"
 	nft "github.com/irismod/nft/types"
@@ -104,6 +106,9 @@ type (
 	MsgEditFeed = oracle.MsgEditFeed
 	MsgPauseFeed = oracle.MsgPauseFeed
 	MsgStartFeed = oracle.MsgStartFeed
+
+	MsgSubmitEvidence = evidence.MsgSubmitEvidence
+	MsgVerifyInvariant = crisis.MsgVerifyInvariant
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 

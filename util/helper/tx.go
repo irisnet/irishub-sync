@@ -18,6 +18,8 @@ import (
 	"github.com/irisnet/irishub-sync/msg/nft"
 	"github.com/irisnet/irishub-sync/msg/iservice"
 	"github.com/irisnet/irishub-sync/msg/oracle"
+	"github.com/irisnet/irishub-sync/msg/evidence"
+	"github.com/irisnet/irishub-sync/msg/crisis"
 )
 
 func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
@@ -109,6 +111,12 @@ func ParseTx(txBytes types.Tx, block *types.Block) document.CommonTx {
 	}
 	if OracleTx, ok := oracle.HandleTxMsg(msgData, &docTx); ok {
 		return *OracleTx
+	}
+	if EvidenceTx, ok := evidence.HandleTxMsg(msgData, &docTx); ok {
+		return *EvidenceTx
+	}
+	if CrisisTx, ok := crisis.HandleTxMsg(msgData, &docTx); ok {
+		return *CrisisTx
 	}
 
 	switch msgData.Type() {
