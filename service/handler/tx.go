@@ -16,7 +16,7 @@ func HandleTx(block *types.Block) (error) {
 
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
-		if tx.TxHash == "" {
+		if tx != nil && tx.TxHash == "" {
 			continue
 		}
 
@@ -32,7 +32,7 @@ func HandleTx(block *types.Block) (error) {
 		handleProposal(tx)
 
 		// save new account address
-		saveNewAccount(&tx)
+		saveNewAccount(tx)
 	}
 
 	if len(batch) > 0 {

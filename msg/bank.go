@@ -29,3 +29,29 @@ func (doctx *DocTxMsgSend) BuildMsg(txMsg interface{}) {
 	doctx.ToAddress = msg.ToAddress.String()
 	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
 }
+
+type (
+	DocMsgMultiSend struct {
+		Inputs  []Item `bson:"inputs"`
+		Outputs []Item `bson:"outputs"`
+	}
+	Item struct {
+		Address string      `bson:"address"`
+		Coins   store.Coins `bson:"coins"`
+	}
+)
+
+func (m *DocMsgMultiSend) Type() string {
+	return constant.TxTypeMultiSend
+}
+
+func (m *DocMsgMultiSend) BuildMsg(v interface{}) {
+	msg := v.(itypes.MsgMultiSend)
+	for _, one := range msg.Inputs {
+		m.Inputs = append(m.Inputs, Item{Address: one.Address.String(), Coins: itypes.ParseCoins(one.Coins.String())})
+	}
+	for _, one := range msg.Outputs {
+		m.Outputs = append(m.Outputs, Item{Address: one.Address.String(), Coins: itypes.ParseCoins(one.Coins.String())})
+	}
+
+}

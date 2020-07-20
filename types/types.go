@@ -40,6 +40,7 @@ import (
 
 type (
 	MsgTransfer = bank.MsgSend
+	MsgMultiSend = bank.MsgMultiSend
 
 	MsgStakeCreate = stake.MsgCreateValidator
 	MsgStakeEdit = stake.MsgEditValidator

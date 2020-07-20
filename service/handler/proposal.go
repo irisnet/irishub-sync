@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 )
 
-func handleProposal(docTx document.CommonTx) {
+func handleProposal(docTx *document.CommonTx) {
 	switch docTx.Type {
 	case constant.TxTypeSubmitProposal:
 		if proposal, err := helper.GetProposal(docTx.ProposalId); err == nil {
@@ -67,7 +67,7 @@ func handleProposal(docTx document.CommonTx) {
 	}
 }
 
-func isContainVotingPeriodStartEvent(docTx document.CommonTx) (bool) {
+func isContainVotingPeriodStartEvent(docTx *document.CommonTx) (bool) {
 	events := docTx.Events
 	if len(events) > 0 {
 		for _, one := range events {

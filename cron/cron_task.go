@@ -120,8 +120,8 @@ func ParseUnknownOrEmptyTypeTxs(b int64, client *helper.Client) (commontx []*doc
 
 	for _, txByte := range block.Block.Txs {
 		tx := helper.ParseTx(txByte, block.Block)
-		if tx.Status != document.Unknow_Status {
-			commontx = append(commontx, &tx)
+		if tx != nil && tx.Status != document.Unknow_Status {
+			commontx = append(commontx, tx)
 		}
 
 	}
