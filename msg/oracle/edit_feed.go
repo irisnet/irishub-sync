@@ -30,6 +30,17 @@ func (m *DocMsgEditFeed) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
+	m.FeedName = msg.FeedName
+	m.LatestHistory = msg.LatestHistory
+	m.Description = msg.Description
+	m.Creator = msg.Creator.String()
+	for _, val := range msg.GetProviders() {
+		m.Providers = append(m.Providers, val.String())
+	}
+	m.Timeout = msg.Timeout
+	m.ServiceFeeCap = types.ParseCoins(msg.ServiceFeeCap.String())
+	m.RepeatedFrequency = msg.RepeatedFrequency
+	m.ResponseThreshold = msg.ResponseThreshold
 }
 
 func (m *DocMsgEditFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {

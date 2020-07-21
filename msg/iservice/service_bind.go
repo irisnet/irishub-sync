@@ -49,8 +49,10 @@ func (m *DocMsgBindService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 		Msg:  m,
 	})
 	tx.Type = m.Type()
-	tx.From = m.Owner
-	tx.To = m.Provider
+	if len(tx.Signers) > 0 {
+		tx.From = tx.Signers[0].AddrBech32
+	}
+	tx.To = ""
 	tx.Amount = m.Deposit
 	return tx
 }

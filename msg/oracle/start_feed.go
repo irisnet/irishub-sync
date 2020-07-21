@@ -23,6 +23,8 @@ func (m *DocMsgStartFeed) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
+	m.FeedName = msg.FeedName
+	m.Creator = msg.Creator.String()
 }
 
 func (m *DocMsgStartFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {

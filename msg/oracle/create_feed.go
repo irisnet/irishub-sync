@@ -34,6 +34,22 @@ func (m *DocMsgCreateFeed) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
+	m.FeedName = msg.FeedName
+	m.LatestHistory = msg.LatestHistory
+	m.Description = msg.Description
+	m.Creator = msg.Creator.String()
+	m.ServiceName = msg.ServiceName
+	for _, val := range msg.GetProviders() {
+		m.Providers = append(m.Providers, val.String())
+	}
+	m.Input = msg.Input
+	m.Timeout = msg.Timeout
+	m.ServiceFeeCap = types.ParseCoins(msg.ServiceFeeCap.String())
+	m.RepeatedFrequency = msg.RepeatedFrequency
+	m.AggregateFunc = msg.AggregateFunc
+	m.ValueJsonPath = msg.ValueJsonPath
+	m.ResponseThreshold = msg.ResponseThreshold
+
 }
 
 func (m *DocMsgCreateFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
