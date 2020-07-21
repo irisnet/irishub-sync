@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/types"
 	. "github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 // MsgSubmitEvidence defines an sdk.Msg type that supports submitting arbitrary
@@ -35,5 +36,8 @@ func (m *DocMsgSubmitEvidence) HandleTxMsg(msgData sdk.Msg, tx *document.CommonT
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	tx.From = m.Submitter
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

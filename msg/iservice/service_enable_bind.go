@@ -46,5 +46,10 @@ func (m *DocMsgEnableServiceBinding) HandleTxMsg(msgData sdk.Msg, tx *document.C
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	if len(tx.Signers) > 0 {
+		tx.From = tx.Signers[0].AddrBech32
+	}
+	tx.To = ""
+	tx.Amount = m.Deposit
 	return tx
 }

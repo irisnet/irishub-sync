@@ -65,5 +65,10 @@ func (m *DocMsgCallService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	if len(tx.Signers) > 0 {
+		tx.From = tx.Signers[0].AddrBech32
+	}
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

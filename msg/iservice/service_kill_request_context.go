@@ -7,6 +7,7 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 type (
@@ -37,5 +38,10 @@ func (m *DocMsgKillRequestContext) HandleTxMsg(msgData sdk.Msg, tx *document.Com
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	if len(tx.Signers) > 0 {
+		tx.From = tx.Signers[0].AddrBech32
+	}
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/types"
 	. "github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 type DocMsgVerifyInvariant struct {
@@ -33,5 +34,8 @@ func (m *DocMsgVerifyInvariant) HandleTxMsg(msgData sdk.Msg, tx *document.Common
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	tx.From = m.Sender
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

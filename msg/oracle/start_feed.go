@@ -6,6 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 type DocMsgStartFeed struct {
@@ -32,5 +33,8 @@ func (m *DocMsgStartFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *d
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	tx.From = m.Creator
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

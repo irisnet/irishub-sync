@@ -49,5 +49,8 @@ func (m *DocMsgBindService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	tx.From = m.Owner
+	tx.To = m.Provider
+	tx.Amount = m.Deposit
 	return tx
 }

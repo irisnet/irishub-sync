@@ -7,6 +7,7 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"encoding/json"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 type (
@@ -43,5 +44,8 @@ func (m *DocMsgNFTEdit) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *doc
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	tx.From = m.Sender
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

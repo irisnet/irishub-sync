@@ -44,5 +44,8 @@ func (m *DocMsgCreateFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *
 		Msg:  m,
 	})
 	tx.Type = m.Type()
+	tx.From = m.Creator
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	return tx
 }

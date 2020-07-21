@@ -7,6 +7,7 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"encoding/json"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 type DocMsgIssueDenom struct {
@@ -36,6 +37,9 @@ func (m *DocMsgIssueDenom) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.From = m.Sender
+	tx.To = ""
+	tx.Amount = []store.Coin{}
 	tx.Type = m.Type()
 	return tx
 }

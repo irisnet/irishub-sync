@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 type DocMsgNFTMint struct {
@@ -42,6 +43,9 @@ func (m *DocMsgNFTMint) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *doc
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.From = m.Sender
+	tx.To = m.Recipient
+	tx.Amount = []store.Coin{}
 	tx.Type = m.Type()
 	return tx
 }
