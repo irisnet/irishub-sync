@@ -17,7 +17,7 @@ type (
 )
 
 func (m *DocMsgWithdrawEarnedFees) Type() string {
-	return MsgTypeWithdrawEarnedFees
+	return TxTypeWithdrawEarnedFees
 }
 
 func (m *DocMsgWithdrawEarnedFees) BuildMsg(v interface{}) {

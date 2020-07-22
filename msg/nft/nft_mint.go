@@ -20,7 +20,7 @@ type DocMsgNFTMint struct {
 }
 
 func (m *DocMsgNFTMint) Type() string {
-	return MsgTypeNFTMint
+	return TxTypeNFTMint
 }
 
 func (m *DocMsgNFTMint) BuildMsg(v interface{}) {

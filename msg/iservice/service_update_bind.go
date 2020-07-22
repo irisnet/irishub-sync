@@ -21,7 +21,7 @@ type (
 )
 
 func (m *DocMsgUpdateServiceBinding) Type() string {
-	return MsgTypeUpdateServiceBinding
+	return TxTypeUpdateServiceBinding
 }
 
 func (m *DocMsgUpdateServiceBinding) BuildMsg(v interface{}) {

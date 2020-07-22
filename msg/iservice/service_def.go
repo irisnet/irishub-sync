@@ -21,7 +21,7 @@ type (
 )
 
 func (m *DocMsgDefineService) Type() string {
-	return MsgTypeDefineService
+	return TxTypeDefineService
 }
 
 func (m *DocMsgDefineService) BuildMsg(v interface{}) {

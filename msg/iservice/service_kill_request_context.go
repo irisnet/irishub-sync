@@ -18,7 +18,7 @@ type (
 )
 
 func (m *DocMsgKillRequestContext) Type() string {
-	return MsgTypeKillRequestContext
+	return TxTypeKillRequestContext
 }
 
 func (m *DocMsgKillRequestContext) BuildMsg(v interface{}) {

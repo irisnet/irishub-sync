@@ -18,7 +18,7 @@ type (
 )
 
 func (m *DocMsgRefundServiceDeposit) Type() string {
-	return MsgTypeRefundServiceDeposit
+	return TxTypeRefundServiceDeposit
 }
 
 func (m *DocMsgRefundServiceDeposit) BuildMsg(v interface{}) {

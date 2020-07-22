@@ -22,7 +22,7 @@ type (
 )
 
 func (m *DocMsgNFTTransfer) Type() string {
-	return MsgTypeNFTTransfer
+	return TxTypeNFTTransfer
 }
 
 func (m *DocMsgNFTTransfer) BuildMsg(v interface{}) {

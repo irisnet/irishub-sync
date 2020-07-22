@@ -17,7 +17,7 @@ type DocMsgIssueDenom struct {
 }
 
 func (m *DocMsgIssueDenom) Type() string {
-	return MsgTypeIssueDenom
+	return TxTypeIssueDenom
 }
 
 func (m *DocMsgIssueDenom) BuildMsg(v interface{}) {

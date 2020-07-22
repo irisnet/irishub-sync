@@ -87,7 +87,7 @@ type (
 	MsgKillRequestContext = service.MsgKillRequestContext
 	MsgPauseRequestContext = service.MsgPauseRequestContext
 	MsgRefundServiceDeposit = service.MsgRefundServiceDeposit
-	MsgSetWithdrawAddressFee = service.MsgSetWithdrawAddress
+	MsgSetWithdrawFeesAddress = service.MsgSetWithdrawAddress
 	MsgStartRequestContext = service.MsgStartRequestContext
 	MsgUpdateRequestContext = service.MsgUpdateRequestContext
 	MsgWithdrawEarnedFees = service.MsgWithdrawEarnedFees

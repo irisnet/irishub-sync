@@ -18,7 +18,7 @@ type (
 )
 
 func (m *DocMsgDisableServiceBinding) Type() string {
-	return MsgTypeDisableServiceBinding
+	return TxTypeDisableServiceBinding
 }
 
 func (m *DocMsgDisableServiceBinding) BuildMsg(v interface{}) {

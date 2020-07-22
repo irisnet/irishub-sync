@@ -11,22 +11,21 @@ import (
 
 type (
 	DocMsgSetWithdrawAddress struct {
-		DelegatorAddress string `bson:"delegator_address" yaml:"delegator_address"`
-		WithdrawAddress  string `bson:"withdraw_address" yaml:"withdraw_address"`
+		Owner           string `json:"owner" yaml:"owner"`
+		WithdrawAddress string `bson:"withdraw_address" yaml:"withdraw_address"`
 	}
 )
 
 func (m *DocMsgSetWithdrawAddress) Type() string {
-	return MsgTypeSetWithdrawAddress
+	return TxTypeSetWithdrawFeesAddress
 }
 
 func (m *DocMsgSetWithdrawAddress) BuildMsg(v interface{}) {
-	//msg := v.(MsgSetWithdrawAddress)
-	var msg types.MsgSetWithdrawAddress
+	var msg types.MsgSetWithdrawFeesAddress
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
-	m.DelegatorAddress = msg.DelegatorAddress.String()
+	m.Owner = msg.Owner.String()
 	m.WithdrawAddress = msg.WithdrawAddress.String()
 }
 

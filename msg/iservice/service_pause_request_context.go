@@ -18,7 +18,7 @@ type (
 )
 
 func (m *DocMsgPauseRequestContext) Type() string {
-	return MsgTypePauseRequestContext
+	return TxTypePauseRequestContext
 }
 
 func (m *DocMsgPauseRequestContext) BuildMsg(v interface{}) {

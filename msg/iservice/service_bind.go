@@ -21,7 +21,7 @@ type (
 )
 
 func (m *DocMsgBindService) Type() string {
-	return MsgTypeBindService
+	return TxTypeBindService
 }
 
 func (m *DocMsgBindService) BuildMsg(v interface{}) {

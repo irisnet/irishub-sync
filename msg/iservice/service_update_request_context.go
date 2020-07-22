@@ -23,7 +23,7 @@ type (
 )
 
 func (m *DocMsgUpdateRequestContext) Type() string {
-	return MsgTypeUpdateRequestContext
+	return TxTypeUpdateRequestContext
 }
 
 func (m *DocMsgUpdateRequestContext) BuildMsg(v interface{}) {

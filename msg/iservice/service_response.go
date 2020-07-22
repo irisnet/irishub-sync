@@ -20,7 +20,7 @@ type (
 )
 
 func (m *DocMsgServiceResponse) Type() string {
-	return MsgTypeRespondService
+	return TxTypeRespondService
 }
 
 func (m *DocMsgServiceResponse) BuildMsg(msg interface{}) {

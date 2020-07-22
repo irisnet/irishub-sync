@@ -21,7 +21,7 @@ type (
 )
 
 func (m *DocMsgNFTEdit) Type() string {
-	return MsgTypeNFTEdit
+	return TxTypeNFTEdit
 }
 
 func (m *DocMsgNFTEdit) BuildMsg(v interface{}) {

@@ -19,7 +19,7 @@ type (
 )
 
 func (m *DocMsgNFTBurn) Type() string {
-	return MsgTypeNFTBurn
+	return TxTypeNFTBurn
 }
 
 func (m *DocMsgNFTBurn) BuildMsg(v interface{}) {

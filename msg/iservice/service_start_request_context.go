@@ -18,7 +18,7 @@ type (
 )
 
 func (m *DocMsgStartRequestContext) Type() string {
-	return MsgTypeStartRequestContext
+	return TxTypeStartRequestContext
 }
 
 func (m *DocMsgStartRequestContext) BuildMsg(v interface{}) {

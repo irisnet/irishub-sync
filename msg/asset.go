@@ -40,7 +40,7 @@ type (
 )
 
 func (m *DocTxMsgIssueToken) Type() string {
-	return constant.TxMsgTypeAssetIssueToken
+	return constant.TxTypeAssetIssueToken
 }
 
 func (m *DocTxMsgIssueToken) BuildMsg(txMsg interface{}) {
@@ -57,7 +57,7 @@ func (m *DocTxMsgIssueToken) BuildMsg(txMsg interface{}) {
 }
 
 func (m *DocTxMsgEditToken) Type() string {
-	return constant.TxMsgTypeAssetEditToken
+	return constant.TxTypeAssetEditToken
 }
 
 func (m *DocTxMsgEditToken) BuildMsg(txMsg interface{}) {
@@ -78,7 +78,7 @@ func (m *DocTxMsgEditToken) BuildMsg(txMsg interface{}) {
 }
 
 func (m *DocTxMsgMintToken) Type() string {
-	return constant.TxMsgTypeAssetMintToken
+	return constant.TxTypeAssetMintToken
 }
 
 func (m *DocTxMsgMintToken) BuildMsg(txMsg interface{}) {
@@ -91,7 +91,7 @@ func (m *DocTxMsgMintToken) BuildMsg(txMsg interface{}) {
 }
 
 func (m *DocTxMsgTransferTokenOwner) Type() string {
-	return constant.TxMsgTypeAssetTransferTokenOwner
+	return constant.TxTypeAssetTransferTokenOwner
 }
 
 func (m *DocTxMsgTransferTokenOwner) BuildMsg(txMsg interface{}) {

@@ -3,18 +3,18 @@
 package constant
 
 const (
-	TxTypeTransfer                = "Transfer"
-	TxTypeMultiSend               = "MultiSend"
-	TxTypeBurn                    = "Burn"
-	TxTypeSetMemoRegexp           = "SetMemoRegexp"
-	TxTypeStakeCreateValidator    = "CreateValidator"
-	TxTypeStakeEditValidator      = "EditValidator"
-	TxTypeStakeDelegate           = "Delegate"
-	TxTypeStakeBeginUnbonding     = "BeginUnbonding"
-	TxTypeBeginRedelegate         = "BeginRedelegate"
-	TxTypeUnjail                  = "Unjail"
-	TxTypeSetWithdrawAddress      = "SetWithdrawAddress"
-	TxTypeWithdrawDelegatorReward = "WithdrawDelegatorReward"
+	TxTypeTransfer                       = "Transfer"
+	TxTypeMultiSend                      = "MultiSend"
+	TxTypeBurn                           = "Burn"
+	TxTypeSetMemoRegexp                  = "SetMemoRegexp"
+	TxTypeStakeCreateValidator           = "CreateValidator"
+	TxTypeStakeEditValidator             = "EditValidator"
+	TxTypeStakeDelegate                  = "Delegate"
+	TxTypeStakeBeginUnbonding            = "BeginUnbonding"
+	TxTypeBeginRedelegate                = "BeginRedelegate"
+	TxTypeUnjail                         = "Unjail"
+	TxTypeSetWithdrawAddress             = "SetWithdrawAddress"
+	TxTypeWithdrawDelegatorReward        = "WithdrawDelegatorReward"
 	TxTypeMsgFundCommunityPool           = "FundCommunityPool "
 	TxTypeMsgWithdrawValidatorCommission = "WithdrawValidatorCommission"
 	TxTypeSubmitProposal                 = "SubmitProposal"
@@ -29,26 +29,26 @@ const (
 	TxTypeAssetEditGateway               = "EditGateway"
 	TxTypeAssetTransferGatewayOwner      = "TransferGatewayOwner"
 
-	MsgTypeNFTMint     = "NFTMint"
-	MsgTypeNFTEdit     = "NFTEdit"
-	MsgTypeNFTTransfer = "NFTTransfer"
-	MsgTypeNFTBurn     = "NFTBurn"
-	MsgTypeIssueDenom  = "IssueDenom"
+	TxTypeNFTMint     = "NFTMint"
+	TxTypeNFTEdit     = "NFTEdit"
+	TxTypeNFTTransfer = "NFTTransfer"
+	TxTypeNFTBurn     = "NFTBurn"
+	TxTypeIssueDenom  = "IssueDenom"
 
-	MsgTypeDefineService         = "DefineService"         // type for MsgDefineService
-	MsgTypeBindService           = "BindService"           // type for MsgBindService
-	MsgTypeUpdateServiceBinding  = "UpdateServiceBinding"  // type for MsgUpdateServiceBinding
-	MsgTypeSetWithdrawAddress    = "SetWithdrawAddress"    // type for MsgSetWithdrawAddress
-	MsgTypeDisableServiceBinding = "DisableServiceBinding" // type for MsgDisableServiceBinding
-	MsgTypeEnableServiceBinding  = "EnableServiceBinding"  // type for MsgEnableServiceBinding
-	MsgTypeRefundServiceDeposit  = "RefundServiceDeposit"  // type for MsgRefundServiceDeposit
-	MsgTypeCallService           = "CallService"           // type for MsgCallService
-	MsgTypeRespondService        = "RespondService"        // type for MsgRespondService
-	MsgTypePauseRequestContext   = "PauseRequestContext"   // type for MsgPauseRequestContext
-	MsgTypeStartRequestContext   = "StartRequestContex"    // type for MsgStartRequestContext
-	MsgTypeKillRequestContext    = "KillRequestContex"     // type for MsgKillRequestContext
-	MsgTypeUpdateRequestContext  = "UpdateRequestContext"  // type for MsgUpdateRequestContext
-	MsgTypeWithdrawEarnedFees    = "WithdrawEarnedFees"    // type for MsgWithdrawEarnedFees
+	TxTypeDefineService          = "DefineService"          // type for MsgDefineService
+	TxTypeBindService            = "BindService"            // type for MsgBindService
+	TxTypeUpdateServiceBinding   = "UpdateServiceBinding"   // type for MsgUpdateServiceBinding
+	TxTypeSetWithdrawFeesAddress = "SetWithdrawFeesAddress" // type for SetWithdrawFeesAddress
+	TxTypeDisableServiceBinding  = "DisableServiceBinding"  // type for MsgDisableServiceBinding
+	TxTypeEnableServiceBinding   = "EnableServiceBinding"   // type for MsgEnableServiceBinding
+	TxTypeRefundServiceDeposit   = "RefundServiceDeposit"   // type for MsgRefundServiceDeposit
+	TxTypeCallService            = "CallService"            // type for MsgCallService
+	TxTypeRespondService         = "RespondService"         // type for MsgRespondService
+	TxTypePauseRequestContext    = "PauseRequestContext"    // type for MsgPauseRequestContext
+	TxTypeStartRequestContext    = "StartRequestContex"     // type for MsgStartRequestContext
+	TxTypeKillRequestContext     = "KillRequestContex"      // type for MsgKillRequestContext
+	TxTypeUpdateRequestContext   = "UpdateRequestContext"   // type for MsgUpdateRequestContext
+	TxTypeWithdrawEarnedFees     = "WithdrawEarnedFees"     // type for MsgWithdrawEarnedFees
 
 	TxTypeAddProfiler    = "AddProfiler"
 	TxTypeAddTrustee     = "AddTrustee"
@@ -68,17 +68,6 @@ const (
 	TxTypeRemoveLiquidity = "RemoveLiquidity"
 	TxTypeSwapOrder       = "SwapOrder"
 
-	TxMsgTypeSubmitProposal                = "SubmitProposal"
-	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
-	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
-	TxMsgTypeSubmitTokenAdditionProposal   = "SubmitTokenAdditionProposal"
-	TxMsgTypeAssetIssueToken               = "IssueToken"
-	TxMsgTypeAssetEditToken                = "EditToken"
-	TxMsgTypeAssetMintToken                = "MintToken"
-	TxMsgTypeAssetTransferTokenOwner       = "TransferTokenOwner"
-	TxMsgTypeAssetCreateGateway            = "CreateGateway"
-	TxMsgTypeAssetEditGateway              = "EditGateway"
-	TxMsgTypeAssetTransferGatewayOwner     = "TransferGatewayOwner"
 
 	TxTypeSubmitEvidence  = "SubmitEvidence"
 	TxTypeVerifyInvariant = "VerifyInvariant"

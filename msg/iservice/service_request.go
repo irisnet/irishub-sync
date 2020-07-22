@@ -25,7 +25,7 @@ type (
 )
 
 func (m *DocMsgCallService) Type() string {
-	return MsgTypeCallService
+	return TxTypeCallService
 }
 
 func (m *DocMsgCallService) BuildMsg(msg interface{}) {
