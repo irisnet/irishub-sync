@@ -45,5 +45,5 @@ func (m *DocMsgSetWithdrawAddress) HandleTxMsg(msgData sdk.Msg, tx *document.Com
 	}
 	tx.To = ""
 	tx.Amount = []store.Coin{}
-	return tx
+	return tx, true
 }
