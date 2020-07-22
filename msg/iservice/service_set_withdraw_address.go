@@ -29,9 +29,12 @@ func (m *DocMsgSetWithdrawAddress) BuildMsg(v interface{}) {
 	m.WithdrawAddress = msg.WithdrawAddress.String()
 }
 
-func (m *DocMsgSetWithdrawAddress) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
+func (m *DocMsgSetWithdrawAddress) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool) {
 
 	m.BuildMsg(msgData)
+	if m.Owner == "" {
+		return tx, false
+	}
 	tx.Msgs = append(tx.Msgs, document.DocTxMsg{
 		Type: m.Type(),
 		Msg:  m,
