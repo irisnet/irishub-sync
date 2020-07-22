@@ -15,7 +15,7 @@ const (
 	TxTypeUnjail                         = "Unjail"
 	TxTypeSetWithdrawAddress             = "SetWithdrawAddress"
 	TxTypeWithdrawDelegatorReward        = "WithdrawDelegatorReward"
-	TxTypeMsgFundCommunityPool           = "FundCommunityPool "
+	TxTypeMsgFundCommunityPool           = "FundCommunityPool"
 	TxTypeMsgWithdrawValidatorCommission = "WithdrawValidatorCommission"
 	TxTypeSubmitProposal                 = "SubmitProposal"
 	TxTypeDeposit                        = "Deposit"
