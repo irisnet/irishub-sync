@@ -58,6 +58,7 @@ type (
 
 	MsgDeposit = gov.MsgDeposit
 	MsgSubmitProposal = gov.MsgSubmitProposal
+	TextProposal = gov.TextProposal
 	MsgVote = gov.MsgVote
 	Proposal = gov.Proposal
 	SdkVote = gov.Vote

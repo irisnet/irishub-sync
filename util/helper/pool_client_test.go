@@ -4,7 +4,6 @@
 package helper
 
 import (
-	"context"
 	"fmt"
 	"github.com/tendermint/tendermint/types"
 	"testing"
@@ -39,7 +38,7 @@ func TestGetClient(t *testing.T) {
 
 	txEventsCh := make(chan interface{})
 	client.Start()
-	client.Subscribe(context.Background(), "xxx", types.EventQueryValidatorSetUpdates, txEventsCh)
+	//client.Subscribe(context.Background(), "xxx", types.EventQueryValidatorSetUpdates, txEventsCh)
 	for e := range txEventsCh {
 		edt := e.(types.EventDataValidatorSetUpdates)
 		fmt.Println(edt.ValidatorUpdates)
