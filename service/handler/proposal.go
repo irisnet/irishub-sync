@@ -18,7 +18,6 @@ func handleProposal(docTx *document.CommonTx) {
 			if isContainVotingPeriodStartEvent(docTx) {
 				proposal.VotingPeriodStartHeight = docTx.Height
 			}
-			proposal.Type = getProposalTypeFromEvents(docTx.Events)
 
 			store.SaveOrUpdate(proposal)
 		}
@@ -100,18 +99,18 @@ func IsContainVotingEndEvent(blockresult document.ResponseEndBlock) (uint64, boo
 	return 0, false
 }
 
-func getProposalTypeFromEvents(result []document.Event) (string) {
-	//query proposal type
-	for _, val := range result {
-		if val.Type != types.EventTypeSubmitProposal {
-			continue
-		}
-		for key, val := range val.Attributes {
-			if key == types.EventGovProposalType {
-				return val
-			}
-		}
-	}
-
-	return ""
-}
+//func getProposalTypeFromEvents(result []document.Event) (string) {
+//	//query proposal type
+//	for _, val := range result {
+//		if val.Type != types.EventTypeSubmitProposal {
+//			continue
+//		}
+//		for key, val := range val.Attributes {
+//			if key == types.EventGovProposalType {
+//				return val
+//			}
+//		}
+//	}
+//
+//	return ""
+//}

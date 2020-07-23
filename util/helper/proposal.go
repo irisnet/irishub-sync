@@ -16,11 +16,14 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	}
 
 	var propo types.Proposal
+	var txtpropo types.TextProposal
 	propo.Unmarshal(res) //TODO
+	txtpropo.Unmarshal(propo.Content.Value)
 	proposal.ProposalId = proposalID
-	proposal.Title = propo.GetTitle()
-	proposal.Description = string(propo.Content.Value)
+	proposal.Title = txtpropo.Title
+	proposal.Description = txtpropo.Description
 	proposal.Status = propo.Status.String()
+	proposal.Type = txtpropo.ProposalType()
 
 	proposal.SubmitTime = propo.SubmitTime
 	proposal.VotingStartTime = propo.VotingStartTime

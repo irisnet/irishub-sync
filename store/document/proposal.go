@@ -70,7 +70,7 @@ func (m Proposal) EnsureIndexs() []mgo.Index {
 func QueryProposal(proposalId uint64) (Proposal, error) {
 	var result Proposal
 	query := func(c *mgo.Collection) error {
-		err := c.Find(bson.M{Proposal_Field_ProposalId: proposalId}).Sort("-submit_block").One(&result)
+		err := c.Find(bson.M{Proposal_Field_ProposalId: proposalId}).Sort("-submit_time").One(&result)
 		return err
 	}
 
