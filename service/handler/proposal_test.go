@@ -20,7 +20,7 @@ func TestIsContainVotingPeriodStartTag(t *testing.T) {
 	if err := store.ExecCollection(tx.Name(), fn); err != nil {
 		t.Fatal(err)
 	} else {
-		res := isContainVotingPeriodStartTag(tx)
+		res := isContainVotingPeriodStartEvent(tx)
 		t.Log(res)
 	}
 }

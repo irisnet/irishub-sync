@@ -47,6 +47,17 @@ func getSession() *mgo.Session {
 	// max session num is 4096
 	return session.Clone()
 }
+func EnsureIndexes(collectionName string, indexes []mgo.Index) {
+	c := session.DB(conf.Database).C(collectionName)
+	if len(indexes) > 0 {
+		for _, v := range indexes {
+			if err := c.EnsureIndex(v); err != nil {
+				logger.Warn("ensure index fail", logger.String("collectionName", collectionName),
+					logger.String("err", err.Error()))
+			}
+		}
+	}
+}
 
 // get collection object
 func ExecCollection(collection string, s func(*mgo.Collection) error) error {

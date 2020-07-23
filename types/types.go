@@ -2,33 +2,35 @@ package types
 
 import (
 	"fmt"
-	"github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub/app"
-	"github.com/irisnet/irishub/app/v1/asset"
-	"github.com/irisnet/irishub/app/v1/auth"
-	"github.com/irisnet/irishub/app/v1/bank"
-	"github.com/irisnet/irishub/app/v1/distribution"
-	dtags "github.com/irisnet/irishub/app/v1/distribution/tags"
-	dtypes "github.com/irisnet/irishub/app/v1/distribution/types"
-	"github.com/irisnet/irishub/app/v1/gov"
-	"github.com/irisnet/irishub/app/v1/gov/tags"
-	"github.com/irisnet/irishub/app/v1/rand"
-	"github.com/irisnet/irishub/app/v1/slashing"
-	"github.com/irisnet/irishub/app/v1/stake"
-	stags "github.com/irisnet/irishub/app/v1/stake/tags"
-	staketypes "github.com/irisnet/irishub/app/v1/stake/types"
-	"github.com/irisnet/irishub/app/v2/coinswap"
-	"github.com/irisnet/irishub/app/v2/htlc"
-	"github.com/irisnet/irishub/client/utils"
-	"github.com/irisnet/irishub/codec"
-	"github.com/irisnet/irishub/modules/guardian"
-	"github.com/irisnet/irishub/types"
+	"github.com/irisnet/irishub/address"
+	token "github.com/irismod/token/types"
+	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
+	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	dtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	rand "github.com/irisnet/irishub/modules/random/types"
+	oracle "github.com/irisnet/irishub/modules/oracle/types"
+	slashing "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stake "github.com/cosmos/cosmos-sdk/x/staking/types"
+	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	crisis "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	coinswap "github.com/irismod/coinswap/types"
+	htlc "github.com/irismod/htlc/types"
+	nft "github.com/irismod/nft/types"
+	service "github.com/irismod/service/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	guardian "github.com/irisnet/irishub/modules/guardian/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
+	cmn "github.com/tendermint/tendermint/libs/bytes"
+	cmnk "github.com/tendermint/tendermint/crypto/merkle"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	rpcclienthttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tm "github.com/tendermint/tendermint/types"
 	"regexp"
@@ -37,76 +39,98 @@ import (
 )
 
 type (
-	MsgTransfer      = bank.MsgSend
-	MsgBurn          = bank.MsgBurn
-	MsgSetMemoRegexp = bank.MsgSetMemoRegexp
+	MsgTransfer = bank.MsgSend
+	MsgMultiSend = bank.MsgMultiSend
 
-	MsgStakeCreate                 = stake.MsgCreateValidator
-	MsgStakeEdit                   = stake.MsgEditValidator
-	MsgStakeDelegate               = stake.MsgDelegate
-	MsgStakeBeginUnbonding         = stake.MsgBeginUnbonding
-	MsgBeginRedelegate             = stake.MsgBeginRedelegate
-	MsgUnjail                      = slashing.MsgUnjail
-	MsgSetWithdrawAddress          = dtypes.MsgSetWithdrawAddress
-	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
-	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
-	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll
-	StakeValidator                 = stake.Validator
-	Delegation                     = stake.Delegation
-	UnbondingDelegation            = stake.UnbondingDelegation
+	MsgStakeCreate = stake.MsgCreateValidator
+	MsgStakeEdit = stake.MsgEditValidator
+	MsgStakeDelegate = stake.MsgDelegate
+	MsgStakeBeginUnbonding = stake.MsgUndelegate
+	MsgBeginRedelegate = stake.MsgBeginRedelegate
+	MsgUnjail = slashing.MsgUnjail
+	MsgSetWithdrawAddress = dtypes.MsgSetWithdrawAddress
+	MsgWithdrawDelegatorReward = distribution.MsgWithdrawDelegatorReward
+	MsgFundCommunityPool = distribution.MsgFundCommunityPool
+	MsgWithdrawValidatorCommission = distribution.MsgWithdrawValidatorCommission
+	StakeValidator = stake.Validator
+	Delegation = stake.Delegation
+	UnbondingDelegation = stake.UnbondingDelegation
 
-	MsgDeposit                       = gov.MsgDeposit
-	MsgSubmitProposal                = gov.MsgSubmitProposal
-	MsgSubmitSoftwareUpgradeProposal = gov.MsgSubmitSoftwareUpgradeProposal
-	MsgSubmitTaxUsageProposal        = gov.MsgSubmitCommunityTaxUsageProposal
-	MsgSubmitTokenAdditionProposal   = gov.MsgSubmitTokenAdditionProposal
-	MsgVote                          = gov.MsgVote
-	Proposal                         = gov.Proposal
-	SdkVote                          = gov.Vote
+	MsgDeposit = gov.MsgDeposit
+	MsgSubmitProposal = gov.MsgSubmitProposal
+	MsgVote = gov.MsgVote
+	Proposal = gov.Proposal
+	SdkVote = gov.Vote
 
-	MsgSwapOrder       = coinswap.MsgSwapOrder
-	MsgAddLiquidity    = coinswap.MsgAddLiquidity
+	MsgSwapOrder = coinswap.MsgSwapOrder
+	MsgAddLiquidity = coinswap.MsgAddLiquidity
 	MsgRemoveLiquidity = coinswap.MsgRemoveLiquidity
 
-	MsgClaimHTLC  = htlc.MsgClaimHTLC
+	MsgClaimHTLC = htlc.MsgClaimHTLC
 	MsgCreateHTLC = htlc.MsgCreateHTLC
 	MsgRefundHTLC = htlc.MsgRefundHTLC
 
-	MsgRequestRand = rand.MsgRequestRand
+	MsgRequestRandom = rand.MsgRequestRandom
 
-	AssetIssueToken           = asset.MsgIssueToken
-	AssetEditToken            = asset.MsgEditToken
-	AssetMintToken            = asset.MsgMintToken
-	AssetTransferTokenOwner   = asset.MsgTransferTokenOwner
-	AssetCreateGateway        = asset.MsgCreateGateway
-	AssetEditGateWay          = asset.MsgEditGateway
-	AssetTransferGatewayOwner = asset.MsgTransferGatewayOwner
+	MsgIssueDenom = nft.MsgIssueDenom
+	MsgMintNFT = nft.MsgMintNFT
+	MsgEditNFT = nft.MsgEditNFT
+	MsgTransferNFT = nft.MsgTransferNFT
+	MsgBurnNFT = nft.MsgBurnNFT
 
-	MsgAddProfiler    = guardian.MsgAddProfiler
-	MsgAddTrustee     = guardian.MsgAddTrustee
+	MsgDefineService = service.MsgDefineService
+	MsgBindService = service.MsgBindService
+	MsgRespondService = service.MsgRespondService
+	MsgCallService = service.MsgCallService
+	MsgDisableServiceBinding = service.MsgDisableServiceBinding
+	MsgEnableServiceBinding = service.MsgEnableServiceBinding
+	MsgKillRequestContext = service.MsgKillRequestContext
+	MsgPauseRequestContext = service.MsgPauseRequestContext
+	MsgRefundServiceDeposit = service.MsgRefundServiceDeposit
+	MsgSetWithdrawFeesAddress = service.MsgSetWithdrawAddress
+	MsgStartRequestContext = service.MsgStartRequestContext
+	MsgUpdateRequestContext = service.MsgUpdateRequestContext
+	MsgWithdrawEarnedFees = service.MsgWithdrawEarnedFees
+	MsgUpdateServiceBinding = service.MsgUpdateServiceBinding
+
+	MsgIssueToken = token.MsgIssueToken
+	MsgEditToken = token.MsgEditToken
+	MsgMintToken = token.MsgMintToken
+	MsgTransferTokenOwner = token.MsgTransferTokenOwner
+
+	MsgAddProfiler = guardian.MsgAddProfiler
+	MsgAddTrustee = guardian.MsgAddTrustee
 	MsgDeleteProfiler = guardian.MsgDeleteProfiler
-	MsgDeleteTrustee  = guardian.MsgDeleteTrustee
+	MsgDeleteTrustee = guardian.MsgDeleteTrustee
+
+	MsgCreateFeed = oracle.MsgCreateFeed
+	MsgEditFeed = oracle.MsgEditFeed
+	MsgPauseFeed = oracle.MsgPauseFeed
+	MsgStartFeed = oracle.MsgStartFeed
+
+	MsgSubmitEvidence = evidence.MsgSubmitEvidence
+	MsgVerifyInvariant = crisis.MsgVerifyInvariant
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
-	StdTx      = auth.StdTx
-	SdkCoins   = types.Coins
-	KVPair     = types.KVPair
-	AccAddress = types.AccAddress
-	ValAddress = types.ValAddress
-	Dec        = types.Dec
-	Int        = types.Int
-	Validator  = tm.Validator
-	Tx         = tm.Tx
-	Block      = tm.Block
-	BlockMeta  = tm.BlockMeta
-	HexBytes   = cmn.HexBytes
-	TmKVPair   = cmn.KVPair
+	StdTx = auth.StdTx
+	SdkCoins = sdk.Coins
+	KVPair = sdk.KVPair
+	AccAddress = sdk.AccAddress
+	ValAddress = sdk.ValAddress
+	Dec = sdk.Dec
+	Int = sdk.Int
+	Validator = tm.Validator
+	Tx = tm.Tx
+	Block = tm.Block
+	BlockID = tm.BlockID
+	//BlockMeta = tm.BlockMeta
+	HexBytes = cmn.HexBytes
+	TmKVPair = cmnk.KVPair
 
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
-	Client           = rpcclient.Client
-	HTTP             = rpcclient.HTTP
-	ResultStatus     = ctypes.ResultStatus
+	Client = rpcclient.Client
+	ResultStatus = ctypes.ResultStatus
 )
 
 var (
@@ -116,7 +140,7 @@ var (
 	GetDelegationsKey    = stake.GetDelegationsKey
 	GetUBDKey            = stake.GetUBDKey
 	GetUBDsKey           = stake.GetUBDsKey
-	ValAddressFromBech32 = types.ValAddressFromBech32
+	ValAddressFromBech32 = sdk.ValAddressFromBech32
 
 	UnmarshalValidator      = staketypes.UnmarshalValidator
 	MustUnmarshalValidator  = staketypes.MustUnmarshalValidator
@@ -124,40 +148,47 @@ var (
 	MustUnmarshalDelegation = staketypes.MustUnmarshalDelegation
 	MustUnmarshalUBD        = staketypes.MustUnmarshalUBD
 
-	Bech32ifyValPub         = types.Bech32ifyValPub
+	//Bech32ifyValPub         = types.Bech32ifyValPub
 	Bech32AccountAddrPrefix string
-	RegisterCodec           = types.RegisterCodec
-	AccAddressFromBech32    = types.AccAddressFromBech32
-	BondStatusToString      = types.BondStatusToString
+	RegisterCodec           = sdk.RegisterCodec
+	AccAddressFromBech32    = sdk.AccAddressFromBech32
+	//BondStatusToString      = types.BondStatusToString
 
-	NewDecFromStr = types.NewDecFromStr
+	NewDecFromStr = sdk.NewDecFromStr
 
-	AddressStoreKey   = auth.AddressStoreKey
-	GetAccountDecoder = utils.GetAccountDecoder
+	//AddressStoreKey   = auth.AddressStoreKey
+	//StoreName         = auth.StoreKey
+	//GetAccountDecoder = auth.NewAccountRetriever
 
-	KeyProposal      = gov.KeyProposal
-	KeyVotesSubspace = gov.KeyVotesSubspace
-
-	NewHTTP = rpcclient.NewHTTP
+	KeyProposal      = gov.ProposalKey
+	KeyVotesSubspace = gov.VotesKey
+	//
+	NewHTTP = rpcclienthttp.New
 
 	//tags
-	TagGovProposalID                   = tags.ProposalID
-	TagDistributionReward              = dtags.Reward
-	TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
-	TagStakeDelegator                  = stags.Delegator
-	TagStakeSrcValidator               = stags.SrcValidator
-	TagAction                          = types.TagAction
+	EventGovProposalID        = gov.AttributeKeyProposalID
+	EventGovProposalType      = gov.AttributeKeyProposalType
+	EventGovVotingPeriodStart = gov.AttributeKeyVotingPeriodStart
+	EventTypeProposalDeposit  = gov.EventTypeProposalDeposit
+	EventTypeSubmitProposal   = gov.EventTypeSubmitProposal
+	//TagDistributionReward              = dtags.Reward
+	//TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
+	//TagStakeDelegator                  = stags.Delegator
+	//TagStakeSrcValidator               = stags.SrcValidator
+	//TagAction                          = types.TagAction
 
 	cdc *codec.Codec
 )
 
 // 初始化账户地址前缀
 func init() {
-	if server.Network == constant.NetworkMainnet {
-		types.SetNetworkType(types.Mainnet)
-	}
-	Bech32AccountAddrPrefix = types.GetConfig().GetBech32AccountAddrPrefix()
-	cdc = app.MakeLatestCodec()
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(address.Bech32PrefixAccAddr, address.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
+	config.Seal()
+	Bech32AccountAddrPrefix = sdk.GetConfig().GetBech32AccountAddrPrefix()
+	_, cdc = app.MakeCodecs()
 }
 
 func GetCodec() *codec.Codec {

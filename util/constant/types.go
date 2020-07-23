@@ -3,35 +3,62 @@
 package constant
 
 const (
-	TxTypeTransfer                    = "Transfer"
-	TxTypeBurn                        = "Burn"
-	TxTypeSetMemoRegexp               = "SetMemoRegexp"
-	TxTypeStakeCreateValidator        = "CreateValidator"
-	TxTypeStakeEditValidator          = "EditValidator"
-	TxTypeStakeDelegate               = "Delegate"
-	TxTypeStakeBeginUnbonding         = "BeginUnbonding"
-	TxTypeBeginRedelegate             = "BeginRedelegate"
-	TxTypeUnjail                      = "Unjail"
-	TxTypeSetWithdrawAddress          = "SetWithdrawAddress"
-	TxTypeWithdrawDelegatorReward     = "WithdrawDelegatorReward"
-	TxTypeWithdrawDelegatorRewardsAll = "WithdrawDelegatorRewardsAll"
-	TxTypeWithdrawValidatorRewardsAll = "WithdrawValidatorRewardsAll"
-	TxTypeSubmitProposal              = "SubmitProposal"
-	TxTypeDeposit                     = "Deposit"
-	TxTypeVote                        = "Vote"
-	TxTypeRequestRand                 = "RequestRand"
-	TxTypeAssetIssueToken             = "IssueToken"
-	TxTypeAssetEditToken              = "EditToken"
-	TxTypeAssetMintToken              = "MintToken"
-	TxTypeAssetTransferTokenOwner     = "TransferTokenOwner"
-	TxTypeAssetCreateGateway          = "CreateGateway"
-	TxTypeAssetEditGateway            = "EditGateway"
-	TxTypeAssetTransferGatewayOwner   = "TransferGatewayOwner"
+	TxTypeTransfer                       = "Transfer"
+	TxTypeMultiSend                      = "MultiSend"
+	TxTypeBurn                           = "Burn"
+	TxTypeSetMemoRegexp                  = "SetMemoRegexp"
+	TxTypeStakeCreateValidator           = "CreateValidator"
+	TxTypeStakeEditValidator             = "EditValidator"
+	TxTypeStakeDelegate                  = "Delegate"
+	TxTypeStakeBeginUnbonding            = "BeginUnbonding"
+	TxTypeBeginRedelegate                = "BeginRedelegate"
+	TxTypeUnjail                         = "Unjail"
+	TxTypeSetWithdrawAddress             = "SetWithdrawAddress"
+	TxTypeWithdrawDelegatorReward        = "WithdrawDelegatorReward"
+	TxTypeMsgFundCommunityPool           = "FundCommunityPool"
+	TxTypeMsgWithdrawValidatorCommission = "WithdrawValidatorCommission"
+	TxTypeSubmitProposal                 = "SubmitProposal"
+	TxTypeDeposit                        = "Deposit"
+	TxTypeVote                           = "Vote"
+	TxTypeRequestRand                    = "RequestRand"
+	TxTypeAssetIssueToken                = "IssueToken"
+	TxTypeAssetEditToken                 = "EditToken"
+	TxTypeAssetMintToken                 = "MintToken"
+	TxTypeAssetTransferTokenOwner        = "TransferTokenOwner"
+	TxTypeAssetCreateGateway             = "CreateGateway"
+	TxTypeAssetEditGateway               = "EditGateway"
+	TxTypeAssetTransferGatewayOwner      = "TransferGatewayOwner"
+
+	TxTypeNFTMint     = "NFTMint"
+	TxTypeNFTEdit     = "NFTEdit"
+	TxTypeNFTTransfer = "NFTTransfer"
+	TxTypeNFTBurn     = "NFTBurn"
+	TxTypeIssueDenom  = "IssueDenom"
+
+	TxTypeDefineService          = "DefineService"          // type for MsgDefineService
+	TxTypeBindService            = "BindService"            // type for MsgBindService
+	TxTypeUpdateServiceBinding   = "UpdateServiceBinding"   // type for MsgUpdateServiceBinding
+	TxTypeSetWithdrawFeesAddress = "SetWithdrawFeesAddress" // type for SetWithdrawFeesAddress
+	TxTypeDisableServiceBinding  = "DisableServiceBinding"  // type for MsgDisableServiceBinding
+	TxTypeEnableServiceBinding   = "EnableServiceBinding"   // type for MsgEnableServiceBinding
+	TxTypeRefundServiceDeposit   = "RefundServiceDeposit"   // type for MsgRefundServiceDeposit
+	TxTypeCallService            = "CallService"            // type for MsgCallService
+	TxTypeRespondService         = "RespondService"         // type for MsgRespondService
+	TxTypePauseRequestContext    = "PauseRequestContext"    // type for MsgPauseRequestContext
+	TxTypeStartRequestContext    = "StartRequestContex"     // type for MsgStartRequestContext
+	TxTypeKillRequestContext     = "KillRequestContex"      // type for MsgKillRequestContext
+	TxTypeUpdateRequestContext   = "UpdateRequestContext"   // type for MsgUpdateRequestContext
+	TxTypeWithdrawEarnedFees     = "WithdrawEarnedFees"     // type for MsgWithdrawEarnedFees
 
 	TxTypeAddProfiler    = "AddProfiler"
 	TxTypeAddTrustee     = "AddTrustee"
 	TxTypeDeleteTrustee  = "DeleteTrustee"
 	TxTypeDeleteProfiler = "DeleteProfiler"
+
+	TxTypeCreateFeed = "CreateFeed"
+	TxTypeEditFeed   = "EditFeed"
+	TxTypePauseFeed  = "PauseFeed"
+	TxTypeStartFeed  = "StartFeed"
 
 	TxTypeCreateHTLC = "CreateHTLC"
 	TxTypeClaimHTLC  = "ClaimHTLC"
@@ -41,20 +68,9 @@ const (
 	TxTypeRemoveLiquidity = "RemoveLiquidity"
 	TxTypeSwapOrder       = "SwapOrder"
 
-	TxMsgTypeSubmitProposal                = "SubmitProposal"
-	TxMsgTypeSubmitSoftwareUpgradeProposal = "SubmitSoftwareUpgradeProposal"
-	TxMsgTypeSubmitTaxUsageProposal        = "SubmitTaxUsageProposal"
-	TxMsgTypeSubmitTokenAdditionProposal   = "SubmitTokenAdditionProposal"
-	TxMsgTypeAssetIssueToken               = "IssueToken"
-	TxMsgTypeAssetEditToken                = "EditToken"
-	TxMsgTypeAssetMintToken                = "MintToken"
-	TxMsgTypeAssetTransferTokenOwner       = "TransferTokenOwner"
-	TxMsgTypeAssetCreateGateway            = "CreateGateway"
-	TxMsgTypeAssetEditGateway              = "EditGateway"
-	TxMsgTypeAssetTransferGatewayOwner     = "TransferGatewayOwner"
 
-	TxTagVotingPeriodStart = "voting-period-start"
-	BlockTagProposalId     = "proposal-id"
+	TxTypeSubmitEvidence  = "SubmitEvidence"
+	TxTypeVerifyInvariant = "VerifyInvariant"
 
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"

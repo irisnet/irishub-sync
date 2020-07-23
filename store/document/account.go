@@ -32,6 +32,16 @@ func (d Account) PkKvPair() map[string]interface{} {
 	return bson.M{AccountFieldAddress: d.Address}
 }
 
+func (d Account) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-address"},
+		Unique:     true,
+		Background: true,
+	})
+	return indexes
+}
+
 // override store.Save()
 // not to check record if exist before save document
 func (d Account) Save(account Account) error {

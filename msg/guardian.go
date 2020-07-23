@@ -15,9 +15,9 @@ func (doctx *DocTxMsgAddProfiler) Type() string {
 
 func (doctx *DocTxMsgAddProfiler) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgAddProfiler)
-	doctx.Address = msg.Address.String()
-	doctx.AddedBy = msg.AddedBy.String()
-	doctx.Description = msg.Description
+	doctx.Address = msg.AddGuardian.Address.String()
+	doctx.AddedBy = msg.AddGuardian.AddedBy.String()
+	doctx.Description = msg.AddGuardian.Description
 }
 
 type DocTxMsgAddTrustee struct {
@@ -30,9 +30,9 @@ func (doctx *DocTxMsgAddTrustee) Type() string {
 
 func (doctx *DocTxMsgAddTrustee) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgAddTrustee)
-	doctx.Address = msg.Address.String()
-	doctx.AddedBy = msg.AddedBy.String()
-	doctx.Description = msg.Description
+	doctx.Address = msg.AddGuardian.Address.String()
+	doctx.AddedBy = msg.AddGuardian.AddedBy.String()
+	doctx.Description = msg.AddGuardian.Description
 }
 
 type AddGuardian struct {
@@ -51,8 +51,8 @@ func (doctx *DocTxMsgDeleteProfiler) Type() string {
 
 func (doctx *DocTxMsgDeleteProfiler) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgDeleteProfiler)
-	doctx.Address = msg.Address.String()
-	doctx.DeletedBy = msg.DeletedBy.String()
+	doctx.Address = msg.DeleteGuardian.Address.String()
+	doctx.DeletedBy = msg.DeleteGuardian.DeletedBy.String()
 }
 
 type DocTxMsgDeleteTrustee struct {
@@ -65,8 +65,8 @@ func (doctx *DocTxMsgDeleteTrustee) Type() string {
 
 func (doctx *DocTxMsgDeleteTrustee) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgDeleteTrustee)
-	doctx.Address = msg.Address.String()
-	doctx.DeletedBy = msg.DeletedBy.String()
+	doctx.Address = msg.DeleteGuardian.Address.String()
+	doctx.DeletedBy = msg.DeleteGuardian.DeletedBy.String()
 }
 
 type DeleteGuardian struct {

@@ -20,24 +20,24 @@ const (
 )
 
 type CommonTx struct {
-	Time       time.Time         `bson:"time"`
-	Height     int64             `bson:"height"`
-	TxHash     string            `bson:"tx_hash"`
-	From       string            `bson:"from"`
-	To         string            `bson:"to"`
-	Amount     store.Coins       `bson:"amount"`
-	Type       string            `bson:"type"`
-	Fee        store.Fee         `bson:"fee"`
-	Memo       string            `bson:"memo"`
-	Status     string            `bson:"status"`
-	Code       uint32            `bson:"code"`
-	Log        string            `bson:"log"`
-	GasUsed    int64             `bson:"gas_used"`
-	GasWanted  int64             `bson:"gas_wanted"`
-	GasPrice   float64           `bson:"gas_price"`
-	ActualFee  store.ActualFee   `bson:"actual_fee"`
-	ProposalId uint64            `bson:"proposal_id"`
-	Tags       map[string]string `bson:"tags"`
+	Time       time.Time       `bson:"time"`
+	Height     int64           `bson:"height"`
+	TxHash     string          `bson:"tx_hash"`
+	From       string          `bson:"from"`
+	To         string          `bson:"to"`
+	Amount     store.Coins     `bson:"amount"`
+	Type       string          `bson:"type"`
+	Fee        store.Fee       `bson:"fee"`
+	Memo       string          `bson:"memo"`
+	Status     string          `bson:"status"`
+	Code       uint32          `bson:"code"`
+	Log        string          `bson:"log"`
+	GasUsed    int64           `bson:"gas_used"`
+	GasWanted  int64           `bson:"gas_wanted"`
+	GasPrice   float64         `bson:"gas_price"`
+	ActualFee  store.ActualFee `bson:"actual_fee"`
+	ProposalId uint64          `bson:"proposal_id"`
+	Events     []Event         `bson:"events"`
 
 	//StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	//StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
@@ -50,6 +50,11 @@ type CommonTx struct {
 type DocTxMsg struct {
 	Type string `bson:"type"`
 	Msg  Msg    `bson:"msg"`
+}
+
+type Event struct {
+	Type       string            `bson:"type" json:"type"`
+	Attributes map[string]string `bson:"attributes" json:"attributes"`
 }
 
 type Msg interface {
@@ -93,6 +98,16 @@ func (d CommonTx) Name() string {
 
 func (d CommonTx) PkKvPair() map[string]interface{} {
 	return bson.M{Tx_Field_Hash: d.TxHash}
+}
+func (d CommonTx) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-tx_hash"},
+		Unique:     true,
+		Background: true,
+	})
+
+	return indexes
 }
 
 func (d CommonTx) Query(query, fields bson.M, sort []string, skip, limit int) (

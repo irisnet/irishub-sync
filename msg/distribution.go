@@ -3,6 +3,7 @@ package msg
 import (
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 // msg struct for changing the withdraw address for a delegator (or validator self-delegation)
@@ -17,8 +18,8 @@ func (doctx *DocTxMsgSetWithdrawAddress) Type() string {
 
 func (doctx *DocTxMsgSetWithdrawAddress) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgSetWithdrawAddress)
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
-	doctx.WithdrawAddr = msg.WithdrawAddr.String()
+	doctx.DelegatorAddr = msg.DelegatorAddress.String()
+	doctx.WithdrawAddr = msg.WithdrawAddress.String()
 }
 
 // msg struct for delegation withdraw from a single validator
@@ -33,34 +34,36 @@ func (doctx *DocTxMsgWithdrawDelegatorReward) Type() string {
 
 func (doctx *DocTxMsgWithdrawDelegatorReward) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgWithdrawDelegatorReward)
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
-	doctx.ValidatorAddr = msg.ValidatorAddr.String()
+	doctx.DelegatorAddr = msg.DelegatorAddress.String()
+	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 }
 
 // msg struct for delegation withdraw for all of the delegator's delegations
-type DocTxMsgWithdrawDelegatorRewardsAll struct {
-	DelegatorAddr string `bson:"delegator_addr"`
+type DocTxMsgFundCommunityPool struct {
+	Amount    store.Coins `bson:"amount"`
+	Depositor string      `bson:"depositor"`
 }
 
-func (doctx *DocTxMsgWithdrawDelegatorRewardsAll) Type() string {
-	return constant.TxTypeWithdrawDelegatorRewardsAll
+func (doctx *DocTxMsgFundCommunityPool) Type() string {
+	return constant.TxTypeMsgFundCommunityPool
 }
 
-func (doctx *DocTxMsgWithdrawDelegatorRewardsAll) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgWithdrawDelegatorRewardsAll)
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
+func (doctx *DocTxMsgFundCommunityPool) BuildMsg(txMsg interface{}) {
+	msg := txMsg.(itypes.MsgFundCommunityPool)
+	doctx.Depositor = msg.Depositor.String()
+	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
 }
 
 // msg struct for validator withdraw
-type DocTxMsgWithdrawValidatorRewardsAll struct {
+type DocTxMsgWithdrawValidatorCommission struct {
 	ValidatorAddr string `bson:"validator_addr"`
 }
 
-func (doctx *DocTxMsgWithdrawValidatorRewardsAll) Type() string {
-	return constant.TxTypeWithdrawValidatorRewardsAll
+func (doctx *DocTxMsgWithdrawValidatorCommission) Type() string {
+	return constant.TxTypeMsgWithdrawValidatorCommission
 }
 
-func (doctx *DocTxMsgWithdrawValidatorRewardsAll) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgWithdrawValidatorRewardsAll)
-	doctx.ValidatorAddr = msg.ValidatorAddr.String()
+func (doctx *DocTxMsgWithdrawValidatorCommission) BuildMsg(txMsg interface{}) {
+	msg := txMsg.(itypes.MsgWithdrawValidatorCommission)
+	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 }

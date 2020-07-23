@@ -141,8 +141,8 @@ func (f *PoolFactory) GetEndPoint() EndPoint {
 }
 
 func (f *PoolFactory) heartBeat() {
-	go func() {
-		f.cron.AddFunc("0 0/1 * * * *", func() {
+	//go func() {
+	//	f.cron.AddFunc("0 0/1 * * * *", func() {
 			//logger.Info("PoolFactory StartCrawlPeers peer", logger.Any("peers", f.peersMap))
 			//client := GetClient()
 			//
@@ -175,7 +175,7 @@ func (f *PoolFactory) heartBeat() {
 			//		}
 			//	}
 			//}
-		})
-		f.cron.Start()
-	}()
+	//	})
+	//	f.cron.Start()
+	//}()
 }

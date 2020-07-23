@@ -5,7 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
-	"github.com/irisnet/irishub/app/v1/stake"
+	stake "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // MsgDelegate - struct for bonding transactions
@@ -22,10 +22,10 @@ func (doctx *DocTxMsgBeginRedelegate) Type() string {
 
 func (doctx *DocTxMsgBeginRedelegate) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgBeginRedelegate)
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
-	doctx.ValidatorSrcAddr = msg.ValidatorSrcAddr.String()
-	doctx.ValidatorDstAddr = msg.ValidatorDstAddr.String()
-	doctx.SharesAmount = msg.SharesAmount.String()
+	doctx.DelegatorAddr = msg.DelegatorAddress.String()
+	doctx.ValidatorSrcAddr = msg.ValidatorSrcAddress.String()
+	doctx.ValidatorDstAddr = msg.ValidatorDstAddress.String()
+	doctx.SharesAmount = msg.Amount.String()
 }
 
 // MsgUnjail - struct for unjailing jailed validator
@@ -55,9 +55,9 @@ func (doctx *DocTxMsgBeginUnbonding) Type() string {
 
 func (doctx *DocTxMsgBeginUnbonding) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgStakeBeginUnbonding)
-	doctx.ValidatorAddr = msg.ValidatorAddr.String()
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
-	doctx.SharesAmount = msg.SharesAmount.String()
+	doctx.ValidatorAddr = msg.ValidatorAddress.String()
+	doctx.DelegatorAddr = msg.DelegatorAddress.String()
+	doctx.SharesAmount = msg.Amount.String()
 }
 
 // MsgDelegate - struct for bonding transactions
@@ -73,9 +73,9 @@ func (doctx *DocTxMsgDelegate) Type() string {
 
 func (doctx *DocTxMsgDelegate) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgStakeDelegate)
-	doctx.ValidatorAddr = msg.ValidatorAddr.String()
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
-	doctx.Delegation = itypes.ParseCoin(msg.Delegation.String())
+	doctx.ValidatorAddr = msg.ValidatorAddress.String()
+	doctx.DelegatorAddr = msg.DelegatorAddress.String()
+	doctx.Delegation = itypes.ParseCoin(msg.Amount.String())
 }
 
 // MsgEditValidator - struct for editing a validator
@@ -91,7 +91,7 @@ func (doctx *DocTxMsgStakeEdit) Type() string {
 
 func (doctx *DocTxMsgStakeEdit) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgStakeEdit)
-	doctx.ValidatorAddr = msg.ValidatorAddr.String()
+	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 	commissionRate := msg.CommissionRate
 	if commissionRate == nil {
 		doctx.CommissionRate = ""
@@ -116,14 +116,14 @@ func (doctx *DocTxMsgStakeCreate) Type() string {
 
 func (doctx *DocTxMsgStakeCreate) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgStakeCreate)
-	pubKey, err := itypes.Bech32ifyValPub(msg.PubKey)
-	if err != nil {
-		pubKey = ""
-	}
-	doctx.ValidatorAddr = msg.ValidatorAddr.String()
-	doctx.PubKey = pubKey
-	doctx.DelegatorAddr = msg.DelegatorAddr.String()
-	doctx.Delegation = itypes.ParseCoin(msg.Delegation.String())
+	//pubKey, err := itypes.Bech32ifyValPub(msg.Pubkey)
+	//if err != nil {
+	//	pubKey = ""
+	//}
+	doctx.ValidatorAddr = msg.ValidatorAddress.String()
+	doctx.PubKey = msg.Pubkey
+	doctx.DelegatorAddr = msg.DelegatorAddress.String()
+	doctx.Delegation = itypes.ParseCoin(msg.Description.String())
 	doctx.Commission = document.CommissionMsg{
 		Rate:          msg.Commission.Rate.String(),
 		MaxChangeRate: msg.Commission.MaxChangeRate.String(),

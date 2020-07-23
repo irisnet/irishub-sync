@@ -56,6 +56,17 @@ func (m Proposal) PkKvPair() map[string]interface{} {
 	return bson.M{Proposal_Field_ProposalId: m.ProposalId}
 }
 
+func (m Proposal) EnsureIndexs() []mgo.Index {
+	var indexes []mgo.Index
+	indexes = append(indexes, mgo.Index{
+		Key:        []string{"-proposal_id"},
+		Unique:     true,
+		Background: true,
+	})
+	return indexes
+}
+
+
 func QueryProposal(proposalId uint64) (Proposal, error) {
 	var result Proposal
 	query := func(c *mgo.Collection) error {

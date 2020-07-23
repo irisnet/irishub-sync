@@ -17,8 +17,12 @@ type Client struct {
 }
 
 func newClient(addr string) *Client {
+	cli, err := types.NewHTTP(addr, "/websocket")
+	if err != nil {
+		panic(err.Error())
+	}
 	return &Client{
-		Client: types.NewHTTP(addr, "/websocket"),
+		Client: cli,
 		Id:     generateId(addr),
 	}
 }
@@ -71,7 +75,7 @@ func (c *Client) Release() {
 }
 
 func (c *Client) HeartBeat() error {
-	http := c.Client.(*types.HTTP)
+	http := c.Client
 	_, err := http.Health()
 	return err
 }

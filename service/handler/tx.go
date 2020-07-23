@@ -16,6 +16,9 @@ func HandleTx(block *types.Block) (error) {
 
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
+		if tx != nil && tx.TxHash == "" {
+			continue
+		}
 
 		// batch insert tx
 		txOp := txn.Op{
@@ -27,10 +30,9 @@ func HandleTx(block *types.Block) (error) {
 
 		// save or update proposal
 		handleProposal(tx)
-		//handleTokenFlow(blockWithTags, tx, &batch)
 
 		// save new account address
-		saveNewAccount(&tx)
+		saveNewAccount(tx)
 	}
 
 	if len(batch) > 0 {

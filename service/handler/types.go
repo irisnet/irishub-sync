@@ -4,6 +4,7 @@ import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"sync"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 // get tx type
@@ -27,6 +28,34 @@ func Handle(docTx document.CommonTx, mutex sync.Mutex, actions []Action) {
 	for _, action := range actions {
 		if docTx.TxHash != "" {
 			action(docTx, mutex)
+		}
+	}
+}
+
+var (
+	SyncTaskModel document.SyncTask
+	BlockModel    document.Block
+	TxModel       document.CommonTx
+	Account       document.Account
+	Proposal      document.Proposal
+	SyncConf      document.SyncConf
+
+	Collections = []store.Docs{
+		SyncTaskModel,
+		BlockModel,
+		TxModel,
+		Account,
+		Proposal,
+		SyncConf,
+	}
+)
+
+func EnsureDocsIndexes() {
+	if len(Collections) > 0 {
+		for _, v := range Collections {
+			if indexs := v.EnsureIndexs(); len(indexs) > 0 {
+				store.EnsureIndexes(v.Name(), indexs)
+			}
 		}
 	}
 }

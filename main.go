@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"github.com/irisnet/irishub-sync/service/handler"
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	//start databases service
 	logger.Info("Databases Service Start...")
 	store.Start()
+	handler.EnsureDocsIndexes()
 	//start sync task service
 	logger.Info("Irishub Sync Service Start...")
 	go new(cron.CronService).StartCronService()

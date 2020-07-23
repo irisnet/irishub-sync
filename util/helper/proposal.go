@@ -8,34 +8,34 @@ import (
 )
 
 func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
-	cdc := types.GetCodec()
+	//cdc := types.GetCodec()
 
 	res, err := Query(types.KeyProposal(proposalID), "gov", constant.StoreDefaultEndPath)
 	if len(res) == 0 || err != nil {
 		return proposal, errors.New("no data")
 	}
+
 	var propo types.Proposal
-	cdc.UnmarshalBinaryLengthPrefixed(res, &propo) //TODO
+	propo.Unmarshal(res) //TODO
 	proposal.ProposalId = proposalID
 	proposal.Title = propo.GetTitle()
-	proposal.Type = propo.GetProposalType().String()
-	proposal.Description = propo.GetDescription()
-	proposal.Status = propo.GetStatus().String()
+	proposal.Description = string(propo.Content.Value)
+	proposal.Status = propo.Status.String()
 
-	proposal.SubmitTime = propo.GetSubmitTime()
-	proposal.VotingStartTime = propo.GetVotingStartTime()
-	proposal.VotingEndTime = propo.GetVotingEndTime()
-	proposal.DepositEndTime = propo.GetDepositEndTime()
-	proposal.TotalDeposit = types.ParseCoins(propo.GetTotalDeposit().String())
+	proposal.SubmitTime = propo.SubmitTime
+	proposal.VotingStartTime = propo.VotingStartTime
+	proposal.VotingEndTime = propo.VotingEndTime
+	proposal.DepositEndTime = propo.DepositEndTime
+	proposal.TotalDeposit = types.ParseCoins(propo.TotalDeposit.String())
 	proposal.Votes = []document.PVote{}
 
-	tallyResult := propo.GetTallyResult()
+	tallyResult := propo.FinalTallyResult
 	proposal.TallyResult = document.PTallyResult{
 		Yes:               tallyResult.Yes.String(),
 		Abstain:           tallyResult.Abstain.String(),
 		No:                tallyResult.No.String(),
 		NoWithVeto:        tallyResult.NoWithVeto.String(),
-		SystemVotingPower: tallyResult.SystemVotingPower.String(),
+		//SystemVotingPower: tallyResult.SystemVotingPower.String(),
 	}
 
 	return
@@ -50,7 +50,7 @@ func GetVotes(proposalID uint64) (pVotes []document.PVote, err error) {
 	}
 	for i := 0; i < len(res); i++ {
 		var vote types.SdkVote
-		cdc.UnmarshalBinaryLengthPrefixed(res[i].Value, &vote)
+		cdc.MustUnmarshalBinaryBare(res[i].Value, &vote)
 		v := document.PVote{
 			Voter:  vote.Voter.String(),
 			Option: vote.Option.String(),
