@@ -7,7 +7,8 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	//itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
-	//"strings"
+
+	abcitypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/irisnet/irishub-sync/store"
 )
 
@@ -83,19 +84,20 @@ func ParseBlock(meta *types.BlockID, block *types.Block, validators []*types.Val
 	)
 
 	if len(block.LastCommit.Signatures) > 0 {
-		for _, v := range block.LastCommit.Signatures {
+		for idx, v := range block.LastCommit.Signatures {
 			if v.Signature != nil {
 				//var sig document.Signature
 				//out, _ := cdc.MarshalJSON(v.Signature)
 				//json.Unmarshal(out, &sig)
+				vote := block.LastCommit.GetVote(idx)
 				preCommit := document.Vote{
-					ValidatorAddress: v.ValidatorAddress.String(),
-					//ValidatorIndex:   v.ValidatorIndex,
-					//Height:           v.Height,
-					//Round:            v.Round,
-					//Timestamp:        v.Timestamp,
-					//Type:             byte(v.Type),
-					//BlockID:          lastBlockId,
+					ValidatorAddress: vote.ValidatorAddress.String(),
+					ValidatorIndex:   vote.ValidatorIndex,
+					Height:           vote.Height,
+					//Round:            vote.Round,
+					Timestamp: vote.Timestamp,
+					//Type:             byte(vote.Type),
+					//BlockID:          vote.BlockID,
 					//Signature:        sig,
 				}
 				preCommits = append(preCommits, preCommit)
@@ -126,104 +128,52 @@ func ParseBlock(meta *types.BlockID, block *types.Block, validators []*types.Val
 	docBlock.Meta = blockMeta
 	docBlock.Block = blockContent
 	docBlock.Validators = vals
-	//docBlock.Result = parseBlockResult(docBlock.Height)
-
-	if proposalId, ok := IsContainVotingEndEvent(docBlock.Result.EndBlock); ok {
-		if proposal, err := document.QueryProposal(proposalId); err == nil {
-			proposal.VotingEndHeight = docBlock.Height
-			store.SaveOrUpdate(proposal)
-		} else {
-			logger.Error("QueryProposal fail", logger.Int64("block", docBlock.Height),
-				logger.String("err", err.Error()))
-		}
-	}
+	parseBlockResult(docBlock.Height)
 
 	return docBlock
 }
 
-//func parseBlockResult(height int64) (res document.BlockResults) {
-//	client := helper.GetClient()
-//	defer client.Release()
-//
-//	result, err := client.BlockResults(&height)
-//	if err != nil {
-//		// try again
-//		var err2 error
-//		client2 := helper.GetClient()
-//		result, err2 = client2.BlockResults(&height)
-//		client2.Release()
-//		if err2 != nil {
-//			logger.Error("parse block result fail", logger.Int64("block", height),
-//				logger.String("err", err.Error()))
-//			return document.BlockResults{}
-//		}
-//	}
-//
-//	var deliverTxRes []document.ResponseDeliverTx
-//	for _, tx := range result.Results.DeliverTx {
-//		deliverTxRes = append(deliverTxRes, document.ResponseDeliverTx{
-//			Code:      tx.Code,
-//			Data:      string(tx.Data),
-//			Log:       tx.Log,
-//			GasWanted: tx.GasWanted,
-//			GasUsed:   tx.GasUsed,
-//			Tags:      parseTags(tx.Tags),
-//		})
-//	}
-//
-//	//res.DeliverTx = deliverTxRes
-//
-//	var validatorUpdates []document.ValidatorUpdate
-//	for _, tx := range result.Results.EndBlock.ValidatorUpdates {
-//		validatorUpdates = append(validatorUpdates, document.ValidatorUpdate{
-//			PubKey: tx.PubKey.String(),
-//			Power:  tx.Power,
-//		})
-//	}
-//
-//	var consensusParamUpdates document.ConsensusParams
-//	var tmConsensusParamUpdates = result.Results.EndBlock.ConsensusParamUpdates
-//	if tmConsensusParamUpdates != nil {
-//		if tmConsensusParamUpdates.Validator != nil {
-//			consensusParamUpdates.Validator = document.ValidatorParams{
-//				PubKeyTypes: tmConsensusParamUpdates.Validator.PubKeyTypes,
-//			}
-//		}
-//		if tmConsensusParamUpdates.BlockSize != nil {
-//			consensusParamUpdates.BlockSize = document.BlockSizeParams{
-//				MaxBytes: tmConsensusParamUpdates.BlockSize.MaxBytes,
-//				MaxGas:   tmConsensusParamUpdates.BlockSize.MaxGas,
-//			}
-//		}
-//
-//		if tmConsensusParamUpdates.Evidence != nil {
-//			consensusParamUpdates.Evidence = document.EvidenceParams{
-//				MaxAge: tmConsensusParamUpdates.Evidence.MaxAge,
-//			}
-//		}
-//	}
-//
-//	res.EndBlock = document.ResponseEndBlock{
-//		ValidatorUpdates:      validatorUpdates,
-//		ConsensusParamUpdates: consensusParamUpdates,
-//		Tags:                  parseTags(result.Results.EndBlock.Tags),
-//	}
-//
-//	res.BeginBlock = document.ResponseBeginBlock{
-//		Tags: parseTags(result.Results.BeginBlock.Tags),
-//	}
-//
-//	return res
-//}
+func parseBlockResult(height int64) {
+	client := helper.GetClient()
+	defer client.Release()
 
-//func parseTags(tags []types.TmKVPair) (response []document.KvPair) {
-//	for _, tag := range tags {
-//		key := string(tag.Key)
-//		value := string(tag.Value)
-//		response = append(response, document.KvPair{Key: key, Value: value})
-//	}
-//	return response
-//}
+	result, err := client.BlockResults(&height)
+	if err != nil {
+		// try again
+		var err2 error
+		client2 := helper.GetClient()
+		result, err2 = client2.BlockResults(&height)
+		client2.Release()
+		if err2 != nil {
+			logger.Error("parse block result fail", logger.Int64("block", height),
+				logger.String("err", err.Error()))
+			return
+		}
+	}
+
+	if proposalId, ok := IsContainVotingEndEvent(parseEvents(result.EndBlockEvents)); ok {
+		if proposal, err := document.QueryProposal(proposalId); err == nil {
+			proposal.VotingEndHeight = height
+			store.SaveOrUpdate(proposal)
+		} else {
+			logger.Error("QueryProposal fail", logger.Int64("block", height),
+				logger.String("err", err.Error()))
+		}
+	}
+
+	return
+}
+
+func parseEvents(events []abcitypes.Event) (response []document.Event) {
+	for _, event := range events {
+		attributes := make(map[string]string, len(event.Attributes))
+		for _, v := range event.Attributes {
+			attributes[string(v.Key)] = string(v.Value)
+		}
+		response = append(response, document.Event{Type: event.Type, Attributes: attributes})
+	}
+	return response
+}
 
 //// parse accounts from coin flow which in block result
 //// return two kind accounts

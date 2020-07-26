@@ -86,17 +86,16 @@ func isContainVotingPeriodStartEvent(docTx *document.CommonTx) (bool) {
 	return false
 }
 
-func IsContainVotingEndEvent(blockresult document.ResponseEndBlock) (uint64, bool) {
-	tags := blockresult.Tags
-	if len(tags) > 0 {
-		for _, tag := range tags {
-			if tag.Key == types.EventGovProposalID {
-				proposalid, _ := strconv.ParseUint(tag.Value, 10, 64)
+func IsContainVotingEndEvent(events []document.Event) (uint64, bool) {
+	//events := blockresult.Events
+	if len(events) > 0 {
+		for _, event := range events {
+			if val, ok := event.Attributes[types.EventGovProposalID]; ok {
+				proposalid, _ := strconv.ParseUint(val, 10, 64)
 				return proposalid, true
 			}
 		}
 	}
-
 	return 0, false
 }
 
