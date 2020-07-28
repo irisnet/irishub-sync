@@ -166,11 +166,11 @@ func parseBlockResult(height int64) {
 
 func parseEvents(events []abcitypes.Event) (response []document.Event) {
 	for _, event := range events {
-		attributes := make(map[string]string, len(event.Attributes))
+		one := document.Event{Type: event.Type}
 		for _, v := range event.Attributes {
-			attributes[string(v.Key)] = string(v.Value)
+			one.Attributes = append(one.Attributes, document.Attribute{Key: string(v.Key), Value: string(v.Value)})
 		}
-		response = append(response, document.Event{Type: event.Type, Attributes: attributes})
+		response = append(response, one)
 	}
 	return response
 }

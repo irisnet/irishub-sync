@@ -54,5 +54,6 @@ func (m *DocMsgBindService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 	}
 	tx.To = ""
 	tx.Amount = m.Deposit
+	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
 	return tx
 }

@@ -70,5 +70,7 @@ func (m *DocMsgCallService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 	}
 	tx.To = ""
 	tx.Amount = []store.Coin{}
+	tx.Addrs = append(tx.Addrs, m.Providers...)
+	tx.Addrs = append(tx.Addrs, m.Consumer)
 	return tx
 }

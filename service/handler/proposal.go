@@ -72,8 +72,8 @@ func isContainVotingPeriodStartEvent(docTx *document.CommonTx) (bool) {
 			if one.Type != types.EventTypeProposalDeposit {
 				continue
 			}
-			for k, _ := range one.Attributes {
-				if k == types.EventGovVotingPeriodStart {
+			for _, v := range one.Attributes {
+				if v.Key == types.EventGovVotingPeriodStart {
 					return true
 				}
 			}
@@ -88,9 +88,11 @@ func IsContainVotingEndEvent(events []document.Event) (uint64, bool) {
 	//events := blockresult.Events
 	if len(events) > 0 {
 		for _, event := range events {
-			if val, ok := event.Attributes[types.EventGovProposalID]; ok {
-				proposalid, _ := strconv.ParseUint(val, 10, 64)
-				return proposalid, true
+			for _, v := range event.Attributes {
+				if v.Key == types.EventGovProposalID {
+					proposalid, _ := strconv.ParseUint(v.Value, 10, 64)
+					return proposalid, true
+				}
 			}
 		}
 	}
@@ -103,9 +105,9 @@ func getProposalTypeFromEvents(result []document.Event) (string) {
 		if val.Type != types.EventTypeSubmitProposal {
 			continue
 		}
-		for key, val := range val.Attributes {
-			if key == types.EventGovProposalType {
-				return val
+		for _, val := range val.Attributes {
+			if val.Key == types.EventGovProposalType {
+				return val.Value
 			}
 		}
 	}

@@ -25,12 +25,14 @@ import (
 func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	var (
 		authTx     types.StdTx
-		methodName  = "ParseTx"
+		methodName = "ParseTx"
 		docTx      *document.CommonTx
 		gasPrice   float64
 		actualFee  store.ActualFee
 		signers    []document.Signer
 		docTxMsgs  []document.DocTxMsg
+		signerTx   string
+		addrs      []string
 	)
 
 	cdc := types.GetCodec()
@@ -51,13 +53,15 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	if len(authTx.Signatures) > 0 {
 		for _, signature := range authTx.GetSigners() {
 			signer := document.Signer{}
-			signer.AddrHex = signature.String()
+			signer.AddrHex = hex.EncodeToString(signature)
 			if addrBech32, err := ConvertAccountAddrFromHexToBech32(signature.Bytes()); err != nil {
 				logger.Error("convert account addr from hex to bech32 fail",
 					logger.String("addrHex", signature.String()), logger.String("err", err.Error()))
 			} else {
 				signer.AddrBech32 = addrBech32
+				signerTx = addrBech32
 			}
+			addrs = append(addrs, signer.AddrBech32)
 			signers = append(signers, signer)
 		}
 	}
@@ -102,7 +106,14 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 		ActualFee: actualFee,
 		Events:    parseEvents(result),
 		Signers:   signers,
+		Signer:    signerTx,
+		TimeUnix:  blockTime.Unix(),
+		Addrs:     addrs,
 	}
+	defer func() {
+		docTx.Addrs = append(docTx.Addrs, docTx.From, docTx.To)
+		docTx.Addrs = removeDuplicatesFromSlice(docTx.Addrs)
+	}()
 	for _, msgData := range msgs {
 		if len(msgData.GetSigners()) == 0 {
 			continue
@@ -230,6 +241,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr)
 		case new(types.MsgUnjail).Type():
 			var msg types.MsgUnjail
 			data, _ := json.Marshal(msgData)
@@ -584,6 +596,20 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	return docTx
 }
 
+func removeDuplicatesFromSlice(data []string) (result []string) {
+	tempAddrsSet := make(map[string]string, len(data))
+	for _, val := range data {
+		if _, ok := tempAddrsSet[val]; ok || val == "" {
+			continue
+		}
+		tempAddrsSet[val] = val
+	}
+	for one := range tempAddrsSet {
+		result = append(result, one)
+	}
+	return
+}
+
 func parseEvents(result types.ResponseDeliverTx) []document.Event {
 
 	var events []document.Event
@@ -591,9 +617,8 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 		one := document.Event{
 			Type: val.Type,
 		}
-		one.Attributes = make(map[string]string, len(val.Attributes))
 		for _, attr := range val.Attributes {
-			one.Attributes[string(attr.Key)] = string(attr.Value)
+			one.Attributes = append(one.Attributes, document.Attribute{Key: string(attr.Key), Value: string(attr.Value)})
 		}
 		events = append(events, one)
 	}

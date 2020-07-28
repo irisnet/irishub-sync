@@ -39,10 +39,10 @@ type CommonTx struct {
 	ProposalId uint64          `bson:"proposal_id"`
 	Events     []Event         `bson:"events"`
 
-	//StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
-	//StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
-	//Msg                  store.Msg            `bson:"-"`
-	Signers []Signer `bson:"signers"`
+	Signers  []Signer `bson:"signers"`
+	Signer   string   `bson:"signer"`
+	Addrs    []string `bson:"addrs"`
+	TimeUnix int64    `bson:"time_unix"`
 
 	Msgs []DocTxMsg `bson:"msgs"`
 }
@@ -53,10 +53,14 @@ type DocTxMsg struct {
 }
 
 type Event struct {
-	Type       string            `bson:"type" json:"type"`
-	Attributes map[string]string `bson:"attributes" json:"attributes"`
+	Type       string      `bson:"type" json:"type"`
+	Attributes []Attribute `bson:"attributes" json:"attributes"`
 }
 
+type Attribute struct {
+	Key   string `bson:"key" json:"key"`
+	Value string `bson:"value" json:"value"`
+}
 type Msg interface {
 	Type() string
 	BuildMsg(msg interface{})
@@ -70,22 +74,11 @@ type ValDescription struct {
 	Details  string `bson:"details"`
 }
 
-//type StakeCreateValidator struct {
-//	PubKey      string         `bson:"pub_key"`
-//	Description ValDescription `bson:"description"`
-//	Commission  CommissionMsg  `bson:"commission"`
-//}
-
 type CommissionMsg struct {
 	Rate          string `bson:"rate"`            // the commission rate charged to delegators
 	MaxRate       string `bson:"max_rate"`        // maximum commission rate which validator can ever charge
 	MaxChangeRate string `bson:"max_change_rate"` // maximum daily increase of the validator commission
 }
-
-//type StakeEditValidator struct {
-//	CommissionRate string         `bson:"commission_rate"`
-//	Description    ValDescription `bson:"description"`
-//}
 
 type Signer struct {
 	AddrHex    string `bson:"addr_hex"`
