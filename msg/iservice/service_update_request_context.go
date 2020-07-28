@@ -12,13 +12,13 @@ import (
 
 type (
 	DocMsgUpdateRequestContext struct {
-		RequestContextID  string      `bson:"request_context_id" yaml:"request_context_id"`
-		Providers         []string    `bson:"providers" yaml:"providers"`
-		Consumer          string      `bson:"consumer" yaml:"consumer"`
-		ServiceFeeCap     store.Coins `bson:"service_fee_cap" yaml:"service_fee_cap"`
-		Timeout           int64       `bson:"timeout" yaml:"timeout"`
-		RepeatedFrequency uint64      `bson:"repeated_frequency" yaml:"repeated_frequency"`
-		RepeatedTotal     int64       `bson:"repeated_total" yaml:"repeated_total"`
+		RequestContextID  string   `bson:"request_context_id" yaml:"request_context_id"`
+		Providers         []string `bson:"providers" yaml:"providers"`
+		Consumer          string   `bson:"consumer" yaml:"consumer"`
+		ServiceFeeCap     Coins    `bson:"service_fee_cap" yaml:"service_fee_cap"`
+		Timeout           int64    `bson:"timeout" yaml:"timeout"`
+		RepeatedFrequency uint64   `bson:"repeated_frequency" yaml:"repeated_frequency"`
+		RepeatedTotal     int64    `bson:"repeated_total" yaml:"repeated_total"`
 	}
 )
 
@@ -39,9 +39,9 @@ func (m *DocMsgUpdateRequestContext) BuildMsg(v interface{}) {
 		return
 	}
 
-	var coins store.Coins
+	var coins Coins
 	for _, one := range msg.ServiceFeeCap {
-		coins = append(coins, types.ParseCoin(one.String()))
+		coins = append(coins, Coin{Denom: one.Denom, Amount: one.Amount.String()})
 	}
 
 	m.RequestContextID = hex.EncodeToString(msg.RequestContextID)

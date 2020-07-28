@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/store/document"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 func HandleTxMsg(msg sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool) {
@@ -66,4 +67,23 @@ func HandleTxMsg(msg sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool) 
 		ok = false
 	}
 	return tx, ok
+}
+
+type Coin struct {
+	Denom  string `json:"denom" bson:"denom"`
+	Amount string `json:"amount" bson:"amount"`
+}
+
+type Coins []Coin
+
+func (c Coins) Convert() (result store.Coins) {
+	for _, val := range c {
+		result = append(result, types.ParseCoin(val.Amount+val.Denom))
+	}
+	return
+}
+
+type Fee struct {
+	Amount Coins `json:"amount"`
+	Gas    int64 `json:"gas"`
 }

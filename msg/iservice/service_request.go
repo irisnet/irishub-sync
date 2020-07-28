@@ -11,16 +11,16 @@ import (
 
 type (
 	DocMsgCallService struct {
-		ServiceName       string      `bson:"service_name"`
-		Providers         []string    `bson:"providers"`
-		Consumer          string      `bson:"consumer"`
-		Input             string      `bson:"input"`
-		ServiceFeeCap     store.Coins `bson:"service_fee_cap"`
-		Timeout           int64       `bson:"timeout"`
-		SuperMode         bool        `bson:"super_mode"`
-		Repeated          bool        `bson:"repeated"`
-		RepeatedFrequency uint64      `bson:"repeated_frequency"`
-		RepeatedTotal     int64       `bson:"repeated_total"`
+		ServiceName       string   `bson:"service_name"`
+		Providers         []string `bson:"providers"`
+		Consumer          string   `bson:"consumer"`
+		Input             string   `bson:"input"`
+		ServiceFeeCap     Coins    `bson:"service_fee_cap"`
+		Timeout           int64    `bson:"timeout"`
+		SuperMode         bool     `bson:"super_mode"`
+		Repeated          bool     `bson:"repeated"`
+		RepeatedFrequency uint64   `bson:"repeated_frequency"`
+		RepeatedTotal     int64    `bson:"repeated_total"`
 	}
 )
 
@@ -40,9 +40,9 @@ func (m *DocMsgCallService) BuildMsg(msg interface{}) {
 		return
 	}
 
-	var coins store.Coins
+	var coins Coins
 	for _, one := range v.ServiceFeeCap {
-		coins = append(coins, types.ParseCoin(one.String()))
+		coins = append(coins, Coin{Denom: one.Denom, Amount: one.Amount.String()})
 	}
 	m.ServiceName = v.ServiceName
 	m.Providers = loadProviders()
