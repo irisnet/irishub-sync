@@ -211,7 +211,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 			data, _ := json.Marshal(msgData)
 			json.Unmarshal(data, &msg)
 
-			shares := float64(msg.Amount.Amount.Int64())
+			shares := ParseFloat(msg.Amount.Amount.String())
 			docTx.From = msg.DelegatorAddress.String()
 			docTx.To = msg.ValidatorAddress.String()
 
@@ -232,7 +232,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 			data, _ := json.Marshal(msgData)
 			json.Unmarshal(data, &msg)
 
-			shares := float64(msg.Amount.Amount.Int64())
+			shares := ParseFloat(msg.Amount.Amount.String())
 			docTx.From = msg.ValidatorSrcAddress.String()
 			docTx.To = msg.ValidatorDstAddress.String()
 			coin := store.Coin{
