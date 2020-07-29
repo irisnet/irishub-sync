@@ -110,10 +110,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 		TimeUnix:  blockTime.Unix(),
 		Addrs:     addrs,
 	}
-	defer func() {
-		docTx.Addrs = append(docTx.Addrs, docTx.From, docTx.To)
-		docTx.Addrs = removeDuplicatesFromSlice(docTx.Addrs)
-	}()
 	for _, msgData := range msgs {
 		if len(msgData.GetSigners()) == 0 {
 			continue
@@ -620,6 +616,8 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 			logger.Warn("unknown msg type")
 		}
 	}
+
+	docTx.Addrs = removeDuplicatesFromSlice(docTx.Addrs)
 
 	return docTx
 }
