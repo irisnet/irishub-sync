@@ -154,6 +154,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.ToAddress, txMsg.FromAddress)
 
 		case new(types.MsgStakeCreate).Type():
 			var msg types.MsgStakeCreate
@@ -170,6 +171,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr, txMsg.ValidatorAddr)
 		case new(types.MsgStakeEdit).Type():
 			var msg types.MsgStakeEdit
 			data, _ := json.Marshal(msgData)
@@ -185,6 +187,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.ValidatorAddr)
 
 		case new(types.MsgStakeDelegate).Type():
 			var msg types.MsgStakeDelegate
@@ -201,6 +204,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr, txMsg.ValidatorAddr)
 
 		case new(types.MsgStakeBeginUnbonding).Type():
 			var msg types.MsgStakeBeginUnbonding
@@ -222,6 +226,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr, txMsg.ValidatorAddr)
 		case new(types.MsgBeginRedelegate).Type():
 			var msg types.MsgBeginRedelegate
 			data, _ := json.Marshal(msgData)
@@ -241,7 +246,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
-			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr)
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr, txMsg.ValidatorSrcAddr, txMsg.ValidatorDstAddr)
 		case new(types.MsgUnjail).Type():
 			var msg types.MsgUnjail
 			data, _ := json.Marshal(msgData)
@@ -255,6 +260,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.ValidatorAddr)
 		case new(types.MsgSetWithdrawAddress).Type():
 			var msg types.MsgSetWithdrawAddress
 			data, _ := json.Marshal(msgData)
@@ -269,6 +275,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr, txMsg.WithdrawAddr)
 		case new(types.MsgWithdrawDelegatorReward).Type():
 			var msg types.MsgWithdrawDelegatorReward
 			data, _ := json.Marshal(msgData)
@@ -283,6 +290,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DelegatorAddr, txMsg.ValidatorAddr)
 
 		case new(types.MsgFundCommunityPool).Type():
 			var msg types.MsgFundCommunityPool
@@ -298,6 +306,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Depositor)
 		case new(types.MsgWithdrawValidatorCommission).Type():
 			var msg types.MsgWithdrawValidatorCommission
 			data, _ := json.Marshal(msgData)
@@ -311,6 +320,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.ValidatorAddr)
 
 		case new(types.MsgSubmitProposal).Type():
 			var msg types.MsgSubmitProposal
@@ -323,6 +333,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Proposer)
 
 			//query proposal_id
 			proposalId, amount, err := getProposalIdFromEvents(result)
@@ -351,6 +362,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Depositor)
 
 		case new(types.MsgVote).Type():
 			var msg types.MsgVote
@@ -367,6 +379,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Voter)
 		case new(types.MsgRequestRandom).Type():
 			var msg types.MsgRequestRandom
 			data, _ := json.Marshal(msgData)
@@ -381,6 +394,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Consumer)
 		case new(types.MsgIssueToken).Type():
 			var msg types.MsgIssueToken
 			data, _ := json.Marshal(msgData)
@@ -394,6 +408,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Owner)
 
 		case new(types.MsgEditToken).Type():
 			var msg types.MsgEditToken
@@ -408,6 +423,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Owner)
 
 		case new(types.MsgMintToken).Type():
 			var msg types.MsgMintToken
@@ -423,6 +439,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Owner, txMsg.To)
 
 		case new(types.MsgTransferTokenOwner).Type():
 			var msg types.MsgTransferTokenOwner
@@ -438,6 +455,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.SrcOwner, txMsg.DstOwner)
 
 		case new(types.MsgAddProfiler).Type():
 			var msg types.MsgAddProfiler
@@ -453,6 +471,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Address, txMsg.AddedBy)
 
 		case new(types.MsgAddTrustee).Type():
 			var msg types.MsgAddTrustee
@@ -468,6 +487,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Address, txMsg.AddedBy)
 
 		case new(types.MsgDeleteTrustee).Type():
 			var msg types.MsgDeleteTrustee
@@ -483,6 +503,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DeletedBy, txMsg.Address)
 
 		case new(types.MsgDeleteProfiler).Type():
 			var msg types.MsgDeleteProfiler
@@ -498,6 +519,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.DeletedBy, txMsg.Address)
 
 		case new(types.MsgCreateHTLC).Type():
 			var msg types.MsgCreateHTLC
@@ -514,6 +536,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Sender, txMsg.To)
 		case new(types.MsgClaimHTLC).Type():
 			var msg types.MsgClaimHTLC
 			data, _ := json.Marshal(msgData)
@@ -528,6 +551,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Sender)
 		case new(types.MsgRefundHTLC).Type():
 			var msg types.MsgRefundHTLC
 			data, _ := json.Marshal(msgData)
@@ -542,6 +566,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Sender)
 		case new(types.MsgAddLiquidity).Type():
 			var msg types.MsgAddLiquidity
 			data, _ := json.Marshal(msgData)
@@ -557,6 +582,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Sender)
 		case new(types.MsgRemoveLiquidity).Type():
 			var msg types.MsgRemoveLiquidity
 			data, _ := json.Marshal(msgData)
@@ -572,6 +598,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Sender)
 		case new(types.MsgSwapOrder).Type():
 			var msg types.MsgSwapOrder
 			data, _ := json.Marshal(msgData)
@@ -587,6 +614,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 				Type: txMsg.Type(),
 				Msg:  &txMsg,
 			})
+			docTx.Addrs = append(docTx.Addrs, txMsg.Input.Address, txMsg.Output.Address)
 
 		default:
 			logger.Warn("unknown msg type")
