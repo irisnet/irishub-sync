@@ -45,8 +45,8 @@ const (
 	TxTypeCallService            = "CallService"            // type for MsgCallService
 	TxTypeRespondService         = "RespondService"         // type for MsgRespondService
 	TxTypePauseRequestContext    = "PauseRequestContext"    // type for MsgPauseRequestContext
-	TxTypeStartRequestContext    = "StartRequestContex"     // type for MsgStartRequestContext
-	TxTypeKillRequestContext     = "KillRequestContex"      // type for MsgKillRequestContext
+	TxTypeStartRequestContext    = "StartRequestContext"     // type for MsgStartRequestContext
+	TxTypeKillRequestContext     = "KillRequestContext"      // type for MsgKillRequestContext
 	TxTypeUpdateRequestContext   = "UpdateRequestContext"   // type for MsgUpdateRequestContext
 	TxTypeWithdrawEarnedFees     = "WithdrawEarnedFees"     // type for MsgWithdrawEarnedFees
 
