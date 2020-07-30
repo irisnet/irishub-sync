@@ -6,9 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"strconv"
-	. "github.com/irisnet/irishub-sync/msg"
 	"github.com/irisnet/irishub-sync/types"
-	"encoding/json"
 )
 
 func handleProposal(docTx *document.CommonTx) {
@@ -18,6 +16,7 @@ func handleProposal(docTx *document.CommonTx) {
 			if isContainVotingPeriodStartEvent(docTx) {
 				proposal.VotingPeriodStartHeight = docTx.Height
 			}
+			proposal.Type = getProposalTypeFromEvents(docTx.Events)
 
 			store.SaveOrUpdate(proposal)
 		}
@@ -33,36 +32,36 @@ func handleProposal(docTx *document.CommonTx) {
 			proposal.VotingEndTime = propo.VotingEndTime
 			store.SaveOrUpdate(proposal)
 		}
-	case constant.TxTypeVote:
-		//失败的投票不计入统计
-		if docTx.Status == document.TxStatusFail {
-			return
-		}
-		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			msgVote := DocTxMsgVote{}
-			data, _ := json.Marshal(docTx.Msgs[0].Msg)
-			json.Unmarshal(data, &msgVote)
-			vote := document.PVote{
-				Voter:  msgVote.Voter,
-				Option: msgVote.Option,
-				TxHash: docTx.TxHash,
-				Time:   docTx.Time,
-			}
-			var i int
-			var hasVote = false
-			for i = range proposal.Votes {
-				if proposal.Votes[i].Voter == vote.Voter {
-					hasVote = true
-					break
-				}
-			}
-			if hasVote {
-				proposal.Votes[i] = vote
-			} else {
-				proposal.Votes = append(proposal.Votes, vote)
-			}
-			store.SaveOrUpdate(proposal)
-		}
+		//case constant.TxTypeVote:
+		//	//失败的投票不计入统计
+		//	if docTx.Status == document.TxStatusFail {
+		//		return
+		//	}
+		//	if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
+		//		msgVote := DocTxMsgVote{}
+		//		data, _ := json.Marshal(docTx.Msgs[0].Msg)
+		//		json.Unmarshal(data, &msgVote)
+		//		vote := document.PVote{
+		//			Voter:  msgVote.Voter,
+		//			Option: msgVote.Option,
+		//			TxHash: docTx.TxHash,
+		//			Time:   docTx.Time,
+		//		}
+		//		var i int
+		//		var hasVote = false
+		//		for i = range proposal.Votes {
+		//			if proposal.Votes[i].Voter == vote.Voter {
+		//				hasVote = true
+		//				break
+		//			}
+		//		}
+		//		if hasVote {
+		//			proposal.Votes[i] = vote
+		//		} else {
+		//			proposal.Votes = append(proposal.Votes, vote)
+		//		}
+		//		store.SaveOrUpdate(proposal)
+		//	}
 	}
 }
 
@@ -73,8 +72,8 @@ func isContainVotingPeriodStartEvent(docTx *document.CommonTx) (bool) {
 			if one.Type != types.EventTypeProposalDeposit {
 				continue
 			}
-			for k, _ := range one.Attributes {
-				if k == types.EventGovVotingPeriodStart {
+			for _, v := range one.Attributes {
+				if v.Key == types.EventGovVotingPeriodStart {
 					return true
 				}
 			}
@@ -85,32 +84,33 @@ func isContainVotingPeriodStartEvent(docTx *document.CommonTx) (bool) {
 	return false
 }
 
-func IsContainVotingEndEvent(blockresult document.ResponseEndBlock) (uint64, bool) {
-	tags := blockresult.Tags
-	if len(tags) > 0 {
-		for _, tag := range tags {
-			if tag.Key == types.EventGovProposalID {
-				proposalid, _ := strconv.ParseUint(tag.Value, 10, 64)
-				return proposalid, true
+func IsContainVotingEndEvent(events []document.Event) (uint64, bool) {
+	//events := blockresult.Events
+	if len(events) > 0 {
+		for _, event := range events {
+			for _, v := range event.Attributes {
+				if v.Key == types.EventGovProposalID {
+					proposalid, _ := strconv.ParseUint(v.Value, 10, 64)
+					return proposalid, true
+				}
+			}
+		}
+	}
+	return 0, false
+}
+
+func getProposalTypeFromEvents(result []document.Event) (string) {
+	//query proposal type
+	for _, val := range result {
+		if val.Type != types.EventTypeSubmitProposal {
+			continue
+		}
+		for _, val := range val.Attributes {
+			if val.Key == types.EventGovProposalType {
+				return val.Value
 			}
 		}
 	}
 
-	return 0, false
+	return ""
 }
-
-//func getProposalTypeFromEvents(result []document.Event) (string) {
-//	//query proposal type
-//	for _, val := range result {
-//		if val.Type != types.EventTypeSubmitProposal {
-//			continue
-//		}
-//		for key, val := range val.Attributes {
-//			if key == types.EventGovProposalType {
-//				return val
-//			}
-//		}
-//	}
-//
-//	return ""
-//}

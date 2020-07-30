@@ -54,5 +54,6 @@ func (m *DocMsgEditFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *do
 	tx.From = m.Creator
 	tx.To = ""
 	tx.Amount = []store.Coin{}
+	tx.Addrs = append(tx.Addrs, m.Providers...)
 	return tx
 }

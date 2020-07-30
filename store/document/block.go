@@ -22,12 +22,12 @@ type Block struct {
 	Meta            BlockMeta    `bson:"meta"`
 	Block           BlockContent `bson:"block"`
 	Validators      []Validator  `bson:"validators"`
-	Result          BlockResults `bson:"results"`
+	//Result          BlockResults `bson:"results"`
 }
 
 type BlockMeta struct {
 	//BlockID BlockID `bson:"block_id"`
-	Header  Header  `bson:"header"`
+	Header Header `bson:"header"`
 }
 
 //type BlockID struct {
@@ -49,7 +49,7 @@ type Header struct {
 	//
 	//// prev block info
 	//LastBlockID BlockID `bson:"last_block_id"`
-	TotalTxs    int64   `bson:"total_txs"`
+	TotalTxs int64 `bson:"total_txs"`
 
 	//// hashes of block data
 	//LastCommitHash string `bson:"last_commit_hash"` // commit from validators from the last block
@@ -74,16 +74,16 @@ type Commit struct {
 	// Any peer with a block can gossip precommits by index with a peer without recalculating the
 	// active ValidatorSet.
 	//BlockID    BlockID `bson:"block_id"`
-	Precommits []Vote  `bson:"precommits"`
+	Precommits []Vote `bson:"precommits"`
 }
 
 // Represents a prevote, precommit, or commit vote from validators for consensus.
 type Vote struct {
-	ValidatorAddress string    `bson:"validator_address"`
-	//ValidatorIndex   int       `bson:"validator_index"`
-	//Height           int64     `bson:"height"`
+	ValidatorAddress string `bson:"validator_address"`
+	ValidatorIndex   int    `bson:"validator_index"`
+	Height           int64  `bson:"height"`
 	//Round            int       `bson:"round"`
-	//Timestamp        time.Time `bson:"timestamp"`
+	Timestamp time.Time `bson:"timestamp"`
 	//Type             byte      `bson:"type"`
 	//BlockID          BlockID   `bson:"block_id"` // zero if vote is nil.
 	//Signature        Signature `bson:"signature"`
@@ -98,33 +98,31 @@ type Validator struct {
 	Address     string `bson:"address"`
 	PubKey      string `bson:"pub_key"`
 	VotingPower int64  `bson:"voting_power"`
-	Accum       int64  `bson:"accum"`
+	//Accum       int64  `bson:"accum"`
 }
 
-type BlockResults struct {
+//type BlockResults struct {
 	//DeliverTx  []ResponseDeliverTx `bson:"deliver_tx"`
-	EndBlock   ResponseEndBlock    `bson:""end_block""`
+//EndBlock ResponseEndBlock `bson:""end_block""`
 	//BeginBlock ResponseBeginBlock  `bson:""begin_block""`
-}
+//}
 
-//
 //type ResponseDeliverTx struct {
-//	Code      uint32   `bson:"code"`
-//	Data      string   `bson:"data"`
-//	Log       string   `bson:"log"`
-//	Info      string   `bson:"info"`
-//	GasWanted int64    `bson:"gas_wanted"`
-//	GasUsed   int64    `bson:"gas_used"`
-//	Tags      []KvPair `bson:"tags"`
+//	Code      uint32  `bson:"code"`
+//	Data      string  `bson:"data"`
+//	Log       string  `bson:"log"`
+//	Info      string  `bson:"info"`
+//	GasWanted int64   `bson:"gas_wanted"`
+//	GasUsed   int64   `bson:"gas_used"`
+//	Events    []Event `bson:"events"`
 //}
 //
-type ResponseEndBlock struct {
+//type ResponseEndBlock struct {
 	//ValidatorUpdates      []ValidatorUpdate `bson:"validator_updates"`
 	//ConsensusParamUpdates ConsensusParams   `bson:"consensus_param_updates"`
-	Tags                  []KvPair          `bson:"tags"`
-}
+//Events []Event `bson:"events"`
+//}
 
-//
 //type ValidatorUpdate struct {
 //	PubKey string `bson:"pub_key"`
 //	Power  int64  `bson:"power"`
@@ -157,10 +155,10 @@ type ResponseEndBlock struct {
 //	Tags []KvPair `bson:"tags"`
 //}
 //
-type KvPair struct {
-	Key   string `bson:"key"`
-	Value string `bson:"value"`
-}
+//type KvPair struct {
+//	Key   string `bson:"key"`
+//	Value string `bson:"value"`
+//}
 
 func (d Block) Name() string {
 	return CollectionNmBlock

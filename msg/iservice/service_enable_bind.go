@@ -51,5 +51,6 @@ func (m *DocMsgEnableServiceBinding) HandleTxMsg(msgData sdk.Msg, tx *document.C
 	}
 	tx.To = ""
 	tx.Amount = m.Deposit
+	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
 	return tx
 }

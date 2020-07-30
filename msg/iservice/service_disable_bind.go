@@ -43,5 +43,6 @@ func (m *DocMsgDisableServiceBinding) HandleTxMsg(msgData sdk.Msg, tx *document.
 	}
 	tx.To = ""
 	tx.Amount = []store.Coin{}
+	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
 	return tx
 }

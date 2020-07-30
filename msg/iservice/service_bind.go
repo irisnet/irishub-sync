@@ -5,18 +5,17 @@ import (
 	"github.com/irisnet/irishub-sync/types"
 	. "github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/store"
 	"encoding/json"
 )
 
 type (
 	DocMsgBindService struct {
-		ServiceName string      `bson:"service_name"`
-		Provider    string      `bson:"provider"`
-		Deposit     store.Coins `bson:"deposit"`
-		Pricing     string      `bson:"pricing"`
-		QoS         uint64      `bson:"qos"`
-		Owner       string      `bson:"owner"`
+		ServiceName string `bson:"service_name"`
+		Provider    string `bson:"provider"`
+		Deposit     Coins  `bson:"deposit"`
+		Pricing     string `bson:"pricing"`
+		QoS         uint64 `bson:"qos"`
+		Owner       string `bson:"owner"`
 	}
 )
 
@@ -29,9 +28,9 @@ func (m *DocMsgBindService) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
-	var coins store.Coins
+	var coins Coins
 	for _, one := range msg.Deposit {
-		coins = append(coins, types.ParseCoin(one.String()))
+		coins = append(coins, Coin{Denom: one.Denom, Amount: one.Amount.String()})
 	}
 	m.ServiceName = msg.ServiceName
 	m.Provider = msg.Provider.String()
@@ -53,6 +52,7 @@ func (m *DocMsgBindService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 		tx.From = tx.Signers[0].AddrBech32
 	}
 	tx.To = ""
-	tx.Amount = m.Deposit
+	tx.Amount = m.Deposit.Convert()
+	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
 	return tx
 }

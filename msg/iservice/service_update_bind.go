@@ -11,12 +11,12 @@ import (
 
 type (
 	DocMsgUpdateServiceBinding struct {
-		ServiceName string      `bson:"service_name" yaml:"service_name"`
-		Provider    string      `bson:"provider" yaml:"provider"`
-		Deposit     store.Coins `bson:"deposit" yaml:"deposit"`
-		Pricing     string      `bson:"pricing" yaml:"pricing"`
-		QoS         uint64      `bson:"qos" yaml:"qos"`
-		Owner       string      `bson:"owner" yaml:"owner"`
+		ServiceName string `bson:"service_name" yaml:"service_name"`
+		Provider    string `bson:"provider" yaml:"provider"`
+		Deposit     Coins  `bson:"deposit" yaml:"deposit"`
+		Pricing     string `bson:"pricing" yaml:"pricing"`
+		QoS         uint64 `bson:"qos" yaml:"qos"`
+		Owner       string `bson:"owner" yaml:"owner"`
 	}
 )
 
@@ -30,9 +30,9 @@ func (m *DocMsgUpdateServiceBinding) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
-	var coins store.Coins
+	var coins Coins
 	for _, one := range msg.Deposit {
-		coins = append(coins, types.ParseCoin(one.String()))
+		coins = append(coins, Coin{Denom: one.Denom, Amount: one.Amount.String()})
 	}
 
 	m.ServiceName = msg.ServiceName
@@ -56,5 +56,6 @@ func (m *DocMsgUpdateServiceBinding) HandleTxMsg(msgData sdk.Msg, tx *document.C
 	}
 	tx.To = ""
 	tx.Amount = []store.Coin{}
+	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
 	return tx
 }

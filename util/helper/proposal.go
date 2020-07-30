@@ -23,7 +23,7 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	proposal.Title = txtpropo.Title
 	proposal.Description = txtpropo.Description
 	proposal.Status = propo.Status.String()
-	proposal.Type = txtpropo.ProposalType()
+	//proposal.Type = txtpropo.ProposalType()
 
 	proposal.SubmitTime = propo.SubmitTime
 	proposal.VotingStartTime = propo.VotingStartTime
