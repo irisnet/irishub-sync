@@ -3,15 +3,14 @@ module github.com/irisnet/irishub-sync
 go 1.13
 
 require (
-	github.com/cosmos/cosmos-sdk v0.37.4
+	github.com/cosmos/cosmos-sdk v0.34.4-0.20200721190130-5d71020270ae
 	github.com/go-kit/kit v0.10.0
-	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/irismod/coinswap v0.0.0-20200717084559-d162bdf94677
-	github.com/irismod/htlc v0.0.0-20200717084245-6c78f425eb6b
-	github.com/irismod/nft v1.1.1-0.20200717090223-19ae27993d05
-	github.com/irismod/service v1.1.1-0.20200717083211-da28297d9e73
-	github.com/irismod/token v1.1.1-0.20200717083658-a6d44d130830
-	github.com/irisnet/irishub v0.16.3-0.20200720082623-67145905e2aa
+	github.com/irismod/coinswap v0.0.0-20200722055706-deeded9d99b8
+	github.com/irismod/htlc v0.0.0-20200722060015-b71f49c9b167
+	github.com/irismod/nft v1.1.1-0.20200722060344-38fec5db63a2
+	github.com/irismod/service v1.1.1-0.20200723031529-6abecb02ceb1
+	github.com/irismod/token v1.1.1-0.20200723031618-028bdd6fb30a
+	github.com/irisnet/irishub v0.16.3-0.20200723084819-68aaadaefc0d
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
@@ -25,6 +24,6 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/irisnet/cosmos-sdk v0.19.1-0.20200720031859-08f888c08df5
+	github.com/cosmos/cosmos-sdk => github.com/irisnet/cosmos-sdk v0.19.1-0.20200722022502-e2d6c76ae750
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 )
