@@ -22,14 +22,16 @@ func handleProposal(docTx *document.CommonTx) {
 		}
 	case constant.TxTypeDeposit:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			propo, _ := helper.GetProposal(docTx.ProposalId)
+			propo, err1 := helper.GetProposal(docTx.ProposalId)
 			if isContainVotingPeriodStartEvent(docTx) {
 				proposal.VotingPeriodStartHeight = docTx.Height
 			}
-			proposal.TotalDeposit = propo.TotalDeposit
-			proposal.Status = propo.Status
-			proposal.VotingStartTime = propo.VotingStartTime
-			proposal.VotingEndTime = propo.VotingEndTime
+			if err1 == nil {
+				proposal.TotalDeposit = propo.TotalDeposit
+				proposal.Status = propo.Status
+				proposal.VotingStartTime = propo.VotingStartTime
+				proposal.VotingEndTime = propo.VotingEndTime
+			}
 			store.SaveOrUpdate(proposal)
 		}
 		//case constant.TxTypeVote:
