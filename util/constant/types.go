@@ -35,20 +35,20 @@ const (
 	TxTypeNFTBurn     = "NFTBurn"
 	TxTypeIssueDenom  = "IssueDenom"
 
-	TxTypeDefineService          = "DefineService"          // type for MsgDefineService
-	TxTypeBindService            = "BindService"            // type for MsgBindService
-	TxTypeUpdateServiceBinding   = "UpdateServiceBinding"   // type for MsgUpdateServiceBinding
-	TxTypeSetWithdrawFeesAddress = "SetWithdrawFeesAddress" // type for SetWithdrawFeesAddress
-	TxTypeDisableServiceBinding  = "DisableServiceBinding"  // type for MsgDisableServiceBinding
-	TxTypeEnableServiceBinding   = "EnableServiceBinding"   // type for MsgEnableServiceBinding
-	TxTypeRefundServiceDeposit   = "RefundServiceDeposit"   // type for MsgRefundServiceDeposit
-	TxTypeCallService            = "CallService"            // type for MsgCallService
-	TxTypeRespondService         = "RespondService"         // type for MsgRespondService
-	TxTypePauseRequestContext    = "PauseRequestContext"    // type for MsgPauseRequestContext
-	TxTypeStartRequestContext    = "StartRequestContext"     // type for MsgStartRequestContext
-	TxTypeKillRequestContext     = "KillRequestContext"      // type for MsgKillRequestContext
-	TxTypeUpdateRequestContext   = "UpdateRequestContext"   // type for MsgUpdateRequestContext
-	TxTypeWithdrawEarnedFees     = "WithdrawEarnedFees"     // type for MsgWithdrawEarnedFees
+	TxTypeDefineService             = "DefineService"              // type for MsgDefineService
+	TxTypeBindService               = "BindService"                // type for MsgBindService
+	TxTypeUpdateServiceBinding      = "UpdateServiceBinding"       // type for MsgUpdateServiceBinding
+	TxTypeServiceSetWithdrawAddress = "service/SetWithdrawAddress" // type for SetWithdrawFeesAddress
+	TxTypeDisableServiceBinding     = "DisableServiceBinding"      // type for MsgDisableServiceBinding
+	TxTypeEnableServiceBinding      = "EnableServiceBinding"       // type for MsgEnableServiceBinding
+	TxTypeRefundServiceDeposit      = "RefundServiceDeposit"       // type for MsgRefundServiceDeposit
+	TxTypeCallService               = "CallService"                // type for MsgCallService
+	TxTypeRespondService            = "RespondService"             // type for MsgRespondService
+	TxTypePauseRequestContext       = "PauseRequestContext"        // type for MsgPauseRequestContext
+	TxTypeStartRequestContext       = "StartRequestContext"        // type for MsgStartRequestContext
+	TxTypeKillRequestContext        = "KillRequestContext"         // type for MsgKillRequestContext
+	TxTypeUpdateRequestContext      = "UpdateRequestContext"       // type for MsgUpdateRequestContext
+	TxTypeWithdrawEarnedFees        = "WithdrawEarnedFees"         // type for MsgWithdrawEarnedFees
 
 	TxTypeAddProfiler    = "AddProfiler"
 	TxTypeAddTrustee     = "AddTrustee"
@@ -67,7 +67,6 @@ const (
 	TxTypeAddLiquidity    = "AddLiquidity"
 	TxTypeRemoveLiquidity = "RemoveLiquidity"
 	TxTypeSwapOrder       = "SwapOrder"
-
 
 	TxTypeSubmitEvidence  = "SubmitEvidence"
 	TxTypeVerifyInvariant = "VerifyInvariant"
