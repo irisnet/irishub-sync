@@ -11,13 +11,13 @@ import (
 
 type (
 	DocMsgSetWithdrawAddress struct {
-		Owner           string `json:"owner" yaml:"owner"`
+		Owner           string `bson:"owner" yaml:"owner"`
 		WithdrawAddress string `bson:"withdraw_address" yaml:"withdraw_address"`
 	}
 )
 
 func (m *DocMsgSetWithdrawAddress) Type() string {
-	return TxTypeSetWithdrawFeesAddress
+	return TxTypeServiceSetWithdrawAddress
 }
 
 func (m *DocMsgSetWithdrawAddress) BuildMsg(v interface{}) {
