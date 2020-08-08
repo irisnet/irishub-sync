@@ -29,7 +29,7 @@ func (m *DocMsgEnableServiceBinding) BuildMsg(v interface{}) {
 
 	var coins store.Coins
 	for _, one := range msg.Deposit {
-		coins = append(coins, types.ParseCoin(one.Amount.String()))
+		coins = append(coins, types.ParseCoin(one.String()))
 	}
 
 	m.ServiceName = msg.ServiceName
