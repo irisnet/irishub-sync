@@ -9,6 +9,8 @@ import (
 	"github.com/irisnet/irishub-sync/util/helper"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"gopkg.in/mgo.v2/txn"
+	"github.com/irisnet/irishub-sync/store"
 )
 
 func Test_executeTask(t *testing.T) {
@@ -108,15 +110,24 @@ func Test_parseBlock(t *testing.T) {
 			name: "test parse block",
 			args: args{
 				client: client,
-				b:      27129,
+				b:      1679,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := parseBlock(tt.args.b, tt.args.client)
+			blockDoc, err := parseBlock(tt.args.b, tt.args.client)
 			if err != nil {
 				t.Fatal(err)
+			}
+			insertOp := txn.Op{
+				C:      document.CollectionNmBlock,
+				Id:     bson.NewObjectId(),
+				Insert: blockDoc,
+			}
+			err = store.Txn([]txn.Op{insertOp})
+			if err != nil {
+				t.Errorf(err.Error())
 			}
 			//resBytes, err := json.MarshalIndent(res, "", "\t")
 			//if err != nil {
