@@ -46,12 +46,12 @@ func Query(key types.HexBytes, storeName string, endPath string) (res []byte, er
 //	return resp.Value, nil
 //}
 //
-func QuerySubspace(subspace []byte, storeName string) (res []types.KVPair, err error) {
-	cdc := types.GetCodec()
-	resRaw, err := Query(subspace, storeName, "subspace")
-	if err != nil {
-		return res, err
-	}
-	cdc.MustUnmarshalBinaryBare(resRaw, &res)
-	return
-}
+//func QuerySubspace(subspace []byte, storeName string) (res []types.KVPair, err error) {
+//	cdc := types.GetCodec()
+//	resRaw, err := Query(subspace, storeName, "subspace")
+//	if err != nil {
+//		return res, err
+//	}
+//	cdc.MustUnmarshalBinaryBare(resRaw, &res)
+//	return
+//}

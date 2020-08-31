@@ -58,7 +58,9 @@ func TestParseBlock(t *testing.T) {
 		t.Fatal(err)
 	} else {
 		var validators []*types.Validator
-		valRes, err := client.Validators(&blockHeight, 0, 0)
+		page := 1
+		perPage := 0
+		valRes, err := client.Validators(&blockHeight, &page, &perPage)
 		if err != nil {
 			t.Error(err)
 		} else {

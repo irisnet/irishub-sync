@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub/app"
-	"github.com/irisnet/irishub/address"
 	token "github.com/irismod/token/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -22,13 +20,12 @@ import (
 	coinswap "github.com/irismod/coinswap/types"
 	htlc "github.com/irismod/htlc/types"
 	nft "github.com/irismod/nft/types"
+	record "github.com/irismod/record/types"
 	service "github.com/irismod/service/types"
-	"github.com/cosmos/cosmos-sdk/codec"
 	guardian "github.com/irisnet/irishub/modules/guardian/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/bytes"
-	cmnk "github.com/tendermint/tendermint/crypto/merkle"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	rpcclienthttp "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -72,6 +69,8 @@ type (
 	MsgRefundHTLC = htlc.MsgRefundHTLC
 
 	MsgRequestRandom = rand.MsgRequestRandom
+
+	MsgCreateRecord = record.MsgCreateRecord
 
 	MsgIssueDenom = nft.MsgIssueDenom
 	MsgMintNFT = nft.MsgMintNFT
@@ -127,7 +126,6 @@ type (
 	BlockID = tm.BlockID
 	//BlockMeta = tm.BlockMeta
 	HexBytes = cmn.HexBytes
-	TmKVPair = cmnk.KVPair
 
 	ABCIQueryOptions = rpcclient.ABCIQueryOptions
 	Client = rpcclient.Client
@@ -149,22 +147,16 @@ var (
 	MustUnmarshalDelegation = staketypes.MustUnmarshalDelegation
 	MustUnmarshalUBD        = staketypes.MustUnmarshalUBD
 
-	//Bech32ifyValPub         = types.Bech32ifyValPub
-	Bech32AccountAddrPrefix string
-	RegisterCodec           = sdk.RegisterCodec
-	AccAddressFromBech32    = sdk.AccAddressFromBech32
+	Bech32AccountAddrPrefix string = sdk.GetConfig().GetBech32AccountAddrPrefix()
+	RegisterCodec                  = sdk.RegisterCodec
+	AccAddressFromBech32           = sdk.AccAddressFromBech32
+	AccAddressFromHex              = sdk.AccAddressFromHex
 	//BondStatusToString      = types.BondStatusToString
 
 	NewDecFromStr = sdk.NewDecFromStr
 
-	//AddressStoreKey   = auth.AddressStoreKey
-	//StoreName         = auth.StoreKey
-	//GetAccountDecoder = auth.NewAccountRetriever
-
-	KeyProposal      = gov.ProposalKey
-	KeyVotesSubspace = gov.VotesKey
-	//
-	NewHTTP = rpcclienthttp.New
+	KeyProposal = gov.ProposalKey
+	NewHTTP     = rpcclienthttp.New
 
 	//tags
 	EventGovProposalID        = gov.AttributeKeyProposalID
@@ -172,29 +164,28 @@ var (
 	EventGovVotingPeriodStart = gov.AttributeKeyVotingPeriodStart
 	EventTypeProposalDeposit  = gov.EventTypeProposalDeposit
 	EventTypeSubmitProposal   = gov.EventTypeSubmitProposal
-	//TagDistributionReward              = dtags.Reward
-	//TagStakeActionCompleteRedelegation = stags.ActionCompleteRedelegation
-	//TagStakeDelegator                  = stags.Delegator
-	//TagStakeSrcValidator               = stags.SrcValidator
-	//TagAction                          = types.TagAction
 
-	cdc *codec.Codec
+	//cdc *codec.LegacyAmino
+	//
+	//moduleBasics = module.NewBasicManager()
 )
 
-// 初始化账户地址前缀
-func init() {
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(address.Bech32PrefixAccAddr, address.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
-	config.Seal()
-	Bech32AccountAddrPrefix = sdk.GetConfig().GetBech32AccountAddrPrefix()
-	_, cdc = app.MakeCodecs()
-}
-
-func GetCodec() *codec.Codec {
-	return cdc
-}
+//// 初始化账户地址前缀
+//func init() {
+//	config := sdk.GetConfig()
+//	config.SetBech32PrefixForAccount(address.Bech32PrefixAccAddr, address.Bech32PrefixAccPub)
+//	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
+//	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
+//	config.Seal()
+//	cdc = codec.New()
+//	moduleBasics.RegisterCodec(cdc)
+//	sdk.RegisterCodec(cdc)
+//	codec.RegisterEvidences(cdc)
+//}
+//
+//func GetCodec() *codec.LegacyAmino {
+//	return cdc
+//}
 
 //
 func ParseCoins(coinsStr string) (coins store.Coins) {

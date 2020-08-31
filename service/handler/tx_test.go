@@ -40,12 +40,12 @@ func buildDocData(blockHeight int64) document.CommonTx {
 		logger.Panic(err.Error())
 	}
 
-	if block.BlockMeta.Header.NumTxs > 0 {
+	if block.BlockID.PartSetHeader.Total > 0 {
 		txs := block.Block.Data.Txs
 		txByte := txs[0]
 		docTx := helper.ParseTx(txByte, block.Block)
 
-		return docTx
+		return *docTx
 
 	}
 	return document.CommonTx{}

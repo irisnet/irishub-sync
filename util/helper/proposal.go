@@ -44,21 +44,21 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	return
 }
 
-func GetVotes(proposalID uint64) (pVotes []document.PVote, err error) {
-	cdc := types.GetCodec()
-
-	res, err := QuerySubspace(types.KeyVotesSubspace(proposalID), "gov")
-	if len(res) == 0 || err != nil {
-		return pVotes, err
-	}
-	for i := 0; i < len(res); i++ {
-		var vote types.SdkVote
-		cdc.MustUnmarshalBinaryBare(res[i].Value, &vote)
-		v := document.PVote{
-			Voter:  vote.Voter.String(),
-			Option: vote.Option.String(),
-		}
-		pVotes = append(pVotes, v)
-	}
-	return
-}
+//func GetVotes(proposalID uint64) (pVotes []document.PVote, err error) {
+//	cdc := types.GetCodec()
+//
+//	res, err := QuerySubspace(types.KeyVotesSubspace(proposalID), "gov")
+//	if len(res) == 0 || err != nil {
+//		return pVotes, err
+//	}
+//	for i := 0; i < len(res); i++ {
+//		var vote types.SdkVote
+//		cdc.MustUnmarshalBinaryBare(res[i].Value, &vote)
+//		v := document.PVote{
+//			Voter:  vote.Voter.String(),
+//			Option: vote.Option.String(),
+//		}
+//		pVotes = append(pVotes, v)
+//	}
+//	return
+//}

@@ -305,9 +305,12 @@ func parseBlock(b int64, client *helper.Client) (document.Block, error) {
 
 	// get validatorSet at given height
 	var validators []*types.Validator
-	res, err := client.Validators(&b, 0, 0)
+	var page, perPage int
+	page = 1
+	res, err := client.Validators(&b, &page, &perPage)
 	if err != nil {
-		logger.Error("Can't get validatorSet at height", logger.Int64("Height", b))
+		logger.Error("Can't get validatorSet at height", logger.Int64("Height", b),
+			logger.String("err", err.Error()))
 	} else {
 		validators = res.Validators
 	}

@@ -89,7 +89,7 @@ func ParseBlock(meta *types.BlockID, block *types.Block, validators []*types.Val
 				//var sig document.Signature
 				//out, _ := cdc.MarshalJSON(v.Signature)
 				//json.Unmarshal(out, &sig)
-				vote := block.LastCommit.GetVote(idx)
+				vote := block.LastCommit.GetVote(int32(idx))
 				preCommit := document.Vote{
 					ValidatorAddress: vote.ValidatorAddress.String(),
 					ValidatorIndex:   vote.ValidatorIndex,

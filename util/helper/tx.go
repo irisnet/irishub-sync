@@ -8,18 +8,11 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	imsg "github.com/irisnet/irishub-sync/msg"
-	"github.com/irisnet/irishub-sync/util/constant"
 	"strconv"
 	"strings"
 	"time"
-	"encoding/json"
-	"gopkg.in/yaml.v2"
-	"github.com/irisnet/irishub-sync/msg/nft"
-	"github.com/irisnet/irishub-sync/msg/iservice"
-	"github.com/irisnet/irishub-sync/msg/oracle"
-	"github.com/irisnet/irishub-sync/msg/evidence"
-	"github.com/irisnet/irishub-sync/msg/crisis"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
+	"github.com/irisnet/irishub-sync/cdc"
 )
 
 func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
@@ -30,14 +23,13 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 		gasPrice   float64
 		actualFee  store.ActualFee
 		signers    []document.Signer
-		docTxMsgs  []document.DocTxMsg
-		signerTx   string
+		signerAddr string
 		addrs      []string
 	)
 
-	cdc := types.GetCodec()
+	Cdc := cdc.GetCodec()
 
-	err := cdc.UnmarshalBinaryBare(txBytes, &authTx)
+	err := Cdc.UnmarshalBinaryBare(txBytes, &authTx)
 	if err != nil {
 		logger.Error(err.Error())
 		return docTx
@@ -53,13 +45,13 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	if len(authTx.Signatures) > 0 {
 		for _, signature := range authTx.GetSigners() {
 			signer := document.Signer{}
-			signer.AddrHex = hex.EncodeToString(signature)
-			if addrBech32, err := ConvertAccountAddrFromHexToBech32(signature.Bytes()); err != nil {
+			signer.AddrHex = signature.String()
+			if addrBech32, err := bech32.ConvertAndEncode(types.Bech32AccountAddrPrefix, signature.Bytes()); err != nil {
 				logger.Error("convert account addr from hex to bech32 fail",
 					logger.String("addrHex", signature.String()), logger.String("err", err.Error()))
 			} else {
 				signer.AddrBech32 = addrBech32
-				signerTx = addrBech32
+				signerAddr = addrBech32
 			}
 			addrs = append(addrs, signer.AddrBech32)
 			signers = append(signers, signer)
@@ -106,7 +98,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 		ActualFee: actualFee,
 		Events:    parseEvents(result),
 		Signers:   signers,
-		Signer:    signerTx,
+		Signer:    signerAddr,
 		TimeUnix:  blockTime.Unix(),
 		Addrs:     addrs,
 	}
@@ -618,6 +610,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	}
 
 	docTx.Addrs = removeDuplicatesFromSlice(docTx.Addrs)
+	docTx.Types = removeDuplicatesFromSlice(docTx.Types)
 
 	return docTx
 }
@@ -651,20 +644,6 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 
 	return events
 }
-
-//func getProposerFromEvents(result types.ResponseDeliverTx) (string) {
-//	for _, val := range result.GetEvents() {
-//		if val.Type != "message" {
-//			continue
-//		}
-//		for _, attr := range val.Attributes {
-//			if string(attr.Key) == "sender" {
-//				return string(attr.Value)
-//			}
-//		}
-//	}
-//	return ""
-//}
 
 // get proposalId from tags
 func getProposalIdFromEvents(result types.ResponseDeliverTx) (uint64, store.Coin, error) {
