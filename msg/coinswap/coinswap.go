@@ -2,7 +2,7 @@ package coinswap
 
 import (
 	"github.com/irisnet/irishub-sync/store"
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -19,12 +19,12 @@ func (doctx *DocTxMsgAddLiquidity) Type() string {
 }
 
 func (doctx *DocTxMsgAddLiquidity) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgAddLiquidity)
+	msg := txMsg.(types.MsgAddLiquidity)
 	doctx.Sender = msg.Sender.String()
 	doctx.MinLiquidity = msg.MinLiquidity.String()
 	doctx.ExactIrisAmt = msg.ExactStandardAmt.String()
 	doctx.Deadline = msg.Deadline
-	doctx.MaxToken = itypes.ParseCoin(msg.MaxToken.String())
+	doctx.MaxToken = types.ParseCoin(msg.MaxToken.String())
 }
 
 type DocTxMsgRemoveLiquidity struct {
@@ -40,12 +40,12 @@ func (doctx *DocTxMsgRemoveLiquidity) Type() string {
 }
 
 func (doctx *DocTxMsgRemoveLiquidity) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgRemoveLiquidity)
+	msg := txMsg.(types.MsgRemoveLiquidity)
 	doctx.Sender = msg.Sender.String()
 	doctx.MinIrisAmt = msg.MinStandardAmt.String()
 	doctx.MinToken = msg.MinToken.String()
 	doctx.Deadline = msg.Deadline
-	doctx.WithdrawLiquidity = itypes.ParseCoin(msg.WithdrawLiquidity.String())
+	doctx.WithdrawLiquidity = types.ParseCoin(msg.WithdrawLiquidity.String())
 }
 
 type DocTxMsgSwapOrder struct {
@@ -70,15 +70,15 @@ func (doctx *DocTxMsgSwapOrder) Type() string {
 }
 
 func (doctx *DocTxMsgSwapOrder) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgSwapOrder)
+	msg := txMsg.(types.MsgSwapOrder)
 	doctx.Deadline = msg.Deadline
 	doctx.IsBuyOrder = msg.IsBuyOrder
 	doctx.Input = Input{
 		Address: msg.Input.Address.String(),
-		Coin:    itypes.ParseCoin(msg.Input.Coin.String()),
+		Coin:    types.ParseCoin(msg.Input.Coin.String()),
 	}
 	doctx.Output = Output{
 		Address: msg.Output.Address.String(),
-		Coin:    itypes.ParseCoin(msg.Output.Coin.String()),
+		Coin:    types.ParseCoin(msg.Output.Coin.String()),
 	}
 }

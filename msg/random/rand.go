@@ -1,7 +1,7 @@
 package random
 
 import (
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -15,7 +15,7 @@ func (doctx *DocTxMsgRequestRand) Type() string {
 }
 
 func (doctx *DocTxMsgRequestRand) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgRequestRandom)
+	msg := txMsg.(types.MsgRequestRandom)
 	doctx.Consumer = msg.Consumer.String()
 	doctx.BlockInterval = msg.BlockInterval
 }

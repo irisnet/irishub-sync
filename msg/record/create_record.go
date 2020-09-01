@@ -27,7 +27,7 @@ func (d *DocMsgCreateRecord) Type() string {
 }
 
 func (d *DocMsgCreateRecord) BuildMsg(msg interface{}) {
-	m := msg.(types.MsgCreateRecord)
+	m := msg.(*types.MsgCreateRecord)
 
 	var docContents []Content
 	if len(m.Contents) > 0 {

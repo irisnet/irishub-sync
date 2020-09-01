@@ -1,7 +1,7 @@
 package distribution
 
 import (
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/store"
 )
@@ -17,7 +17,7 @@ func (doctx *DocTxMsgSetWithdrawAddress) Type() string {
 }
 
 func (doctx *DocTxMsgSetWithdrawAddress) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgSetWithdrawAddress)
+	msg := txMsg.(types.MsgSetWithdrawAddress)
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
 	doctx.WithdrawAddr = msg.WithdrawAddress.String()
 }
@@ -33,7 +33,7 @@ func (doctx *DocTxMsgWithdrawDelegatorReward) Type() string {
 }
 
 func (doctx *DocTxMsgWithdrawDelegatorReward) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgWithdrawDelegatorReward)
+	msg := txMsg.(types.MsgWithdrawDelegatorReward)
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 }
@@ -49,9 +49,9 @@ func (doctx *DocTxMsgFundCommunityPool) Type() string {
 }
 
 func (doctx *DocTxMsgFundCommunityPool) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgFundCommunityPool)
+	msg := txMsg.(types.MsgFundCommunityPool)
 	doctx.Depositor = msg.Depositor.String()
-	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
+	doctx.Amount = types.ParseCoins(msg.Amount.String())
 }
 
 // msg struct for validator withdraw
@@ -64,6 +64,6 @@ func (doctx *DocTxMsgWithdrawValidatorCommission) Type() string {
 }
 
 func (doctx *DocTxMsgWithdrawValidatorCommission) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgWithdrawValidatorCommission)
+	msg := txMsg.(types.MsgWithdrawValidatorCommission)
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 }
