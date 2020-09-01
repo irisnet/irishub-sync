@@ -2,7 +2,7 @@ package gov
 
 import (
 	"github.com/irisnet/irishub-sync/store"
-	itypes "github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -34,14 +34,14 @@ func (doctx *DocTxMsgSubmitProposal) Type() string {
 }
 
 func (doctx *DocTxMsgSubmitProposal) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgSubmitProposal)
+	msg := txMsg.(types.MsgSubmitProposal)
 	doctx.Content = Any{
 		TypeUrl: msg.Content.GetTypeUrl(),
 		//cachedValue:msg.Content.GetCachedValue(),
 		Value: string(msg.Content.GetValue()),
 	}
 	doctx.Proposer = msg.Proposer.String()
-	doctx.InitialDeposit = itypes.ParseCoins(msg.InitialDeposit.String())
+	doctx.InitialDeposit = types.ParseCoins(msg.InitialDeposit.String())
 }
 
 // MsgVote
@@ -56,7 +56,7 @@ func (doctx *DocTxMsgVote) Type() string {
 }
 
 func (doctx *DocTxMsgVote) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgVote)
+	msg := txMsg.(types.MsgVote)
 	doctx.Voter = msg.Voter.String()
 	doctx.Option = msg.Option.String()
 	doctx.ProposalID = msg.ProposalId
@@ -74,8 +74,8 @@ func (doctx *DocTxMsgDeposit) Type() string {
 }
 
 func (doctx *DocTxMsgDeposit) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgDeposit)
+	msg := txMsg.(types.MsgDeposit)
 	doctx.Depositor = msg.Depositor.String()
-	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
+	doctx.Amount = types.ParseCoins(msg.Amount.String())
 	doctx.ProposalID = msg.ProposalId
 }

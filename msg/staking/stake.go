@@ -3,7 +3,7 @@ package staking
 import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 	stake "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -21,7 +21,7 @@ func (doctx *DocTxMsgBeginRedelegate) Type() string {
 }
 
 func (doctx *DocTxMsgBeginRedelegate) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgBeginRedelegate)
+	msg := txMsg.(types.MsgBeginRedelegate)
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
 	doctx.ValidatorSrcAddr = msg.ValidatorSrcAddress.String()
 	doctx.ValidatorDstAddr = msg.ValidatorDstAddress.String()
@@ -38,7 +38,7 @@ func (doctx *DocTxMsgUnjail) Type() string {
 }
 
 func (doctx *DocTxMsgUnjail) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgUnjail)
+	msg := txMsg.(types.MsgUnjail)
 	doctx.ValidatorAddr = msg.ValidatorAddr.String()
 }
 
@@ -54,7 +54,7 @@ func (doctx *DocTxMsgBeginUnbonding) Type() string {
 }
 
 func (doctx *DocTxMsgBeginUnbonding) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgStakeBeginUnbonding)
+	msg := txMsg.(types.MsgStakeBeginUnbonding)
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
 	doctx.SharesAmount = msg.Amount.String()
@@ -72,10 +72,10 @@ func (doctx *DocTxMsgDelegate) Type() string {
 }
 
 func (doctx *DocTxMsgDelegate) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgStakeDelegate)
+	msg := txMsg.(types.MsgStakeDelegate)
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
-	doctx.Delegation = itypes.ParseCoin(msg.Amount.String())
+	doctx.Delegation = types.ParseCoin(msg.Amount.String())
 }
 
 // MsgEditValidator - struct for editing a validator
@@ -90,7 +90,7 @@ func (doctx *DocTxMsgStakeEdit) Type() string {
 }
 
 func (doctx *DocTxMsgStakeEdit) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgStakeEdit)
+	msg := txMsg.(types.MsgStakeEdit)
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 	commissionRate := msg.CommissionRate
 	if commissionRate == nil {
@@ -115,15 +115,15 @@ func (doctx *DocTxMsgStakeCreate) Type() string {
 }
 
 func (doctx *DocTxMsgStakeCreate) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgStakeCreate)
-	//pubKey, err := itypes.Bech32ifyValPub(msg.Pubkey)
+	msg := txMsg.(types.MsgStakeCreate)
+	//pubKey, err := types.Bech32ifyValPub(msg.Pubkey)
 	//if err != nil {
 	//	pubKey = ""
 	//}
 	doctx.ValidatorAddr = msg.ValidatorAddress.String()
 	doctx.PubKey = msg.Pubkey
 	doctx.DelegatorAddr = msg.DelegatorAddress.String()
-	doctx.Delegation = itypes.ParseCoin(msg.Description.String())
+	doctx.Delegation = types.ParseCoin(msg.Description.String())
 	doctx.Commission = document.CommissionMsg{
 		Rate:          msg.Commission.Rate.String(),
 		MaxChangeRate: msg.Commission.MaxChangeRate.String(),

@@ -1,7 +1,7 @@
 package guardian
 
 import (
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -14,7 +14,7 @@ func (doctx *DocTxMsgAddProfiler) Type() string {
 }
 
 func (doctx *DocTxMsgAddProfiler) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgAddProfiler)
+	msg := txMsg.(types.MsgAddProfiler)
 	doctx.Address = msg.AddGuardian.Address.String()
 	doctx.AddedBy = msg.AddGuardian.AddedBy.String()
 	doctx.Description = msg.AddGuardian.Description
@@ -29,7 +29,7 @@ func (doctx *DocTxMsgAddTrustee) Type() string {
 }
 
 func (doctx *DocTxMsgAddTrustee) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgAddTrustee)
+	msg := txMsg.(types.MsgAddTrustee)
 	doctx.Address = msg.AddGuardian.Address.String()
 	doctx.AddedBy = msg.AddGuardian.AddedBy.String()
 	doctx.Description = msg.AddGuardian.Description
@@ -50,7 +50,7 @@ func (doctx *DocTxMsgDeleteProfiler) Type() string {
 }
 
 func (doctx *DocTxMsgDeleteProfiler) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgDeleteProfiler)
+	msg := txMsg.(types.MsgDeleteProfiler)
 	doctx.Address = msg.DeleteGuardian.Address.String()
 	doctx.DeletedBy = msg.DeleteGuardian.DeletedBy.String()
 }
@@ -64,7 +64,7 @@ func (doctx *DocTxMsgDeleteTrustee) Type() string {
 }
 
 func (doctx *DocTxMsgDeleteTrustee) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgDeleteTrustee)
+	msg := txMsg.(types.MsgDeleteTrustee)
 	doctx.Address = msg.DeleteGuardian.Address.String()
 	doctx.DeletedBy = msg.DeleteGuardian.DeletedBy.String()
 }

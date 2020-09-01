@@ -3,7 +3,7 @@ package htlc
 import (
 	"encoding/hex"
 	"github.com/irisnet/irishub-sync/store"
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -22,10 +22,10 @@ func (doctx *DocTxMsgCreateHTLC) Type() string {
 }
 
 func (doctx *DocTxMsgCreateHTLC) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgCreateHTLC)
+	msg := txMsg.(types.MsgCreateHTLC)
 	doctx.Sender = msg.Sender.String()
 	doctx.To = msg.To.String()
-	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
+	doctx.Amount = types.ParseCoins(msg.Amount.String())
 	doctx.Timestamp = msg.Timestamp
 	doctx.HashLock = hex.EncodeToString(msg.HashLock)
 	doctx.TimeLock = msg.TimeLock
@@ -43,7 +43,7 @@ func (doctx *DocTxMsgClaimHTLC) Type() string {
 }
 
 func (doctx *DocTxMsgClaimHTLC) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgClaimHTLC)
+	msg := txMsg.(types.MsgClaimHTLC)
 	doctx.Sender = msg.Sender.String()
 	doctx.Secret = hex.EncodeToString(msg.Secret)
 	doctx.HashLock = hex.EncodeToString(msg.HashLock)
@@ -59,7 +59,7 @@ func (doctx *DocTxMsgRefundHTLC) Type() string {
 }
 
 func (doctx *DocTxMsgRefundHTLC) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgRefundHTLC)
+	msg := txMsg.(types.MsgRefundHTLC)
 	doctx.Sender = msg.Sender.String()
 	doctx.HashLock = hex.EncodeToString(msg.HashLock)
 }

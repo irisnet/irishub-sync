@@ -2,7 +2,7 @@ package bank
 
 import (
 	"github.com/irisnet/irishub-sync/store"
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -24,10 +24,10 @@ func (doctx *DocTxMsgSend) Type() string {
 }
 
 func (doctx *DocTxMsgSend) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgTransfer)
+	msg := txMsg.(types.MsgTransfer)
 	doctx.FromAddress = msg.FromAddress.String()
 	doctx.ToAddress = msg.ToAddress.String()
-	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
+	doctx.Amount = types.ParseCoins(msg.Amount.String())
 }
 
 type (
@@ -47,13 +47,13 @@ func (m *DocMsgMultiSend) Type() string {
 }
 
 func (m *DocMsgMultiSend) BuildMsg(v interface{}) {
-	msg := v.(itypes.MsgMultiSend)
+	msg := v.(types.MsgMultiSend)
 	for _, one := range msg.Inputs {
-		m.Inputs = append(m.Inputs, Item{Address: one.Address.String(), Coins: itypes.ParseCoins(one.Coins.String())})
+		m.Inputs = append(m.Inputs, Item{Address: one.Address.String(), Coins: types.ParseCoins(one.Coins.String())})
 		m.Temp = append(m.Temp, one.Address.String())
 	}
 	for _, one := range msg.Outputs {
-		m.Outputs = append(m.Outputs, Item{Address: one.Address.String(), Coins: itypes.ParseCoins(one.Coins.String())})
+		m.Outputs = append(m.Outputs, Item{Address: one.Address.String(), Coins: types.ParseCoins(one.Coins.String())})
 		m.Temp = append(m.Temp, one.Address.String())
 	}
 

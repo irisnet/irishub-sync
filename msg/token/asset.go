@@ -1,7 +1,7 @@
 package token
 
 import (
-	itypes "github.com/irisnet/irishub-sync/types"
+	types "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
@@ -44,7 +44,7 @@ func (m *DocTxMsgIssueToken) Type() string {
 }
 
 func (m *DocTxMsgIssueToken) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgIssueToken)
+	msg := txMsg.(types.MsgIssueToken)
 
 	m.Symbol = msg.Symbol
 	m.Name = msg.Name
@@ -61,7 +61,7 @@ func (m *DocTxMsgEditToken) Type() string {
 }
 
 func (m *DocTxMsgEditToken) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgEditToken)
+	msg := txMsg.(types.MsgEditToken)
 
 	m.Symbol = msg.Symbol
 	m.Owner = msg.Owner.String()
@@ -82,7 +82,7 @@ func (m *DocTxMsgMintToken) Type() string {
 }
 
 func (m *DocTxMsgMintToken) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgMintToken)
+	msg := txMsg.(types.MsgMintToken)
 
 	m.Symbol = msg.Symbol
 	m.Owner = msg.Owner.String()
@@ -95,7 +95,7 @@ func (m *DocTxMsgTransferTokenOwner) Type() string {
 }
 
 func (m *DocTxMsgTransferTokenOwner) BuildMsg(txMsg interface{}) {
-	msg := txMsg.(itypes.MsgTransferTokenOwner)
+	msg := txMsg.(types.MsgTransferTokenOwner)
 
 	m.SrcOwner = msg.SrcOwner.String()
 	m.DstOwner = msg.DstOwner.String()
