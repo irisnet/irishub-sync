@@ -170,22 +170,6 @@ var (
 	//moduleBasics = module.NewBasicManager()
 )
 
-//// 初始化账户地址前缀
-//func init() {
-//	config := sdk.GetConfig()
-//	config.SetBech32PrefixForAccount(address.Bech32PrefixAccAddr, address.Bech32PrefixAccPub)
-//	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
-//	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
-//	config.Seal()
-//	cdc = codec.New()
-//	moduleBasics.RegisterCodec(cdc)
-//	sdk.RegisterCodec(cdc)
-//	codec.RegisterEvidences(cdc)
-//}
-//
-//func GetCodec() *codec.LegacyAmino {
-//	return cdc
-//}
 
 //
 func ParseCoins(coinsStr string) (coins store.Coins) {

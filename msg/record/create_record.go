@@ -65,37 +65,3 @@ func (m *DocMsgCreateRecord) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx)
 	return tx
 }
 
-//func (d *DocMsgRecordC) HandleTxMsg(msg types.MsgCreateRecord) MsgDocInfo {
-//	var (
-//		from, to, signer string
-//		coins            []store.Coin
-//		docTxMsg         document.DocTxMsg
-//		complexMsg       bool
-//		signers          []string
-//		addrs            []string
-//	)
-//
-//	from = msg.Creator.String()
-//	to = ""
-//
-//	d.BuildMsg(msg)
-//	docTxMsg = document.DocTxMsg{
-//		Type: d.Type(),
-//		Msg:  d,
-//	}
-//	complexMsg = false
-//	signer, signers = store.BuildDocSigners(msg.GetSigners())
-//	addrs = append(addrs, signers...)
-//	addrs = append(addrs, d.Creator)
-//
-//	return MsgDocInfo{
-//		From:       from,
-//		To:         to,
-//		Coins:      coins,
-//		Signer:     signer,
-//		DocTxMsg:   docTxMsg,
-//		ComplexMsg: complexMsg,
-//		Signers:    signers,
-//		Addrs:      addrs,
-//	}
-//}
