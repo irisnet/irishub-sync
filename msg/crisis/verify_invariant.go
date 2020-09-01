@@ -33,6 +33,11 @@ func (m *DocMsgVerifyInvariant) HandleTxMsg(msgData sdk.Msg, tx *document.Common
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Sender)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	tx.From = m.Sender
 	tx.To = ""

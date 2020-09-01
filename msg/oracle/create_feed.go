@@ -59,10 +59,16 @@ func (m *DocMsgCreateFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Providers...)
+	tx.Addrs = append(tx.Addrs, m.Creator)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	tx.From = m.Creator
 	tx.To = ""
 	tx.Amount = []store.Coin{}
-	tx.Addrs = append(tx.Addrs, m.Providers...)
+
 	return tx
 }

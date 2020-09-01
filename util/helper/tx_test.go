@@ -18,7 +18,7 @@ func TestParseTx(t *testing.T) {
 	//// release client
 	//defer client.Release()
 	//
-	//var height = int64(710)
+	//var height = int64(1740)
 	//
 	//block, err := client.Client.Block(&height)
 	//
@@ -26,7 +26,7 @@ func TestParseTx(t *testing.T) {
 	//	t.Fatal(err)
 	//}
 	//
-	//if block.BlockMeta.Header.NumTxs > 0 {
+	//if block.BlockID.PartSetHeader.Total > 0 {
 	//	txs := block.Block.Data.Txs
 	//	tx := ParseTx(txs[0], block.Block)
 	//	txBytes, _ := json.Marshal(tx)

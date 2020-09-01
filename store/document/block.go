@@ -80,7 +80,7 @@ type Commit struct {
 // Represents a prevote, precommit, or commit vote from validators for consensus.
 type Vote struct {
 	ValidatorAddress string `bson:"validator_address"`
-	ValidatorIndex   int    `bson:"validator_index"`
+	ValidatorIndex   int32  `bson:"validator_index"`
 	Height           int64  `bson:"height"`
 	//Round            int       `bson:"round"`
 	Timestamp time.Time `bson:"timestamp"`
@@ -102,9 +102,9 @@ type Validator struct {
 }
 
 //type BlockResults struct {
-	//DeliverTx  []ResponseDeliverTx `bson:"deliver_tx"`
+//DeliverTx  []ResponseDeliverTx `bson:"deliver_tx"`
 //EndBlock ResponseEndBlock `bson:""end_block""`
-	//BeginBlock ResponseBeginBlock  `bson:""begin_block""`
+//BeginBlock ResponseBeginBlock  `bson:""begin_block""`
 //}
 
 //type ResponseDeliverTx struct {
@@ -118,8 +118,8 @@ type Validator struct {
 //}
 //
 //type ResponseEndBlock struct {
-	//ValidatorUpdates      []ValidatorUpdate `bson:"validator_updates"`
-	//ConsensusParamUpdates ConsensusParams   `bson:"consensus_param_updates"`
+//ValidatorUpdates      []ValidatorUpdate `bson:"validator_updates"`
+//ConsensusParamUpdates ConsensusParams   `bson:"consensus_param_updates"`
 //Events []Event `bson:"events"`
 //}
 

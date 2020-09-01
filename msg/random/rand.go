@@ -1,4 +1,4 @@
-package msg
+package random
 
 import (
 	itypes "github.com/irisnet/irishub-sync/types"

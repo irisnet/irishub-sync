@@ -42,6 +42,7 @@ type CommonTx struct {
 	Signers  []Signer `bson:"signers"`
 	Signer   string   `bson:"signer"`
 	Addrs    []string `bson:"addrs"`
+	Types    []string `bson:"types"`
 	TimeUnix int64    `bson:"time_unix"`
 
 	Msgs []DocTxMsg `bson:"msgs"`

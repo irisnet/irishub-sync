@@ -14,10 +14,10 @@ type (
 	DocMsgNFTTransfer struct {
 		Sender    string `bson:"sender"`
 		Recipient string `bson:"recipient"`
-		TokenURI  string `bson:"token_uri"`
+		URI       string `bson:"uri"`
 		Denom     string `bson:"denom"`
 		ID        string `bson:"id"`
-		TokenData string `bson:"token_data"`
+		Data      string `bson:"data"`
 	}
 )
 
@@ -34,8 +34,8 @@ func (m *DocMsgNFTTransfer) BuildMsg(v interface{}) {
 	m.Recipient = msg.Recipient.String()
 	m.ID = strings.ToLower(msg.ID)
 	m.Denom = strings.ToLower(msg.Denom)
-	m.TokenURI = msg.TokenURI
-	m.TokenData = msg.TokenData
+	m.URI = msg.URI
+	m.Data = msg.Data
 }
 
 func (m *DocMsgNFTTransfer) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
@@ -45,6 +45,11 @@ func (m *DocMsgNFTTransfer) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Sender, m.Recipient)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	tx.From = m.Sender
 	tx.To = m.Recipient

@@ -29,7 +29,7 @@ func HandleTxMsg(msg sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool) 
 		return docMsg.HandleTxMsg(msg, tx), ok
 
 	case new(types.MsgSetWithdrawAddress).Type():
-		docMsg := DocMsgSetWithdrawAddress{}
+		docMsg := DocMsgServiceSetWithdrawAddress{}
 		return docMsg.HandleTxMsg(msg, tx)
 
 	case new(types.MsgDisableServiceBinding).Type():

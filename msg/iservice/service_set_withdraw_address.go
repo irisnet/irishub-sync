@@ -10,17 +10,17 @@ import (
 )
 
 type (
-	DocMsgSetWithdrawAddress struct {
+	DocMsgServiceSetWithdrawAddress struct {
 		Owner           string `bson:"owner" yaml:"owner"`
 		WithdrawAddress string `bson:"withdraw_address" yaml:"withdraw_address"`
 	}
 )
 
-func (m *DocMsgSetWithdrawAddress) Type() string {
+func (m *DocMsgServiceSetWithdrawAddress) Type() string {
 	return TxTypeServiceSetWithdrawAddress
 }
 
-func (m *DocMsgSetWithdrawAddress) BuildMsg(v interface{}) {
+func (m *DocMsgServiceSetWithdrawAddress) BuildMsg(v interface{}) {
 	var msg types.MsgSetWithdrawFeesAddress
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
@@ -29,7 +29,7 @@ func (m *DocMsgSetWithdrawAddress) BuildMsg(v interface{}) {
 	m.WithdrawAddress = msg.WithdrawAddress.String()
 }
 
-func (m *DocMsgSetWithdrawAddress) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool) {
+func (m *DocMsgServiceSetWithdrawAddress) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool) {
 
 	m.BuildMsg(msgData)
 	if m.Owner == "" {
@@ -39,6 +39,11 @@ func (m *DocMsgSetWithdrawAddress) HandleTxMsg(msgData sdk.Msg, tx *document.Com
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Owner)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx, true
+	}
 	tx.Type = m.Type()
 	if len(tx.Signers) > 0 {
 		tx.From = tx.Signers[0].AddrBech32

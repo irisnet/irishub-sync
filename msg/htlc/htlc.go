@@ -1,4 +1,4 @@
-package msg
+package htlc
 
 import (
 	"encoding/hex"

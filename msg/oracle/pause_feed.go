@@ -34,6 +34,11 @@ func (m *DocMsgPauseFeed) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *d
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Creator)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	tx.From = m.Creator
 	tx.To = ""

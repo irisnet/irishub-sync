@@ -12,11 +12,11 @@ import (
 
 type (
 	DocMsgNFTEdit struct {
-		Sender    string `bson:"sender"`
-		ID        string `bson:"id"`
-		Denom     string `bson:"denom"`
-		TokenURI  string `bson:"token_uri"`
-		TokenData string `bson:"token_data"`
+		Sender string `bson:"sender"`
+		ID     string `bson:"id"`
+		Denom  string `bson:"denom"`
+		URI    string `bson:"uri"`
+		Data   string `bson:"data"`
 	}
 )
 
@@ -32,8 +32,8 @@ func (m *DocMsgNFTEdit) BuildMsg(v interface{}) {
 	m.Sender = msg.Sender.String()
 	m.ID = strings.ToLower(msg.ID)
 	m.Denom = strings.ToLower(msg.Denom)
-	m.TokenURI = msg.TokenURI
-	m.TokenData = msg.TokenData
+	m.URI = msg.URI
+	m.Data = msg.Data
 }
 
 func (m *DocMsgNFTEdit) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
@@ -43,6 +43,11 @@ func (m *DocMsgNFTEdit) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *doc
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Types = append(tx.Types, m.Type())
+	tx.Addrs = append(tx.Addrs, m.Sender)
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	tx.From = m.Sender
 	tx.To = ""

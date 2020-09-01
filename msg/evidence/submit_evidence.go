@@ -1,20 +1,20 @@
 package evidence
 
 import (
-	. "github.com/irisnet/irishub-sync/msg"
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/store/document"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/types"
 	. "github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/store"
+	"github.com/irisnet/irishub-sync/msg/gov"
 )
 
 // MsgSubmitEvidence defines an sdk.Msg type that supports submitting arbitrary
 // Evidence.
 type DocMsgSubmitEvidence struct {
-	Submitter string `bson:"submitter"`
-	Evidence  Any    `bson:"evidence"`
+	Submitter string  `bson:"submitter"`
+	Evidence  gov.Any `bson:"evidence"`
 }
 
 func (m *DocMsgSubmitEvidence) Type() string {
@@ -35,6 +35,11 @@ func (m *DocMsgSubmitEvidence) HandleTxMsg(msgData sdk.Msg, tx *document.CommonT
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Submitter)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	tx.From = m.Submitter
 	tx.To = ""

@@ -1,4 +1,4 @@
-package msg
+package staking
 
 import (
 	"github.com/irisnet/irishub-sync/store"
