@@ -1,4 +1,4 @@
-package msg
+package token
 
 import (
 	itypes "github.com/irisnet/irishub-sync/types"

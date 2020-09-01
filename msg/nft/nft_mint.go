@@ -15,8 +15,8 @@ type DocMsgNFTMint struct {
 	Recipient string `bson:"recipient"`
 	Denom     string `bson:"denom"`
 	ID        string `bson:"id"`
-	TokenURI  string `bson:"token_uri"`
-	TokenData string `bson:"token_data"`
+	URI       string `bson:"uri"`
+	Data      string `bson:"data"`
 }
 
 func (m *DocMsgNFTMint) Type() string {
@@ -32,8 +32,8 @@ func (m *DocMsgNFTMint) BuildMsg(v interface{}) {
 	m.Recipient = msg.Recipient.String()
 	m.ID = strings.ToLower(msg.ID)
 	m.Denom = strings.ToLower(msg.Denom)
-	m.TokenURI = msg.TokenURI
-	m.TokenData = msg.TokenData
+	m.URI = msg.URI
+	m.Data = msg.Data
 }
 
 func (m *DocMsgNFTMint) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
@@ -43,6 +43,11 @@ func (m *DocMsgNFTMint) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *doc
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Types = append(tx.Types, m.Type())
+	tx.Addrs = append(tx.Addrs, m.Sender, m.Recipient)
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.From = m.Sender
 	tx.To = m.Recipient
 	tx.Amount = []store.Coin{}

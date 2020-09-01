@@ -1,4 +1,4 @@
-package msg
+package gov
 
 import (
 	"github.com/irisnet/irishub-sync/store"
@@ -59,7 +59,7 @@ func (doctx *DocTxMsgVote) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgVote)
 	doctx.Voter = msg.Voter.String()
 	doctx.Option = msg.Option.String()
-	doctx.ProposalID = msg.ProposalID
+	doctx.ProposalID = msg.ProposalId
 }
 
 // MsgDeposit
@@ -77,5 +77,5 @@ func (doctx *DocTxMsgDeposit) BuildMsg(txMsg interface{}) {
 	msg := txMsg.(itypes.MsgDeposit)
 	doctx.Depositor = msg.Depositor.String()
 	doctx.Amount = itypes.ParseCoins(msg.Amount.String())
-	doctx.ProposalID = msg.ProposalID
+	doctx.ProposalID = msg.ProposalId
 }

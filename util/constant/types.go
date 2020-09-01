@@ -71,7 +71,7 @@ const (
 	TxTypeSubmitEvidence  = "SubmitEvidence"
 	TxTypeVerifyInvariant = "VerifyInvariant"
 
-	MsgTypeRecordCreate = "CreateRecord"
+	TxTypeCreateRecord = "CreateRecord"
 
 	EnvNameDbAddr     = "DB_ADDR"
 	EnvNameDbUser     = "DB_USER"

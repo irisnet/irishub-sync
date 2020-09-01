@@ -1,4 +1,4 @@
-package msg
+package coinswap
 
 import (
 	"github.com/irisnet/irishub-sync/store"

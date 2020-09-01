@@ -12,7 +12,8 @@ import (
 
 type DocMsgIssueDenom struct {
 	Sender string `bson:"sender"`
-	Denom  string `bson:"denom"`
+	ID     string `bson:"id"`
+	Name   string `bson:"name"`
 	Schema string `bson:"schema"`
 }
 
@@ -27,7 +28,8 @@ func (m *DocMsgIssueDenom) BuildMsg(v interface{}) {
 
 	m.Sender = msg.Sender.String()
 	m.Schema = msg.Schema
-	m.Denom = strings.ToLower(msg.Denom)
+	m.Name = msg.Name
+	m.ID = strings.ToLower(msg.ID)
 }
 
 func (m *DocMsgIssueDenom) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
@@ -37,6 +39,11 @@ func (m *DocMsgIssueDenom) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Sender)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.From = m.Sender
 	tx.To = ""
 	tx.Amount = []store.Coin{}

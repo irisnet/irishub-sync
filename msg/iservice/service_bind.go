@@ -47,12 +47,16 @@ func (m *DocMsgBindService) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) 
 		Type: m.Type(),
 		Msg:  m,
 	})
+	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
+	tx.Types = append(tx.Types, m.Type())
+	if len(tx.Msgs) > 1 {
+		return tx
+	}
 	tx.Type = m.Type()
 	if len(tx.Signers) > 0 {
 		tx.From = tx.Signers[0].AddrBech32
 	}
 	tx.To = ""
 	tx.Amount = m.Deposit.Convert()
-	tx.Addrs = append(tx.Addrs, m.Provider, m.Owner)
 	return tx
 }

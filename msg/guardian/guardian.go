@@ -1,4 +1,4 @@
-package msg
+package guardian
 
 import (
 	itypes "github.com/irisnet/irishub-sync/types"

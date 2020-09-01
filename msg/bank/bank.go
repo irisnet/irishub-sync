@@ -1,4 +1,4 @@
-package msg
+package bank
 
 import (
 	"github.com/irisnet/irishub-sync/store"
@@ -32,8 +32,9 @@ func (doctx *DocTxMsgSend) BuildMsg(txMsg interface{}) {
 
 type (
 	DocMsgMultiSend struct {
-		Inputs  []Item `bson:"inputs"`
-		Outputs []Item `bson:"outputs"`
+		Inputs  []Item   `bson:"inputs"`
+		Outputs []Item   `bson:"outputs"`
+		Temp    []string `bson:"-"`
 	}
 	Item struct {
 		Address string      `bson:"address"`
@@ -49,9 +50,11 @@ func (m *DocMsgMultiSend) BuildMsg(v interface{}) {
 	msg := v.(itypes.MsgMultiSend)
 	for _, one := range msg.Inputs {
 		m.Inputs = append(m.Inputs, Item{Address: one.Address.String(), Coins: itypes.ParseCoins(one.Coins.String())})
+		m.Temp = append(m.Temp, one.Address.String())
 	}
 	for _, one := range msg.Outputs {
 		m.Outputs = append(m.Outputs, Item{Address: one.Address.String(), Coins: itypes.ParseCoins(one.Coins.String())})
+		m.Temp = append(m.Temp, one.Address.String())
 	}
 
 }
