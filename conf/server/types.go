@@ -19,7 +19,6 @@ var (
 	MaxConnectionNum   = 100             // max size of tendermint client pool
 	SyncProposalStatus = "0 */1 * * * *" // every minute
 
-	//Network = "testnet"
 )
 
 // get value of env var
@@ -53,9 +52,4 @@ func init() {
 	}
 	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
 
-	//network, found := os.LookupEnv(constant.EnvNameNetwork)
-	//if found {
-	//	Network = network
-	//}
-	//logger.Info("Env Value", logger.String(constant.EnvNameNetwork, Network))
 }
