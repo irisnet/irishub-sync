@@ -1,33 +1,15 @@
 package handler
 
 import (
-	//"encoding/json"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	//itypes "github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
 
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/irisnet/irishub-sync/store"
 )
 
-//var (
-//	assetDetailTriggers = map[string]bool{
-//		"stakeEndBlocker":   true,
-//		"slashBeginBlocker": true,
-//		"slashEndBlocker":   true,
-//		"govEndBlocker":     true,
-//	}
-//
-//	bech32AccountAddrPrefix = itypes.Bech32AccountAddrPrefix
-//)
-
-//const (
-//	triggerTxHashLength = 64
-//	separator           = "::" // tag value separator
-//	unDelegationSubject = "Undelegation"
-//)
 
 func ParseBlock(meta *types.BlockID, block *types.Block, validators []*types.Validator) document.Block {
 	//cdc := types.GetCodec()

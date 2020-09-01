@@ -40,11 +40,14 @@ import (
 	"github.com/irismod/token"
 	"github.com/irismod/nft"
 	"github.com/irismod/coinswap"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	"github.com/cosmos/cosmos-sdk/std"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/simapp/params"
 )
 
 var (
-	cdc *codec.LegacyAmino
-
+	encodecfg    params.EncodingConfig
 	moduleBasics = module.NewBasicManager(
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
@@ -71,12 +74,22 @@ func init() {
 	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
 	config.Seal()
-	cdc = codec.New()
-	moduleBasics.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterEvidences(cdc)
+
+	amino := codec.New()
+	interfaceRegistry := types.NewInterfaceRegistry()
+	moduleBasics.RegisterInterfaces(interfaceRegistry)
+	sdk.RegisterInterfaces(interfaceRegistry)
+	marshaler := codec.NewProtoCodec(interfaceRegistry)
+	txCfg := tx.NewTxConfig(marshaler, std.DefaultPublicKeyCodec{}, tx.DefaultSignModes)
+
+	encodecfg = params.EncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Marshaler:         marshaler,
+		TxConfig:          txCfg,
+		Amino:             amino,
+	}
 }
 
-func GetCodec() *codec.LegacyAmino {
-	return cdc
+func GetTxDecoder() sdk.TxDecoder {
+	return encodecfg.TxConfig.TxDecoder()
 }

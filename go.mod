@@ -9,9 +9,9 @@ require (
 	github.com/irismod/htlc v0.0.0-20200830023142-e3da67f16b03
 	github.com/irismod/nft v1.1.1-0.20200827095318-d16861212579
 	github.com/irismod/record v1.1.1-0.20200827095301-3e27fc43ae73
-	github.com/irismod/service v1.1.1-0.20200830041912-b2ced48a06ab
-	github.com/irismod/token v1.1.1-0.20200831030503-21db6eea21a9
-	github.com/irisnet/irishub v0.16.3-0.20200831075309-f4e51719ab32
+	github.com/irismod/service v1.1.1-0.20200831103113-6c6a5a77d22f
+	github.com/irismod/token v1.1.1-0.20200831162307-f05f6766f5b7
+	github.com/irisnet/irishub v0.16.3-0.20200901032435-08bf001a1c1b
 	github.com/jolestar/go-commons-pool v2.0.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1

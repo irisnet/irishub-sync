@@ -254,9 +254,9 @@ func getPrecision(amount string) string {
 	return amount
 }
 
-func BuildFee(fee auth.StdFee) store.Fee {
+func BuildFee(fee sdk.Coins, gas uint64) store.Fee {
 	return store.Fee{
-		Amount: ParseCoins(fee.Amount.String()),
-		Gas:    int64(fee.Gas),
+		Amount: ParseCoins(fee.String()),
+		Gas:    int64(gas),
 	}
 }

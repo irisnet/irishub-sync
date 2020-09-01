@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/irisnet/irishub-sync/cdc"
 )
 
 func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	var (
-		authTx     types.StdTx
 		methodName = "ParseTx"
 		docTx      *document.CommonTx
 		gasPrice   float64
@@ -26,9 +26,7 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 		addrs      []string
 	)
 
-	Cdc := cdc.GetCodec()
-
-	err := Cdc.UnmarshalBinaryBare(txBytes, &authTx)
+	Tx, err := cdc.GetTxDecoder()(txBytes)
 	if err != nil {
 		logger.Error(err.Error())
 		return docTx
@@ -37,11 +35,13 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	height := block.Height
 	blockTime := block.Time
 	txHash := BuildHex(txBytes.Hash())
-	fee := types.BuildFee(authTx.Fee)
-	memo := authTx.Memo
+
+	authTx := Tx.(signing.Tx)
+	fee := types.BuildFee(authTx.GetFee(),authTx.GetGas())
+	memo := authTx.GetMemo()
 
 	// get tx signers
-	if len(authTx.Signatures) > 0 {
+	if len(authTx.GetSignatures()) > 0 {
 		for _, signature := range authTx.GetSigners() {
 			signer := document.Signer{}
 			signer.AddrHex = signature.String()
@@ -80,7 +80,6 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 		logger.Error("can't get msgs", logger.String("method", methodName))
 		return docTx
 	}
-	//msgData := msgs[0]
 
 	docTx = &document.CommonTx{
 		Height:    height,
