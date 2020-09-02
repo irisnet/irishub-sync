@@ -145,40 +145,7 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 	return events
 }
 
-//// get proposalId from tags
-//func getProposalIdFromEvents(result types.ResponseDeliverTx) (uint64, store.Coin, error) {
-//	//query proposal_id
-//	//for _, tag := range tags {
-//	//	key := string(tag.Key)
-//	//	if key == types.EventGovProposalId {
-//	//		if proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0); err != nil {
-//	//			return 0, err
-//	//		} else {
-//	//			return uint64(proposalId), nil
-//	//		}
-//	//	}
-//	//}
-//	var proposalId uint64
-//	var amount store.Coin
-//	for _, val := range result.GetEvents() {
-//		if val.Type != types.EventTypeProposalDeposit {
-//			continue
-//		}
-//		for _, attr := range val.Attributes {
-//			if string(attr.Key) == types.EventGovProposalID {
-//				if id, err := strconv.ParseInt(string(attr.Value), 10, 0); err == nil {
-//					proposalId = uint64(id)
-//				}
-//			}
-//			if string(attr.Key) == "amount" && string(attr.Value) != "" {
-//				value := string(attr.Value)
-//				amount = types.ParseCoin(value)
-//			}
-//		}
-//	}
-//
-//	return proposalId, amount, nil
-//}
+
 
 func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))

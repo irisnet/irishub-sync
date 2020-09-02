@@ -5,8 +5,6 @@ package constant
 const (
 	TxTypeTransfer                       = "Transfer"
 	TxTypeMultiSend                      = "MultiSend"
-	TxTypeBurn                           = "Burn"
-	TxTypeSetMemoRegexp                  = "SetMemoRegexp"
 	TxTypeStakeCreateValidator           = "CreateValidator"
 	TxTypeStakeEditValidator             = "EditValidator"
 	TxTypeStakeDelegate                  = "Delegate"
@@ -25,9 +23,6 @@ const (
 	TxTypeAssetEditToken                 = "EditToken"
 	TxTypeAssetMintToken                 = "MintToken"
 	TxTypeAssetTransferTokenOwner        = "TransferTokenOwner"
-	TxTypeAssetCreateGateway             = "CreateGateway"
-	TxTypeAssetEditGateway               = "EditGateway"
-	TxTypeAssetTransferGatewayOwner      = "TransferGatewayOwner"
 
 	TxTypeNFTMint     = "NFTMint"
 	TxTypeNFTEdit     = "NFTEdit"
@@ -79,11 +74,9 @@ const (
 	EnvNameDbDataBase = "DB_DATABASE"
 
 	EnvNameSerNetworkFullNode   = "SER_BC_FULL_NODE"
-	EnvNameSerNetworkChainId    = "SER_BC_CHAIN_ID"
 	EnvNameWorkerNumCreateTask  = "WORKER_NUM_CREATE_TASK"
 	EnvNameWorkerNumExecuteTask = "WORKER_NUM_EXECUTE_TASK"
 
-	EnvNameNetwork = "NETWORK"
 
 	EnvLogFileName    = "LOG_FILE_NAME"
 	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
@@ -95,15 +88,12 @@ const (
 	StoreNameStake      = "stake"
 	StoreDefaultEndPath = "key"
 
+	StatusUnspecified   = "Unspecified"
 	StatusDepositPeriod = "DepositPeriod"
 	StatusVotingPeriod  = "VotingPeriod"
 	StatusPassed        = "Passed"
 	StatusRejected      = "Rejected"
-
-	NetworkMainnet = "mainnet"
-
-	// define coin unit
-	IrisAttoUnit = "iris-atto"
+	StatusFailed        = "Failed"
 
 	TrueStr  = "true"
 	FalseStr = "false"
