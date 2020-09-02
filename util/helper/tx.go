@@ -37,14 +37,14 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	txHash := BuildHex(txBytes.Hash())
 
 	authTx := Tx.(signing.Tx)
-	fee := types.BuildFee(authTx.GetFee(),authTx.GetGas())
+	fee := types.BuildFee(authTx.GetFee(), authTx.GetGas())
 	memo := authTx.GetMemo()
 
 	// get tx signers
 	if len(authTx.GetSignatures()) > 0 {
 		for _, signature := range authTx.GetSigners() {
 			signer := document.Signer{}
-			signer.AddrHex = signature.String()
+			signer.AddrHex = hex.EncodeToString([]byte(signature.String()))
 			if addrBech32, err := bech32.ConvertAndEncode(types.Bech32AccountAddrPrefix, signature.Bytes()); err != nil {
 				logger.Error("convert account addr from hex to bech32 fail",
 					logger.String("addrHex", signature.String()), logger.String("err", err.Error()))
@@ -144,8 +144,6 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 
 	return events
 }
-
-
 
 func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))
