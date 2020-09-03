@@ -26,6 +26,10 @@ func (m *DocMsgSubmitEvidence) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
+	m.Submitter = msg.Submitter.String()
+	m.Evidence.TypeUrl = msg.Evidence.GetTypeUrl()
+	m.Evidence.Value = string(msg.Evidence.Value)
+
 }
 
 func (m *DocMsgSubmitEvidence) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
