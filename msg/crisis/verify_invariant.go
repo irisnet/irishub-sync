@@ -24,6 +24,10 @@ func (m *DocMsgVerifyInvariant) BuildMsg(v interface{}) {
 	data, _ := json.Marshal(v)
 	json.Unmarshal(data, &msg)
 
+	m.Sender = msg.Sender.String()
+	m.InvariantModuleName = msg.InvariantModuleName
+	m.InvariantRoute = msg.InvariantRoute
+
 }
 
 func (m *DocMsgVerifyInvariant) HandleTxMsg(msgData sdk.Msg, tx *document.CommonTx) *document.CommonTx {
