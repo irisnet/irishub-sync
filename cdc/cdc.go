@@ -23,8 +23,9 @@ import (
 	"github.com/irismod/coinswap"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/cosmos-sdk/std"
-	"github.com/cosmos/cosmos-sdk/codec/types"
+	ctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
+	"github.com/irisnet/irishub-sync/types"
 )
 
 var (
@@ -55,9 +56,10 @@ func init() {
 	config.SetBech32PrefixForValidator(address.Bech32PrefixValAddr, address.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(address.Bech32PrefixConsAddr, address.Bech32PrefixConsPub)
 	config.Seal()
+	types.Bech32AccountAddrPrefix = sdk.GetConfig().GetBech32AccountAddrPrefix()
 
 	amino := codec.New()
-	interfaceRegistry := types.NewInterfaceRegistry()
+	interfaceRegistry := ctypes.NewInterfaceRegistry()
 	moduleBasics.RegisterInterfaces(interfaceRegistry)
 	sdk.RegisterInterfaces(interfaceRegistry)
 	marshaler := codec.NewProtoCodec(interfaceRegistry)

@@ -37,14 +37,14 @@ func ParseTx(txBytes types.Tx, block *types.Block) *document.CommonTx {
 	txHash := BuildHex(txBytes.Hash())
 
 	authTx := Tx.(signing.Tx)
-	fee := types.BuildFee(authTx.GetFee(),authTx.GetGas())
+	fee := types.BuildFee(authTx.GetFee(), authTx.GetGas())
 	memo := authTx.GetMemo()
 
 	// get tx signers
 	if len(authTx.GetSignatures()) > 0 {
 		for _, signature := range authTx.GetSigners() {
 			signer := document.Signer{}
-			signer.AddrHex = signature.String()
+			signer.AddrHex = hex.EncodeToString([]byte(signature.String()))
 			if addrBech32, err := bech32.ConvertAndEncode(types.Bech32AccountAddrPrefix, signature.Bytes()); err != nil {
 				logger.Error("convert account addr from hex to bech32 fail",
 					logger.String("addrHex", signature.String()), logger.String("err", err.Error()))
@@ -144,41 +144,6 @@ func parseEvents(result types.ResponseDeliverTx) []document.Event {
 
 	return events
 }
-
-//// get proposalId from tags
-//func getProposalIdFromEvents(result types.ResponseDeliverTx) (uint64, store.Coin, error) {
-//	//query proposal_id
-//	//for _, tag := range tags {
-//	//	key := string(tag.Key)
-//	//	if key == types.EventGovProposalId {
-//	//		if proposalId, err := strconv.ParseInt(string(tag.Value), 10, 0); err != nil {
-//	//			return 0, err
-//	//		} else {
-//	//			return uint64(proposalId), nil
-//	//		}
-//	//	}
-//	//}
-//	var proposalId uint64
-//	var amount store.Coin
-//	for _, val := range result.GetEvents() {
-//		if val.Type != types.EventTypeProposalDeposit {
-//			continue
-//		}
-//		for _, attr := range val.Attributes {
-//			if string(attr.Key) == types.EventGovProposalID {
-//				if id, err := strconv.ParseInt(string(attr.Value), 10, 0); err == nil {
-//					proposalId = uint64(id)
-//				}
-//			}
-//			if string(attr.Key) == "amount" && string(attr.Value) != "" {
-//				value := string(attr.Value)
-//				amount = types.ParseCoin(value)
-//			}
-//		}
-//	}
-//
-//	return proposalId, amount, nil
-//}
 
 func BuildHex(bytes []byte) string {
 	return strings.ToUpper(hex.EncodeToString(bytes))

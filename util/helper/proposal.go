@@ -7,8 +7,16 @@ import (
 	"github.com/irisnet/irishub-sync/util/constant"
 )
 
+var ProposalStatusName = map[int32]string{
+	0: constant.StatusUnspecified,
+	1: constant.StatusDepositPeriod,
+	2: constant.StatusVotingPeriod,
+	3: constant.StatusPassed,
+	4: constant.StatusRejected,
+	5: constant.StatusFailed,
+}
+
 func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
-	//cdc := types.GetCodec()
 
 	res, err := Query(types.KeyProposal(proposalID), "gov", constant.StoreDefaultEndPath)
 	if len(res) == 0 || err != nil {
@@ -22,8 +30,11 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	proposal.ProposalId = proposalID
 	proposal.Title = txtpropo.Title
 	proposal.Description = txtpropo.Description
-	proposal.Status = propo.Status.String()
-	//proposal.Type = txtpropo.ProposalType()
+	if stat, ok := ProposalStatusName[int32(propo.Status)]; ok {
+		proposal.Status = stat
+	} else {
+		proposal.Status = propo.Status.String()
+	}
 
 	proposal.SubmitTime = propo.SubmitTime
 	proposal.VotingStartTime = propo.VotingStartTime
@@ -34,31 +45,11 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 
 	tallyResult := propo.FinalTallyResult
 	proposal.TallyResult = document.PTallyResult{
-		Yes:               tallyResult.Yes.String(),
-		Abstain:           tallyResult.Abstain.String(),
-		No:                tallyResult.No.String(),
-		NoWithVeto:        tallyResult.NoWithVeto.String(),
-		//SystemVotingPower: tallyResult.SystemVotingPower.String(),
+		Yes:        tallyResult.Yes.String(),
+		Abstain:    tallyResult.Abstain.String(),
+		No:         tallyResult.No.String(),
+		NoWithVeto: tallyResult.NoWithVeto.String(),
 	}
 
 	return
 }
-
-//func GetVotes(proposalID uint64) (pVotes []document.PVote, err error) {
-//	cdc := types.GetCodec()
-//
-//	res, err := QuerySubspace(types.KeyVotesSubspace(proposalID), "gov")
-//	if len(res) == 0 || err != nil {
-//		return pVotes, err
-//	}
-//	for i := 0; i < len(res); i++ {
-//		var vote types.SdkVote
-//		cdc.MustUnmarshalBinaryBare(res[i].Value, &vote)
-//		v := document.PVote{
-//			Voter:  vote.Voter.String(),
-//			Option: vote.Option.String(),
-//		}
-//		pVotes = append(pVotes, v)
-//	}
-//	return
-//}

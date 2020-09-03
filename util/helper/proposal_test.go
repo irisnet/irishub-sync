@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetProposal(t *testing.T) {
-	proposalId := uint64(1)
+	proposalId := uint64(8)
 	if res, err := GetProposal(proposalId); err != nil {
 		t.Fatal(err)
 	} else {

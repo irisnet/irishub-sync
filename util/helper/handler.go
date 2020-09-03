@@ -16,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irishub-sync/msg/random"
 	"github.com/irisnet/irishub-sync/msg/bank"
+	"github.com/irisnet/irishub-sync/msg/token"
 	"github.com/irisnet/irishub-sync/store/document"
 )
 
@@ -61,6 +62,9 @@ func HandleMsg(msgData sdk.Msg, tx *document.CommonTx) (*document.CommonTx, bool
 	}
 	if RandomTx, ok := random.HandleTxMsg(msgData, tx); ok {
 		return RandomTx, ok
+	}
+	if TokenTx, ok := token.HandleTxMsg(msgData, tx); ok {
+		return TokenTx, ok
 	}
 	return tx, false
 }

@@ -147,10 +147,10 @@ var (
 	MustUnmarshalDelegation = staketypes.MustUnmarshalDelegation
 	MustUnmarshalUBD        = staketypes.MustUnmarshalUBD
 
-	Bech32AccountAddrPrefix string = sdk.GetConfig().GetBech32AccountAddrPrefix()
-	RegisterCodec                  = sdk.RegisterCodec
-	AccAddressFromBech32           = sdk.AccAddressFromBech32
-	AccAddressFromHex              = sdk.AccAddressFromHex
+	Bech32AccountAddrPrefix string
+	RegisterCodec           = sdk.RegisterCodec
+	AccAddressFromBech32    = sdk.AccAddressFromBech32
+	AccAddressFromHex       = sdk.AccAddressFromHex
 	//BondStatusToString      = types.BondStatusToString
 
 	NewDecFromStr = sdk.NewDecFromStr
@@ -169,7 +169,6 @@ var (
 	//
 	//moduleBasics = module.NewBasicManager()
 )
-
 
 //
 func ParseCoins(coinsStr string) (coins store.Coins) {
