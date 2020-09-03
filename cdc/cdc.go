@@ -21,6 +21,7 @@ import (
 	"github.com/irismod/token"
 	"github.com/irismod/nft"
 	"github.com/irismod/coinswap"
+	"github.com/irismod/htlc"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/cosmos-sdk/std"
 	ctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -47,6 +48,7 @@ var (
 		coinswap.AppModuleBasic{},
 		guardian.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		htlc.AppModuleBasic{},
 	)
 )
 // 初始化账户地址前缀
