@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/store"
-	"strconv"
 )
 
 func HandleTxMsg(msgData sdk.Msg, docTx *document.CommonTx) (*document.CommonTx, bool) {
@@ -91,20 +90,14 @@ func HandleTxMsg(msgData sdk.Msg, docTx *document.CommonTx) (*document.CommonTx,
 		if len(docTx.Msgs) > 1 {
 			return docTx, true
 		}
-		shares := ParseFloat(msg.Amount.Amount.String())
 		docTx.From = msg.DelegatorAddress.String()
 		docTx.To = msg.ValidatorAddress.String()
-
-		coin := store.Coin{
-			Amount: shares,
-		}
-		docTx.Amount = []store.Coin{coin}
+		docTx.Amount = []store.Coin{types.ParseCoin(msg.Amount.String())}
 		docTx.Type = constant.TxTypeStakeBeginUnbonding
 	case new(types.MsgBeginRedelegate).Type():
 		var msg types.MsgBeginRedelegate
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-
 
 		txMsg := DocTxMsgBeginRedelegate{}
 		txMsg.BuildMsg(msg)
@@ -117,19 +110,14 @@ func HandleTxMsg(msgData sdk.Msg, docTx *document.CommonTx) (*document.CommonTx,
 		if len(docTx.Msgs) > 1 {
 			return docTx, true
 		}
-		shares := ParseFloat(msg.Amount.Amount.String())
 		docTx.From = msg.ValidatorSrcAddress.String()
 		docTx.To = msg.ValidatorDstAddress.String()
-		coin := store.Coin{
-			Amount: shares,
-		}
-		docTx.Amount = []store.Coin{coin}
+		docTx.Amount = []store.Coin{types.ParseCoin(msg.Amount.String())}
 		docTx.Type = constant.TxTypeBeginRedelegate
 	case new(types.MsgUnjail).Type():
 		var msg types.MsgUnjail
 		data, _ := json.Marshal(msgData)
 		json.Unmarshal(data, &msg)
-
 
 		txMsg := DocTxMsgUnjail{}
 		txMsg.BuildMsg(msg)
@@ -148,11 +136,4 @@ func HandleTxMsg(msgData sdk.Msg, docTx *document.CommonTx) (*document.CommonTx,
 		ok = false
 	}
 	return docTx, ok
-}
-func ParseFloat(s string) float64 {
-	f, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return 0
-	}
-	return f
 }
